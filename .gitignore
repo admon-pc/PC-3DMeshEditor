@@ -1,4 +1,4 @@
-# Prerequisites
+﻿# Prerequisites
 *.d
 
 # Object files
@@ -53,3 +53,7 @@ dkms.conf
 
 # debug information files
 *.dwo
+build/.vs
+build/editor/.vs
+build/editor/Debug
+build/editor/Release

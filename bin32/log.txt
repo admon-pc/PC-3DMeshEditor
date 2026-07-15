@@ -1,0 +1,4 @@
+Error: Failed to compile shader
+Error: Failed to compile vertex shader
+Error: Failed to compile shader
+Error: Failed to compile pixel shader
