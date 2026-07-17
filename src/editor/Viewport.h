@@ -1,0 +1,154 @@
+﻿#pragma once
+#ifndef _PCViewport_H_
+
+#include "VeiwportCamera.h"
+
+constexpr float32_t AppViewportBorderSize = 1.f;
+constexpr float32_t g_leftPanelWidth = 24.f;
+constexpr float32_t g_topPanelHeight = 24.f;
+constexpr float32_t g_rightPanelWidth = 225.f;
+constexpr float32_t g_rightPanelButtonWidth = 24.f;
+constexpr float32_t g_bottomPanelHeight = 50.f;
+
+enum class AppViewportType : uint32_t
+{
+	Scene,
+	UV
+};
+
+// Viewport can draw triangles or lines or all together
+enum class AppViewportDrawMode : uint32_t
+{
+	// draw filled triangles with material
+	Material,
+
+	// draw only line-model
+	Wireframe,
+
+	// draw all
+	MaterialWireframe
+};
+
+class AppViewport
+{
+public:
+	AppViewport(AppViewportType vt, AppViewportCameraType vct, const alVec4& rect1_0);
+	~AppViewport();
+
+	void Init();
+	void Copy(AppViewport*);
+
+	void OnWindowSize();
+	void OnDraw();
+	void OnDrawUV();
+	alGS* m_gs = 0;
+
+	bool m_isOnLeftBorder = false;
+	bool m_isOnRightBorder = false;
+	bool m_isOnTopBorder = false;
+	bool m_isOnBottomBorder = false;
+
+	alTriangle m_rayTestTiangles[2];
+
+	enum {
+		Camera_Perspective = 0,
+		Camera_Top,
+		Camera_Bottom,
+		Camera_Front,
+		Camera_Back,
+		Camera_Left,
+		Camera_Right,
+		Camera_count_,
+	};
+
+	AppViewportCamera* m_camera[Camera_count_];
+	AppViewportCamera* m_activeCamera = 0;
+
+	AppViewportType m_viewportType = AppViewportType::Scene;
+
+	AppViewportCameraType m_cameraType = AppViewportCameraType::Perspective;
+	void SetCameraType(AppViewportCameraType);
+	void SetViewportName(const char32_t*);
+
+	void UpdateAspect();
+
+	void _frustum_cull(AppSceneObject*);
+	alArray<AppSceneObject*> m_visibleObjects;
+
+	alGUIText* m_gui_text_vpName = 0;
+	//alGUIPanel* m_GUI_panel = 0;
+	void HideGUI();
+	void ShowGUI();
+	void ResetCamera();
+
+	bool m_isDrawAabbs;
+
+	int32_t m_index = 0;
+	alVec4 m_creationRect; // 0;1
+	alVec4 m_currentRect;
+	alVec2f m_currentRectSize;
+	bool m_isCursorInRect = false;
+
+	AppViewportDrawMode m_drawMode = AppViewportDrawMode::MaterialWireframe;
+	void SetDrawMode(AppViewportDrawMode);
+
+	bool m_drawGrid = true;
+	void SetDrawGrid(bool);
+	void _drawGrid();
+	void _drawScene();
+	void _drawSelectedObjectFrame();
+
+	void ToggleDrawModeMaterial();
+	void ToggleDrawModeWireframe();
+	void ToggleDrawAABB();
+
+	alVec4 GetCursorRayHitPosition(const alVec2f& cursorPosition);
+
+	void PanMove();
+	void Rotate(float32_t x, float32_t y);
+	void RotateZ();
+	void Zoom();
+	void ChangeFOV();
+};
+
+class AppViewportLayout
+{
+public:
+	AppViewportLayout() {}
+	~AppViewportLayout() {
+		for (size_t i = 0, sz = m_viewports.size(); i < sz; ++i)
+		{
+			delete m_viewports[i];
+		}
+	}
+
+	alArray<AppViewport*> m_viewports;
+	AppViewport* m_activeViewport;
+
+	void ShowGUI() {
+		for (size_t i = 0, sz = m_viewports.size(); i < sz; ++i)
+		{
+			m_viewports[i]->ShowGUI();
+		}
+	}
+	void HideGUI() {
+		for (size_t i = 0, sz = m_viewports.size(); i < sz; ++i)
+		{
+			m_viewports[i]->HideGUI();
+		}
+	}
+
+	AppViewport* Add(const alVec4& rect, AppViewportCameraType vct, AppViewportType vt) 
+	{
+		AppViewport* newViewport = new AppViewport(vt, vct, rect);
+		m_activeViewport = newViewport;
+		m_viewports.push_back(newViewport);
+		newViewport->m_index = m_viewports.size();
+		newViewport->HideGUI();
+
+		return newViewport;
+	}
+};
+
+#endif
+

@@ -1,0 +1,5 @@
+Info: Jul 16 2026 : 14:53:30
+Error: Failed to compile shader
+Error: Failed to compile vertex shader
+Error: Failed to compile shader
+Error: Failed to compile pixel shader
