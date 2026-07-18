@@ -1,5 +1,6 @@
 ﻿#pragma once
 #ifndef _PCViewport_H_
+#define _PCViewport_H_
 
 #include "VeiwportCamera.h"
 
@@ -32,14 +33,14 @@ enum class AppViewportDrawMode : uint32_t
 class AppViewport
 {
 public:
-	AppViewport(AppViewportType vt, AppViewportCameraType vct, const alVec4& rect1_0);
+	AppViewport(AppViewportType vt, AppViewportCameraType vct, const alVec4f& rect0_1);
 	~AppViewport();
 
 	void Init();
 	void Copy(AppViewport*);
 
 	void OnWindowSize();
-	void OnDraw();
+	void Draw3D();
 	void OnDrawUV();
 	alGS* m_gs = 0;
 
@@ -84,9 +85,15 @@ public:
 	bool m_isDrawAabbs;
 
 	int32_t m_index = 0;
-	alVec4 m_creationRect; // 0;1
-	alVec4 m_currentRect;
-	alVec2f m_currentRectSize;
+	
+	//alVec4 m_creationRect; // 0;1
+	//alVec4 m_currentRect;
+	//alVec2f m_currentRectSize;
+	alVec4f m_rect;
+	alVec2f m_rectSz;
+	alVec4f m_rect1_0;
+	alGSTexture* m_rtt = 0;
+
 	bool m_isCursorInRect = false;
 
 	AppViewportDrawMode m_drawMode = AppViewportDrawMode::MaterialWireframe;
@@ -138,7 +145,7 @@ public:
 		}
 	}
 
-	AppViewport* Add(const alVec4& rect, AppViewportCameraType vct, AppViewportType vt) 
+	AppViewport* Add(const alVec4f& rect, AppViewportCameraType vct, AppViewportType vt) 
 	{
 		AppViewport* newViewport = new AppViewport(vt, vct, rect);
 		m_activeViewport = newViewport;

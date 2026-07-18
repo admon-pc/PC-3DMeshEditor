@@ -1,7 +1,55 @@
 ﻿#include "editor.h"
+#include <Windows.h>
 
 Application* g_app = 0;
 alMat4 g_emptyMatrix;
+
+AppGSShaderCallback_LineModel3D::AppGSShaderCallback_LineModel3D()
+{
+}
+
+AppGSShaderCallback_LineModel3D::~AppGSShaderCallback_LineModel3D()
+{
+	AL_DESTROY(m_shader);
+}
+
+void AppGSShaderCallback_LineModel3D::OnSetShader()
+{
+}
+
+void AppGSShaderCallback_LineModel3D::OnSetConstants()
+{
+	m_cbV->MapData(&m_cbVertexData, sizeof(m_cbVertexData));
+	m_cbP->MapData(&m_cbPixelData, sizeof(m_cbPixelData));
+	m_cbV->VSSetConstantBuffers(0);
+	m_cbP->PSSetConstantBuffers(0);
+}
+
+bool AppGSShaderCallback_LineModel3D::Create(alGS* gs)
+{
+	alGSShaderCreationInfo inf;
+	inf.m_callback = this;
+	inf.m_vertexType = alMeshVertexType::Line;
+	//inf.m_vertexType = alMeshVertexType::Point;
+	//inf.m_saveShaderToFile_VS = "../data/shaders/d3d11/ScreenQuad.vs";
+	//inf.m_saveShaderToFile_PS = "../data/shaders/d3d11/ScreenQuad.ps";
+	//inf.m_saveShaderToFile_GS = "../data/shaders/d3d11/ScreenQuad.gs";
+	inf.m_shaderEntry_VS = "VSMain";
+	inf.m_shaderEntry_PS = "PSMain";
+	inf.m_shaderFile_VS = "../data/shaders/d3d11/LineModel.hlsl";
+	inf.m_shaderFile_PS = "../data/shaders/d3d11/LineModel.hlsl";
+	inf.m_shaderModel_VS = "vs_5_0";
+	inf.m_shaderModel_PS = "ps_5_0";
+
+	m_shader = gs->CreateShader(inf);
+	if (!m_shader)
+		return false;
+
+	m_cbV = m_shader->CreateConstantBuffer(sizeof(m_cbVertexData));
+	m_cbP = m_shader->CreateConstantBuffer(sizeof(m_cbPixelData));
+
+	return true;
+}
 
 void PrintLogFunction(const char* s)
 {
@@ -11,12 +59,14 @@ void PrintLogFunction(const char* s)
 Application::Application()
 {
 	g_app = this;
+	m_colorThemeCurr = &m_colorTheme;
 }
 
 Application::~Application()
 {
 	AL_DESTROY(m_blackTexture);
 	AL_DESTROY(m_transparentTexture);
+	AL_DESTROY(m_shaderLineModel);
 	AL_DESTROY(m_gs);
 	AL_DESTROY(m_windowCallback);
 
@@ -67,6 +117,12 @@ bool Application::OnCreate(const char* videoDriver)
 	m_gs = alLib::CreateGS(alVideoDriverType::Direct3D11);
 	if (!m_gs->Init(m_mainWindow))
 		return false;
+	{
+		m_shaderLineModel = alCreate<AppGSShaderCallback_LineModel3D>();
+		if (!m_shaderLineModel->Create(m_gs))
+			return false;
+	}
+
 	m_gs->GetDepthRange(&m_gpuDepthRange);
 	{
 		alImage img;
@@ -110,12 +166,32 @@ void Application::UpdateWindowTitle()
 void Application::MainLoop()
 {
 	auto dt = alLib::GetDeltaTime();
+	auto currThread = GetCurrentThread();
 	while (m_run)
 	{
 		alLib::Update();
 		m_dt = *dt;
 		auto input = alLib::GetInput();
 		m_isCursorMove = (input->m_mouseDelta.x != 0.f) || (input->m_mouseDelta.y != 0.f);
+
+		WaitForSingleObject(currThread, 10);
+
+		UpdateViewports();
+
+		m_gs->BeginDraw();
+		m_gs->ClearAll();
+
+		DrawViewports3D();
+
+		m_gs->BeginDrawGUI();
+		DrawViewports();
+		//m_gs->BeginDrawGUI(false);
+
+		//m_GUI->m_context->DrawAll();
+		m_gs->EndDrawGUI();
+
+		m_gs->EndDraw();
+		m_gs->SwapBuffers();
 	}
 }
 
@@ -134,7 +210,7 @@ void Application::PrintLog(const char* s)
 	}
 }
 
-void Application::GetRayFromScreen(alRay* ray, const alVec2f& coords, const alVec4& viewportRect, const alMat4& VPInvert)
+void Application::GetRayFromScreen(alRay* ray, const alVec2f& coords, const alVec4f& viewportRect, const alMat4& VPInvert)
 {
 	AL_ASSERT_ST(ray);
 	alVec2f point;
@@ -416,4 +492,21 @@ void Application::SetMouseMode(AppMouseMode mm)
 	case AppMouseMode::Other:
 		break;
 	}
+}
+
+void Application::OnWindowSizeChanged()
+{
+	if (m_gs)
+	{
+		m_gs->UpdateWindowData();
+	}
+	if (m_activeViewportLayout)
+	{
+		for (size_t i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
+		{
+			auto viewport = m_activeViewportLayout->m_viewports[i];
+			viewport->OnWindowSize();
+		}
+	}
+
 }

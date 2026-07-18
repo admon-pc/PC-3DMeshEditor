@@ -1,5 +1,6 @@
 ﻿#pragma once
 #ifndef _PCApp_H_
+#define _PCApp_H_
 
 #include "SelectionFrustum.h"
 
@@ -7,7 +8,33 @@
 #define AppViewportLayout_Standart 1
 #define AppViewportLayout_Count 2
 
+class AppGSShaderCallback_LineModel3D : public alGSShaderCallback
+{
+public:
+	AppGSShaderCallback_LineModel3D();
+	virtual ~AppGSShaderCallback_LineModel3D();
 
+	virtual void OnSetShader() override;
+	virtual void OnSetConstants() override;
+
+	bool Create(alGS*);
+
+	alGSShader* m_shader = 0;
+	alGSShaderConstantBuffer* m_cbV = 0;
+	alGSShaderConstantBuffer* m_cbP = 0;
+
+	struct cbVertex
+	{
+		alMat4 WVP;
+	}
+	m_cbVertexData;
+
+	struct cbPixel
+	{
+		alColor BaseColor;
+	}
+	m_cbPixelData;
+};
 
 enum class AppCursorType : uint32_t
 {
@@ -119,6 +146,12 @@ public:
 	virtual void OnClose(alSystemWindow* window) override;
 };
 
+struct AppColorTheme
+{
+	alColor m_windowClearColor = alColor(0.41f);
+	alColor m_viewportColor = alColor(0.35f);
+	alColor m_viewportBorder = ColorDarkGray;
+};
 
 class Application
 {
@@ -179,6 +212,9 @@ class Application
 	alGSMesh* m_gridModel_left2 = 0;
 	void _initGridMesh();
 
+	alRay m_screenRayOnClick;
+	alRay m_screenRayCurrent;
+
 	AppSelectionFrust m_selectionFrust;
 
 	// every viewport will set this when drawing
@@ -192,6 +228,7 @@ class Application
 	void _initViewports();
 	void UpdateViewports();
 	//miPopup* _getPopupInViewport();
+	void DrawViewports3D();
 	void DrawViewports();
 	void _callViewportOnWindowSize();
 	// надо определить первый клик в зоне вьюпорта. если был то true. потом двигать камеру и объекты
@@ -215,6 +252,11 @@ class Application
 	float32_t m_UVAngle = 0.f;
 	void UVSelectAll();
 
+	AppColorTheme m_colorTheme;
+	AppColorTheme* m_colorThemeCurr = 0;
+
+	AppGSShaderCallback_LineModel3D* m_shaderLineModel = 0;
+
 public:
 	Application();
 	~Application();
@@ -224,7 +266,9 @@ public:
 	void PrintLog(const char* s);
 	void UpdateWindowTitle();
 
-	void GetRayFromScreen(alRay* ray, const alVec2f& coords, const alVec4& viewportRect, const alMat4& VPInvert);
+	void GetRayFromScreen(alRay* ray, const alVec2f& coords, const alVec4f& viewportRect, const alMat4& VPInvert);
+
+	void OnWindowSizeChanged();
 };
 
 #endif

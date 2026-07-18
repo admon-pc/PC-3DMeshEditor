@@ -12,17 +12,14 @@ SystemWindowCallback::~SystemWindowCallback()
 
 void SystemWindowCallback::OnSizeChanged(alSystemWindow*)
 {
-	if (m_app->m_gs)
-	{
-		m_app->m_gs->UpdateWindowData();
-	}
+	m_app->OnWindowSizeChanged();
 }
 
 alVec2i SystemWindowCallback::OnGPUUpdateSize(alSystemWindow* w)
 {
 	alVec2i s;
-	s.x = w->m_clientSize.x / 2;
-	s.y = w->m_clientSize.y / 2;
+	s.x = w->m_clientSize.x;
+	s.y = w->m_clientSize.y;
 	return s;
 }
 

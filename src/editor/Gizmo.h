@@ -1,5 +1,6 @@
 ﻿#pragma once
 #ifndef _PCGizmo_H_
+#define _PCGizmo_H_
 
 class Application;
 class AppViewport;

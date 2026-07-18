@@ -12,7 +12,7 @@ class AppSceneObject;
 class Application;
 class AppVertex;
 class AppEdge;
-class AppViewportLayou
+class AppViewportLayout;
 
 #include "Application.h"
 #include "Viewport.h"

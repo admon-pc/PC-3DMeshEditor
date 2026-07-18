@@ -1,5 +1,6 @@
 ﻿#pragma once
 #ifndef _PCViewportCam_H_
+#define _PCViewportCam_H_
 
 // Each viewport have something like camera
 enum class AppViewportCameraType : uint32_t

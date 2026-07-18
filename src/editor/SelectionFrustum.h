@@ -1,6 +1,6 @@
 ﻿#pragma once
 #ifndef _PCSFRUST_H_
-
+#define _PCSFRUST_H_
 
 /*
 e   end
@@ -9,6 +9,8 @@ e   end
 1---0
 o   origin
 */
+//....
+
 class AppSelectionFrust
 {
 public:
@@ -46,7 +48,7 @@ public:
 	Data m_data;
 
 	 void CreateWithAabb(const alAabb& aabb);
-	 void CreateWithFrame(const alVec4& frame, const alVec4& vp_rect, const alMat4& VP_invert);
+	 void CreateWithFrame(const alVec4& frame, const alVec4f& vp_rect, const alMat4& VP_invert);
 	 bool PointInFrust(const alVec4& v);
 	 bool LineInFrust(const alVec4& p1, const alVec4& p2);
 	// using in LineInFrust

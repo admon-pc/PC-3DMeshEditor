@@ -79,7 +79,7 @@ void AppSelectionFrust::CreateWithAabb(const alAabb& aabb)
 	m_data.m_FrontN.Normalize2();
 }
 
-void AppSelectionFrust::CreateWithFrame(const alVec4& frame, const alVec4& vp_rect, const alMat4& VP_invert)
+void AppSelectionFrust::CreateWithFrame(const alVec4& frame, const alVec4f& vp_rect, const alMat4& VP_invert)
 {
 	// get 4 rays from screen
 

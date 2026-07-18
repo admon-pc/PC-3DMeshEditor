@@ -9,19 +9,19 @@ void AppViewport_onClick_viewport(alGUIElement* elem)
 //	g_app->ShowPopupAtCursor(g_app->m_popup_ViewportParameters);
 }
 
-AppViewport::AppViewport(AppViewportType vt, AppViewportCameraType vct, const alVec4& rect1_0) {
+AppViewport::AppViewport(AppViewportType vt, AppViewportCameraType vct, const alVec4f& rect1_0) {
 	m_viewportType = vt;
-	m_creationRect = rect1_0;
+	m_rect1_0 = rect1_0;
 	m_isDrawAabbs = false;
 	m_isOnLeftBorder = false;
 	m_isOnRightBorder = false;
 	m_isOnTopBorder = false;
 	m_isOnBottomBorder = false;
 
-	if (m_creationRect.x == 0.f) m_isOnLeftBorder = true;
-	if (m_creationRect.y == 0.f) m_isOnTopBorder = true;
-	if (m_creationRect.z == 1.f) m_isOnRightBorder = true;
-	if (m_creationRect.w == 1.f) m_isOnBottomBorder = true;
+	if (m_rect1_0.x == 0.f) m_isOnLeftBorder = true;
+	if (m_rect1_0.y == 0.f) m_isOnTopBorder = true;
+	if (m_rect1_0.z == 1.f) m_isOnRightBorder = true;
+	if (m_rect1_0.w == 1.f) m_isOnBottomBorder = true;
 
 	m_gs = g_app->m_gs;
 	//									old
@@ -92,8 +92,8 @@ AppViewport::AppViewport(AppViewportType vt, AppViewportCameraType vct, const al
 		break;
 	}
 
-	m_currentRect = m_creationRect;
-	m_currentRectSize = alVec2f(800.f, 600.f);
+	/*m_currentRect = m_creationRect;
+	m_currentRectSize = alVec2f(800.f, 600.f);*/
 
 	/*m_GUI_panel = g_app->m_GUI->m_context->CreatePanel(alVec2f(), alVec2f());
 	m_GUI_panel->m_ignoreInput = true;
@@ -141,6 +141,7 @@ AppViewport::AppViewport(AppViewportType vt, AppViewportCameraType vct, const al
 AppViewport::~AppViewport() {
 	//if (m_GUI_panel)
 	//	g_app->m_GUI->m_context->DeleteElement(m_GUI_panel);
+	AL_DESTROY(m_rtt);
 
 
 	for (int32_t i = 0; i < Camera_count_; ++i)
@@ -242,25 +243,36 @@ void AppViewport::OnWindowSize()
 	float32_t windowSizeX_1 = 1.f / g_app->m_mainWindow->m_clientSize.x;
 	float32_t windowSizeY_1 = 1.f / g_app->m_mainWindow->m_clientSize.y;
 
-	m_currentRect = m_creationRect;
+	m_rect = m_rect1_0;
 
-	if (m_creationRect.x > 0.f) m_currentRect.x = m_creationRect.x / windowSizeX_1;
-	if (m_creationRect.z > 0.f) m_currentRect.z = m_creationRect.z / windowSizeX_1;
-	if (m_creationRect.y > 0.f) m_currentRect.y = m_creationRect.y / windowSizeY_1;
-	if (m_creationRect.w > 0.f) m_currentRect.w = m_creationRect.w / windowSizeY_1;
+	if (m_rect1_0.x > 0.f) m_rect.x = m_rect1_0.x / windowSizeX_1;
+	if (m_rect1_0.z > 0.f) m_rect.z = m_rect1_0.z / windowSizeX_1;
+	if (m_rect1_0.y > 0.f) m_rect.y = m_rect1_0.y / windowSizeY_1;
+	if (m_rect1_0.w > 0.f) m_rect.w = m_rect1_0.w / windowSizeY_1;
 
-	m_currentRect.x += AppViewportBorderSize;
-	m_currentRect.y += AppViewportBorderSize;
-	m_currentRect.z -= AppViewportBorderSize;
-	m_currentRect.w -= AppViewportBorderSize;
+	m_rect.x += AppViewportBorderSize;
+	m_rect.y += AppViewportBorderSize;
+	m_rect.z -= AppViewportBorderSize;
+	m_rect.w -= AppViewportBorderSize;
 
-	if (m_isOnLeftBorder) m_currentRect.x += g_leftPanelWidth;
-	if (m_isOnRightBorder) m_currentRect.z -= g_rightPanelWidth;
-	if (m_isOnTopBorder) m_currentRect.y += g_topPanelHeight;
-	if (m_isOnBottomBorder) m_currentRect.w -= g_bottomPanelHeight;
+	if (m_isOnLeftBorder) m_rect.x += g_leftPanelWidth;
+	if (m_isOnRightBorder) m_rect.z -= g_rightPanelWidth;
+	if (m_isOnTopBorder) m_rect.y += g_topPanelHeight;
+	if (m_isOnBottomBorder) m_rect.w -= g_bottomPanelHeight;
 
-	m_currentRectSize.x = m_currentRect.z - m_currentRect.x;
-	m_currentRectSize.y = m_currentRect.w - m_currentRect.y;
+	m_rectSz.x = m_rect.z - m_rect.x;
+	m_rectSz.y = m_rect.w - m_rect.y;
+
+	AL_DESTROY(m_rtt);
+	alGSTextureInfo ti;
+	ti.m_width = m_rectSz.x;
+	ti.m_height = m_rectSz.y;
+	if (!ti.m_width)ti.m_width = 1;
+	if (!ti.m_height)ti.m_height = 1;
+	m_rtt = m_gs->CreateRTT(&ti);
+
+	//m_currentRectSize.x = m_currentRect.z - m_currentRect.x;
+	//m_currentRectSize.y = m_currentRect.w - m_currentRect.y;
 
 	/*m_GUI_panel->m_buildArea = m_currentRect;
 	m_GUI_panel->m_clipArea = m_currentRect;
@@ -274,7 +286,7 @@ void AppViewport::OnWindowSize()
 
 void AppViewport::UpdateAspect() {
 	if (m_activeCamera)
-		m_activeCamera->m_aspect = m_currentRectSize.x / m_currentRectSize.y;
+		m_activeCamera->m_aspect = m_rectSz.x / m_rectSz.y;
 }
 
 void AppViewport::_frustum_cull(AppSceneObject* o)
@@ -539,8 +551,12 @@ void AppViewport::OnDrawUV()
 	//}
 }
 
-void AppViewport::OnDraw()
+void AppViewport::Draw3D()
 {
+	m_gs->SetRenderTarget(m_rtt);
+	m_gs->SetViewport(0,0,m_rectSz.x, m_rectSz.y);
+	m_gs->SetClearColor(ColorTransparent);
+	m_gs->ClearAll();
 	//m_activeCamera->Update();
 	//miSetEyePosition(&m_activeCamera->m_positionCamera);
 
@@ -565,8 +581,8 @@ void AppViewport::OnDraw()
 	//}
 	//else
 	//{
-	//	if (m_drawGrid)
-	//		_drawGrid();
+		if (m_drawGrid)
+			_drawGrid();
 
 	//	g_app->m_gs->UseDepth(true);
 
@@ -681,10 +697,10 @@ alVec4 AppViewport::GetCursorRayHitPosition(const alVec2f& cursorPosition)
 {
 	alRay ray;
 
-	g_app->GetRayFromScreen(&ray,
+	/*g_app->GetRayFromScreen(&ray,
 		cursorPosition,
 		m_currentRect,
-		m_activeCamera->m_viewProjectionInvertMatrix);
+		m_activeCamera->m_viewProjectionInvertMatrix);*/
 
 	alVec4 ip;
 
@@ -736,12 +752,13 @@ alVec4 AppViewport::GetCursorRayHitPosition(const alVec2f& cursorPosition)
 
 void AppViewport::_drawGrid() 
 {
-	alLib::SetMatrix(alMatrixType::World, &g_emptyMatrix);
+	m_gs->SetShader(g_app->m_shaderLineModel->m_shader);
+
+	//alLib::SetMatrix(alMatrixType::World, &g_emptyMatrix);
 
 	static alMat4 WVP;
 	WVP = m_activeCamera->m_projectionMatrix * m_activeCamera->m_viewMatrix * g_emptyMatrix;
-	alLib::SetMatrix(alMatrixType::WorldViewProjection, &WVP);
-
+	//alLib::SetMatrix(alMatrixType::WorldViewProjection, &WVP);
 	bool isCameraLowerThanWorld = false;
 	if (m_activeCamera->m_positionCamera.y < 0.f)
 		isCameraLowerThanWorld = true;
@@ -796,7 +813,11 @@ void AppViewport::_drawGrid()
 
 //	miSetMaterial(&g_app->m_gridModelMaterial);
 	m_gs->EnableDepth();
+	m_gs->SetPrimitiveType(alGSPrimitiveType::Line);
+	g_app->m_shaderLineModel->m_cbVertexData.WVP = WVP;
+	g_app->m_shaderLineModel->m_cbPixelData.BaseColor = ColorWhite;
 	m_gs->Draw();
+	m_gs->SetPrimitiveType(alGSPrimitiveType::Triangle);
 }
 
 void AppViewport::_drawSelectedObjectFrame()
