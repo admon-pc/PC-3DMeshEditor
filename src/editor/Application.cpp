@@ -61,7 +61,7 @@ void Application::GUI::CreateButtons()
 	btn->m_position.x = position;
 	btn->m_position.y = 0;
 	btn->m_size.Set(32.f, 32.f);
-	m_panel->AddElement(btn);
+	m_panel->AddElement(btn, true);
 	position += 32;
 
 	btn = alCreate<AppButtonIcon>(m_context, m_ta, 2);
@@ -70,7 +70,7 @@ void Application::GUI::CreateButtons()
 	btn->m_position.x = position;
 	btn->m_position.y = 0;
 	btn->m_size.Set(32.f, 32.f);
-	m_panel->AddElement(btn);
+	m_panel->AddElement(btn, true);
 	position += 32;
 
 	btn = alCreate<AppButtonIcon>(m_context, m_ta, 3);
@@ -79,13 +79,11 @@ void Application::GUI::CreateButtons()
 	btn->m_position.x = position;
 	btn->m_position.y = 0;
 	btn->m_size.Set(32.f, 32.f);
-	m_panel->AddElement(btn);
+	m_panel->AddElement(btn, true);
 	position += 32;
 
-
-
-	m_panel->m_size.Set(g_app->m_mainWindow->m_clientSize.x,
-		32);
+	m_panel->m_size.Set((float32_t)g_app->m_mainWindow->m_clientSize.x,
+		32.f);
 	m_panel->Rebuild();
 
 	auto bg1 = alLib::GetDefaultColorTheme()->m_panel_bg1;
@@ -225,6 +223,7 @@ bool Application::OnCreate(const char* videoDriver)
 		case AppCursorType::SelectObject: m_cursors[i] = alLib::CreateCursor(alCursorType::Arrow, "../data/cursors/aero-no-tail/prec.cur"); break;
 		case AppCursorType::SelectVertex: m_cursors[i] = alLib::CreateCursor(alCursorType::Arrow, "../data/cursors/aero-no-tail/prec.cur"); break;
 		case AppCursorType::Rotate: m_cursors[i] = alLib::CreateCursor(alCursorType::Arrow, "../data/cursors/rotate.cur"); break;
+		case AppCursorType::HandGrab: m_cursors[i] = alLib::CreateCursor(alCursorType::Arrow, "../data/cursors/xuldll/grab.cur"); break;
 		default:break;
 		}
 
@@ -328,6 +327,7 @@ bool Application::OnCreate(const char* videoDriver)
 		m_gui->m_taTexture ? m_gui->m_taTexture : m_whiteTexture);
 	m_gui->CreateButtons();
 
+	_callViewportOnWindowSize();
 	return true;
 }
 
@@ -359,13 +359,15 @@ void Application::MainLoop()
 {
 	auto dt = alLib::GetDeltaTime();
 	auto currThread = GetCurrentThread();
+	auto input = alLib::GetInput();
 	while (m_run)
 	{
 	//	SendMessage(m_hwndTT, TTM_UPDATE, (WPARAM)TRUE, (LPARAM)&g_toolTipInfo);
-		
+
 		alLib::Update();
+		m_currentCursor = AppCursorType::Arrow;
+
 		m_dt = *dt;
-		auto input = alLib::GetInput();
 		m_isCursorMove = (input->m_mouseDelta.x != 0.f) || (input->m_mouseDelta.y != 0.f);
 
 		WaitForSingleObject(currThread, 10);
@@ -405,6 +407,8 @@ void Application::MainLoop()
 
 		m_gs->EndDraw();
 		m_gs->SwapBuffers();
+
+		OnSetCursor();
 	}
 }
 
@@ -711,7 +715,7 @@ void Application::OnWindowSizeChanged()
 {
 	if (m_gui)
 	{
-		m_gui->m_panel->m_size.x = m_mainWindow->m_clientSize.x;
+		m_gui->m_panel->m_size.x = (float32_t)m_mainWindow->m_clientSize.x;
 		m_gui->m_panel->Rebuild();
 	}
 
@@ -721,12 +725,7 @@ void Application::OnWindowSizeChanged()
 	}
 	if (m_activeViewportLayout)
 	{
-
-		for (size_t i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
-		{
-			auto viewport = m_activeViewportLayout->m_viewports[i];
-			viewport->OnWindowSize();
-		}
+		_callViewportOnWindowSize();
 	}
 
 }
@@ -783,4 +782,9 @@ void Application::ProcessShortcuts3D()
 	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::editMode_Vertex)) this->ToggleEditMode(miEditMode::Vertex);
 	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::editMode_Edge)) this->ToggleEditMode(miEditMode::Edge);
 	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::editMode_Polygon)) this->ToggleEditMode(miEditMode::Polygon);
+}
+
+void Application::OnSetCursor()
+{
+	m_cursors[(uint32_t)m_currentCursor]->Activate();
 }

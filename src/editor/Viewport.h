@@ -6,7 +6,7 @@
 
 constexpr float32_t AppViewportBorderSize = 1.f;
 constexpr float32_t g_leftPanelWidth = 24.f;
-constexpr float32_t g_topPanelHeight = 24.f;
+constexpr float32_t g_topPanelHeight = 32.f;
 constexpr float32_t g_rightPanelWidth = 225.f;
 constexpr float32_t g_rightPanelButtonWidth = 24.f;
 constexpr float32_t g_bottomPanelHeight = 50.f;
@@ -122,7 +122,8 @@ class AppViewportLayout
 {
 public:
 	AppViewportLayout() {}
-	~AppViewportLayout() {
+	~AppViewportLayout()
+	{
 		for (size_t i = 0, sz = m_viewports.size(); i < sz; ++i)
 		{
 			delete m_viewports[i];
@@ -130,15 +131,17 @@ public:
 	}
 
 	alArray<AppViewport*> m_viewports;
-	AppViewport* m_activeViewport;
+	AppViewport* m_activeViewport = 0;
 
-	void ShowGUI() {
+	void ShowGUI()
+	{
 		for (size_t i = 0, sz = m_viewports.size(); i < sz; ++i)
 		{
 			m_viewports[i]->ShowGUI();
 		}
 	}
-	void HideGUI() {
+	void HideGUI()
+	{
 		for (size_t i = 0, sz = m_viewports.size(); i < sz; ++i)
 		{
 			m_viewports[i]->HideGUI();
@@ -152,6 +155,8 @@ public:
 		m_viewports.push_back(newViewport);
 		newViewport->m_index = m_viewports.size();
 		newViewport->HideGUI();
+		newViewport->ResetCamera();
+		newViewport->UpdateAspect();
 
 		return newViewport;
 	}

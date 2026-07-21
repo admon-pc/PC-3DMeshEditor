@@ -150,11 +150,13 @@ AppViewport::~AppViewport() {
 	}
 }
 
-void AppViewport::Copy(AppViewport* other) {
+void AppViewport::Copy(AppViewport* other) 
+{
 	this->SetCameraType(other->m_cameraType);
 	this->SetDrawGrid(other->m_drawGrid);
 	this->SetDrawMode(other->m_drawMode);
 	m_activeCamera->Copy(other->m_activeCamera);
+	m_activeCamera->Update();
 }
 
 void AppViewport::Init() 
@@ -279,6 +281,7 @@ void AppViewport::OnWindowSize()
 	m_GUI_panel->m_sensorArea = m_currentRect;
 	m_GUI_panel->UpdateTransform();*/
 	UpdateAspect();
+	m_activeCamera->Update();
 
 	/*printf("%f %f %f %f - %f\n",
 		m_currentRect.x, m_currentRect.y, m_currentRect.z, m_currentRect.w, windowSizeX_1);*/

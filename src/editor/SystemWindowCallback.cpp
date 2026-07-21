@@ -37,3 +37,7 @@ void SystemWindowCallback::OnClose(alSystemWindow* window)
 	}
 }
 
+void SystemWindowCallback::OnSetCursor()
+{
+	m_app->OnSetCursor();
+}

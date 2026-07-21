@@ -9,7 +9,7 @@ void UVCameraOnMoveToSelection(AppViewportCamera* c)
 
 void Application::_initViewports()
 {
-	const float32_t midX = 0.4;
+	const float32_t midX = 0.4f;
 	for (int32_t i = 0; i < AppViewportLayout_Count; ++i)
 	{
 		m_viewportLayouts[i] = new AppViewportLayout;
@@ -329,44 +329,54 @@ void Application::UpdateViewports()
 //			this->SetMouseMode(AppMouseMode::CommonMode);
 //	}
 
-	if (m_isCursorMove && m_isViewportInFocus)
+	//if (m_isViewportInFocus)
 	{
-		m_cursorPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(input->m_cursorCoordsForGUI);
-
-		if (m_gizmoMode == AppGizmoMode::NoTransform)
+		if (m_isCursorMove)
 		{
-			if ((m_mouseMode == AppMouseMode::CommonMode) ||
-				(m_mouseMode == AppMouseMode::Other))
+			m_cursorPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(input->m_cursorCoordsForGUI);
+
+			if (m_gizmoMode == AppGizmoMode::NoTransform)
 			{
-				//if (input->m_isLMBHold)
-				//	m_isSelectByRectangle = true;
+				if ((m_mouseMode == AppMouseMode::CommonMode) ||
+					(m_mouseMode == AppMouseMode::Other))
+				{
+					//if (input->m_isLMBHold)
+					//	m_isSelectByRectangle = true;
+				}
+
+				if (
+					(m_mouseMode == AppMouseMode::ClickAndDrag && input->m_isLMBHold)
+					|| (m_mouseMode == AppMouseMode::SelectVertex && input->m_isLMBHold))
+				{
+					//if (!m_isClickAndDrag)
+					//	m_isClickAndDrag = true;
+				}
 			}
 
-			if (
-				(m_mouseMode == AppMouseMode::ClickAndDrag && input->m_isLMBHold)
-				|| (m_mouseMode == AppMouseMode::SelectVertex && input->m_isLMBHold))
-			{
-				//if (!m_isClickAndDrag)
-				//	m_isClickAndDrag = true;
-			}
 		}
-
 		if (input->m_isRMBHold)
 		{
 			switch (input->m_kbm)
 			{
 			case alKeyboardModifier::Ctrl:
-				m_activeViewportLayout->m_activeViewport->PanMove();
+				if (m_isCursorMove)
+					m_activeViewportLayout->m_activeViewport->PanMove();
+				m_currentCursor = AppCursorType::HandGrab;
 				break;
 			case alKeyboardModifier::CtrlAlt:
 			case alKeyboardModifier::Alt:
-				m_activeViewportLayout->m_activeViewport->Rotate(input->m_mouseDelta.x, input->m_mouseDelta.y);
+				if (m_isCursorMove)
+					m_activeViewportLayout->m_activeViewport->Rotate(input->m_mouseDelta.x, input->m_mouseDelta.y);
+				m_currentCursor = AppCursorType::Rotate;
 				break;
 			case alKeyboardModifier::ShiftAlt:
-				m_activeViewportLayout->m_activeViewport->ChangeFOV();
+				if (m_isCursorMove)
+					m_activeViewportLayout->m_activeViewport->ChangeFOV();
 				break;
 			case alKeyboardModifier::ShiftCtrlAlt:
-				m_activeViewportLayout->m_activeViewport->RotateZ();
+				if (m_isCursorMove)
+					m_activeViewportLayout->m_activeViewport->RotateZ();
+				m_currentCursor = AppCursorType::Rotate;
 				break;
 			}
 		}

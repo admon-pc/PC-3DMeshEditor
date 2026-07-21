@@ -1,0 +1,12 @@
+﻿[SizeAll]
+Path=grab.cur
+
+[SizeWE]
+Path=col-resize.cur
+
+[SizeNS]
+Path=row-resize.cur
+
+[IBeam]
+Path=vertical-text.cur
+

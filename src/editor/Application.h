@@ -79,6 +79,7 @@ enum class AppCursorType : uint32_t
 	SelectObject,
 	SelectVertex,
 	Rotate,
+	HandGrab,
 	_count
 };
 
@@ -168,6 +169,7 @@ public:
 	virtual alVec2i OnGPUUpdateSize(alSystemWindow* w) override;
 	virtual alVec2i OnMinMaxInfo(alSystemWindow* w) override;
 	virtual void OnClose(alSystemWindow* window) override;
+	virtual void OnSetCursor() override;
 };
 
 struct AppColorTheme
@@ -188,6 +190,7 @@ class Application
 
 	FILE* m_fileLog = 0;
 	alCursor* m_cursors[(uint32_t)AppCursorType::_count];
+	AppCursorType m_currentCursor = AppCursorType::Arrow;
 
 	bool m_run = true;
 	float32_t m_dt = 0.f;
@@ -347,6 +350,7 @@ public:
 	void MainLoop();
 	void PrintLog(const char* s);
 	void UpdateWindowTitle();
+	void OnSetCursor();
 
 	void GetRayFromScreen(alRay* ray, const alVec2f& coords, const alVec4f& viewportRect, const alMat4& VPInvert);
 
