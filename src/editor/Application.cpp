@@ -1,8 +1,97 @@
 ﻿#include "editor.h"
 #include <Windows.h>
+#include <commctrl.h>
 
 Application* g_app = 0;
 alMat4 g_emptyMatrix;
+TOOLINFO g_toolTipInfo;
+
+void AppButtonIcon::OnMouseEnter()
+{
+
+	auto input = alLib::GetInput();
+	Application::GUI* gui = (Application::GUI*)GetUserData();
+
+	g_app->m_toolTipText = L"...";
+	switch (GetID())
+	{
+	case Application::GUI::elementID_btnGizmoSelect:
+		g_app->m_toolTipText = L"Select mode";
+		break;
+	case Application::GUI::elementID_btnGizmoMove:
+		g_app->m_toolTipText = L"Move";
+		break;
+	case Application::GUI::elementID_btnGizmoRotate:
+		g_app->m_toolTipText = L"Rotate";
+		break;
+	case Application::GUI::elementID_btnGizmoScale:
+		g_app->m_toolTipText = L"Scale";
+		break;
+	}
+	g_app->ShowToolTip();
+}
+void AppButtonIcon::OnMouseLeave()
+{
+	g_app->HideToolTip();
+}
+
+void Application::GUI::CreateButtons()
+{
+	m_panel = m_context->GetNewPanel();
+	m_panel->m_position.Set(0.f, 0.f);
+
+	m_ta->AddUV(alVec2u(0, 0), alVec2u(32, 32));
+	m_ta->AddUV(alVec2u(32 *1, 0), alVec2u(32 , 32));
+	m_ta->AddUV(alVec2u(32 *2, 0), alVec2u(32, 32));
+	m_ta->AddUV(alVec2u(32 *3, 0), alVec2u(32 , 32));
+
+	float32_t position = 0.f;
+	AppButtonIcon* btn = alCreate<AppButtonIcon>(m_context, m_ta, 0);
+	btn->SetUserData(this);
+	btn->SetID(elementID_btnGizmoSelect);
+	btn->m_position.x = position;
+	btn->m_position.y = 0;
+	btn->m_size.Set(32.f,32.f);
+	m_panel->AddElement(btn, true);
+	position += 32;
+
+	btn = alCreate<AppButtonIcon>(m_context, m_ta, 1);
+	btn->SetUserData(this);
+	btn->SetID(elementID_btnGizmoMove);
+	btn->m_position.x = position;
+	btn->m_position.y = 0;
+	btn->m_size.Set(32.f, 32.f);
+	m_panel->AddElement(btn);
+	position += 32;
+
+	btn = alCreate<AppButtonIcon>(m_context, m_ta, 2);
+	btn->SetUserData(this);
+	btn->SetID(elementID_btnGizmoRotate);
+	btn->m_position.x = position;
+	btn->m_position.y = 0;
+	btn->m_size.Set(32.f, 32.f);
+	m_panel->AddElement(btn);
+	position += 32;
+
+	btn = alCreate<AppButtonIcon>(m_context, m_ta, 3);
+	btn->SetUserData(this);
+	btn->SetID(elementID_btnGizmoScale);
+	btn->m_position.x = position;
+	btn->m_position.y = 0;
+	btn->m_size.Set(32.f, 32.f);
+	m_panel->AddElement(btn);
+	position += 32;
+
+
+
+	m_panel->m_size.Set(g_app->m_mainWindow->m_clientSize.x,
+		32);
+	m_panel->Rebuild();
+
+	auto bg1 = alLib::GetDefaultColorTheme()->m_panel_bg1;
+	alLib::GetDefaultColorTheme()->m_panel_bg1 = alLib::GetDefaultColorTheme()->m_panel_bg2;
+	alLib::GetDefaultColorTheme()->m_panel_bg2 = bg1;
+}
 
 AppGSShaderCallback_LineModel3D::AppGSShaderCallback_LineModel3D()
 {
@@ -59,19 +148,55 @@ void PrintLogFunction(const char* s)
 Application::Application()
 {
 	g_app = this;
+	m_input = alLib::GetInput();
 	m_colorThemeCurr = &m_colorTheme;
 }
 
 Application::~Application()
 {
+	AL_DESTROY(m_gui);
+	
+
+	AL_DESTROY(m_shortcutManager);
 	AL_DESTROY(m_blackTexture);
 	AL_DESTROY(m_transparentTexture);
 	AL_DESTROY(m_shaderLineModel);
 	AL_DESTROY(m_gs);
 	AL_DESTROY(m_windowCallback);
 
+	DestroyWindow(m_hwndTT);
+
 	if (m_fileLog)
 		fclose(m_fileLog);
+}
+void Application::HideToolTip()
+{
+	SendMessage(m_hwndTT, TTM_TRACKACTIVATE, (WPARAM)FALSE, (LPARAM)&g_toolTipInfo);
+	m_showToolTip = false;
+	m_tooltipTimer = 0.f;
+}
+void Application::ShowToolTip()
+{
+	m_showToolTip = true;
+}
+void Application::ShowToolTip(int x, int y, const wchar_t* text)
+{
+	m_toolTipBuffer.clear();
+	if (text)
+	{
+		m_toolTipBuffer = text;
+		alSystemWindowOSDataWin32* w32 = (alSystemWindowOSDataWin32*)m_mainWindow->GetOSData();
+
+		POINT pt = { x, y };
+		ClientToScreen(w32->m_hwnd, &pt);
+		g_toolTipInfo.lpszText = m_toolTipBuffer.data();
+
+		SendMessage(m_hwndTT, TTM_UPDATETIPTEXTW, (WPARAM)TRUE, (LPARAM)&g_toolTipInfo);
+		SendMessage(m_hwndTT, TTM_SETDELAYTIME, (WPARAM)TTDT_INITIAL, (LPARAM)1000);
+		SendMessage(m_hwndTT, TTM_SETDELAYTIME, (WPARAM)TTDT_RESHOW, (LPARAM)1000);
+		SendMessage(m_hwndTT, TTM_TRACKACTIVATE, (WPARAM)TRUE, (LPARAM)&g_toolTipInfo);
+		SendMessage(m_hwndTT, TTM_TRACKPOSITION, 0, MAKELPARAM(pt.x, pt.y));
+	}
 }
 
 bool Application::OnCreate(const char* videoDriver)
@@ -112,6 +237,55 @@ bool Application::OnCreate(const char* videoDriver)
 	m_mainWindow = alLib::CreateSystemWindow(m_windowCallback);
 	if (!m_mainWindow)
 		return false;
+	{
+		HMENU menu_file = CreateMenu();
+		AppendMenu(menu_file, MF_STRING, AppMenuID_FILE_NEW_SCENE, L"New Scene");
+		AppendMenu(menu_file, MF_SEPARATOR, 0, 0);
+		AppendMenu(menu_file, MF_STRING, AppMenuID_FILE_OPEN_SCENE, L"Open");
+		AppendMenu(menu_file, MF_SEPARATOR, 0, 0);
+		AppendMenu(menu_file, MF_STRING, AppMenuID_FILE_SAVE_SCENE, L"Save");
+		AppendMenu(menu_file, MF_STRING, AppMenuID_FILE_SAVEAS_SCENE, L"Save As...");
+		AppendMenu(menu_file, MF_SEPARATOR, 0, 0);
+		AppendMenu(menu_file, MF_STRING, AppMenuID_FILE_IMPORT, L"Import");
+		AppendMenu(menu_file, MF_STRING, AppMenuID_FILE_EXPORT, L"Export");
+		AppendMenu(menu_file, MF_SEPARATOR, 0, 0);
+		AppendMenu(menu_file, MF_STRING, AppMenuID_FILE_EXIT, L"E&xit");
+
+		HMENU menu_edit = CreateMenu();
+		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_SELECTALL, L"Select All");
+		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_INVERTSELECT, L"Invert Selection");
+
+		HMENU menu_view = CreateMenu();
+		AppendMenu(menu_view, MF_STRING, AppMenuID_VIEW_TOGGLEFULLVIEW, L"Toggle Full View");
+
+		HMENU menu_create = CreateMenu();
+		AppendMenu(menu_view, MF_STRING, 0, L"Plane");
+		AppendMenu(menu_view, MF_STRING, 0, L"Cube");
+		AppendMenu(menu_view, MF_STRING, 0, L"Sphere");
+
+		HMENU mMainMenu = CreateMenu();
+		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_file, L"&File");
+		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_edit, L"&Edit");
+		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_view, L"View");
+		alSystemWindowOSDataWin32* w32 = (alSystemWindowOSDataWin32*)m_mainWindow->GetOSData();
+		SetMenu(w32->m_hwnd, mMainMenu);
+
+		m_hwndTT = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL,
+			WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP, 0, 0, 0, 0, w32->m_hwnd, NULL, 0, NULL);
+
+		wchar_t text[] = L"alshlkaskhlaks lfasknlaksf asfas";
+
+		memset(&g_toolTipInfo, 0, sizeof(g_toolTipInfo));
+		g_toolTipInfo.cbSize = sizeof(TTTOOLINFO);
+		g_toolTipInfo.uFlags = TTF_SUBCLASS;
+		g_toolTipInfo.hwnd = 0;
+		g_toolTipInfo.uId = 0;
+		g_toolTipInfo.lpszText = text;
+		GetClientRect(w32->m_hwnd, &g_toolTipInfo.rect);
+
+		if (!SendMessage(m_hwndTT, TTM_ADDTOOL, 0, (LPARAM)&g_toolTipInfo))
+			MessageBox(0, TEXT("Failed: TTM_ADDTOOL"), 0, 0);
+	}
 	m_mainWindow->Show();
 
 	m_gs = alLib::CreateGS(alVideoDriverType::Direct3D11);
@@ -135,6 +309,24 @@ bool Application::OnCreate(const char* videoDriver)
 	UpdateWindowTitle();
 	_initGridMesh();
 	_initViewports();
+
+	m_shortcutManager = alCreate<AppShortcutManager>();
+	m_whiteTexture = m_gs->GetWhiteTexture();
+
+	m_gui = alCreate<GUI>();
+	m_gui->m_context = alLib::CreateGUIContext(m_mainWindow, m_gs);
+	{
+		alImage* img = alLib::LoadALImage("../data/gui/gui.png");
+		if (img)
+		{
+			m_gui->m_taTexture = m_gs->CreateTexturePoint(img);
+			alDestroy(img);
+		}
+	}
+	
+	m_gui->m_ta = alCreate<alGUITextureAtlas>(
+		m_gui->m_taTexture ? m_gui->m_taTexture : m_whiteTexture);
+	m_gui->CreateButtons();
 
 	return true;
 }
@@ -169,16 +361,36 @@ void Application::MainLoop()
 	auto currThread = GetCurrentThread();
 	while (m_run)
 	{
+	//	SendMessage(m_hwndTT, TTM_UPDATE, (WPARAM)TRUE, (LPARAM)&g_toolTipInfo);
+		
 		alLib::Update();
 		m_dt = *dt;
 		auto input = alLib::GetInput();
 		m_isCursorMove = (input->m_mouseDelta.x != 0.f) || (input->m_mouseDelta.y != 0.f);
 
 		WaitForSingleObject(currThread, 10);
+		
+		// for `in place tooltip`
+		// default delay is not working
+		// make delay here
+		if (m_showToolTip)
+		{
+			m_tooltipTimer += m_dt;
+			if (m_tooltipTimer > 1.f)
+			{
+				ShowToolTip(input->m_cursorCoords.x, input->m_cursorCoords.y, g_app->m_toolTipText);
+				m_showToolTip = false;
+				m_tooltipTimer = 0.f;
+			}
+		}
+
+		m_gui->m_context->Update(m_dt);
 
 		UpdateViewports();
+		ProcessShortcuts3D();
 
 		m_gs->BeginDraw();
+		m_gs->SetClearColor(m_colorThemeCurr->m_windowClearColor);
 		m_gs->ClearAll();
 
 		DrawViewports3D();
@@ -186,6 +398,7 @@ void Application::MainLoop()
 		m_gs->BeginDrawGUI();
 		DrawViewports();
 		//m_gs->BeginDrawGUI(false);
+		m_gui->m_context->Draw(m_dt);
 
 		//m_GUI->m_context->DrawAll();
 		m_gs->EndDrawGUI();
@@ -496,12 +709,19 @@ void Application::SetMouseMode(AppMouseMode mm)
 
 void Application::OnWindowSizeChanged()
 {
+	if (m_gui)
+	{
+		m_gui->m_panel->m_size.x = m_mainWindow->m_clientSize.x;
+		m_gui->m_panel->Rebuild();
+	}
+
 	if (m_gs)
 	{
 		m_gs->UpdateWindowData();
 	}
 	if (m_activeViewportLayout)
 	{
+
 		for (size_t i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
 		{
 			auto viewport = m_activeViewportLayout->m_viewports[i];
@@ -509,4 +729,58 @@ void Application::OnWindowSizeChanged()
 		}
 	}
 
+}
+
+void Application::ViewportToggleFullView()
+{
+	/*if (m_editorType != miEditorType::_3D)
+		return;*/
+
+	if (m_activeViewportLayout == m_viewportLayouts[AppViewportLayout_Full])
+	{
+		m_activeViewportLayout->HideGUI();
+		m_activeViewportLayout = m_previousViewportLayout;
+		m_activeViewportLayout->m_activeViewport->Copy(m_viewportLayouts[AppViewportLayout_Full]->m_activeViewport);
+		m_activeViewportLayout->ShowGUI();
+	}
+	else
+	{
+		m_previousViewportLayout = m_activeViewportLayout;
+		m_activeViewportLayout->HideGUI();
+		m_activeViewportLayout = m_viewportLayouts[AppViewportLayout_Full];
+		m_activeViewportLayout->m_activeViewport->Copy(m_previousViewportLayout->m_activeViewport);
+		m_activeViewportLayout->ShowGUI();
+	}
+//	m_GUI->m_context->NeedRebuild();
+	m_activeViewportLayout->m_activeViewport->UpdateAspect();
+}
+
+void Application::ProcessShortcuts3D()
+{
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_cameraReset)) this->CameraReset();
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_cameraMoveToSelection)) this->CameraMoveToSelection();
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewPerspective)) this->ViewportChangeView(miViewportCameraType::Perspective);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewTop)) this->ViewportChangeView(miViewportCameraType::Top);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewBottom)) this->ViewportChangeView(miViewportCameraType::Bottom);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewLeft)) this->ViewportChangeView(miViewportCameraType::Left);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewRight)) this->ViewportChangeView(miViewportCameraType::Right);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewFront)) this->ViewportChangeView(miViewportCameraType::Front);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewBack)) this->ViewportChangeView(miViewportCameraType::Back);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleGrid)) this->ViewportToggleGrid();
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleFullView)) this->ViewportToggleFullView();
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_dmMaterial)) this->ViewportSetDrawMode(miViewportDrawMode::Material);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_dmMaterialWireframe)) this->ViewportSetDrawMode(miViewportDrawMode::MaterialWireframe);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_dmWireframe)) this->ViewportSetDrawMode(miViewportDrawMode::Wireframe);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleDMMaterial)) this->ViewportToggleDrawMaterial();
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleDMWireframe)) this->ViewportToggleDrawWireframe();
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_NoTransform)) this->SetTransformMode(miTransformMode::NoTransform);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_Move)) this->SetTransformMode(miTransformMode::Move);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_Scale)) this->SetTransformMode(miTransformMode::Scale);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_Rotate)) this->SetTransformMode(miTransformMode::Rotate);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::select_selectAll)) this->SelectAll();
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::select_deselectAll)) this->DeselectAll();
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::select_invertSelection)) this->InvertSelection();
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::editMode_Vertex)) this->ToggleEditMode(miEditMode::Vertex);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::editMode_Edge)) this->ToggleEditMode(miEditMode::Edge);
+	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::editMode_Polygon)) this->ToggleEditMode(miEditMode::Polygon);
 }

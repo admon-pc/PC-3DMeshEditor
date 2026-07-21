@@ -8,6 +8,30 @@
 #define AppViewportLayout_Standart 1
 #define AppViewportLayout_Count 2
 
+#define AppMenuID_FILE_NEW_SCENE 1
+#define AppMenuID_FILE_OPEN_SCENE 2
+#define AppMenuID_FILE_SAVE_SCENE 3
+#define AppMenuID_FILE_SAVEAS_SCENE 4
+#define AppMenuID_FILE_IMPORT 5
+#define AppMenuID_FILE_EXPORT 6
+#define AppMenuID_FILE_EXIT 7
+#define AppMenuID_EDIT_SELECTALL 8
+#define AppMenuID_EDIT_INVERTSELECT 9
+#define AppMenuID_VIEW_TOGGLEFULLVIEW 10
+
+class AppButtonIcon : public alGUIButtonIcon
+{
+public:
+	AppButtonIcon(alGUIContext* ct,
+		alGUITextureAtlas* ta, uint32_t ii)
+		:
+		alGUIButtonIcon(ct, ta, ii)
+	{}
+	virtual ~AppButtonIcon() {}
+	virtual void OnMouseEnter() override;
+	virtual void OnMouseLeave() override;
+};
+
 class AppGSShaderCallback_LineModel3D : public alGSShaderCallback
 {
 public:
@@ -150,7 +174,7 @@ struct AppColorTheme
 {
 	alColor m_windowClearColor = alColor(0.41f);
 	alColor m_viewportColor = alColor(0.35f);
-	alColor m_viewportBorder = ColorDarkGray;
+	alColor m_viewportBorder = ColorYellow;
 };
 
 class Application
@@ -159,7 +183,8 @@ class Application
 	friend class AppGizmo;
 	friend class AppViewportCamera;
 	friend class AppViewport;
-
+	friend class AppShortcutManager;
+	friend class AppButtonIcon;
 
 	FILE* m_fileLog = 0;
 	alCursor* m_cursors[(uint32_t)AppCursorType::_count];
@@ -215,6 +240,8 @@ class Application
 	alRay m_screenRayOnClick;
 	alRay m_screenRayCurrent;
 
+	alVec4 m_cursorPosition3D;         // intersection point
+
 	AppSelectionFrust m_selectionFrust;
 
 	// every viewport will set this when drawing
@@ -257,9 +284,64 @@ class Application
 
 	AppGSShaderCallback_LineModel3D* m_shaderLineModel = 0;
 
+	alInput* m_input = 0;
+
+	AppShortcutManager* m_shortcutManager = 0;
+
+	alGSTexture* m_whiteTexture = 0;
+
+	struct GUI
+	{
+
+		GUI() {}
+		~GUI() 
+		{
+			AL_DESTROY(m_ta);
+			AL_DESTROY(m_taTexture);
+
+			/*AL_DESTROY(m_button_gizmoSelect);
+			AL_DESTROY(m_button_gizmoMove);
+			AL_DESTROY(m_button_gizmoRotate);
+			AL_DESTROY(m_button_gizmoScale);*/
+
+			//m_context->DeleteAllPanels();
+			AL_DESTROY(m_context);
+		}
+		/*AppButtonIcon* m_button_gizmoSelect = 0;
+		AppButtonIcon* m_button_gizmoMove = 0;
+		AppButtonIcon* m_button_gizmoRotate = 0;
+		AppButtonIcon* m_button_gizmoScale= 0;*/
+		void CreateButtons();
+
+		alGUIContext* m_context = 0;
+		alGUIPanel* m_panel = 0;
+		alGUITextureAtlas* m_ta = 0;
+		alGSTexture* m_taTexture = 0;
+
+		enum {
+			elementID_btnGizmoSelect = 1,
+			elementID_btnGizmoMove,
+			elementID_btnGizmoRotate,
+			elementID_btnGizmoScale,
+		};
+	};
+	GUI* m_gui = 0;
+
+
+
+	alStringW m_toolTipBuffer;
+	HWND m_hwndTT = 0;
+	bool m_showToolTip = false;
+	float32_t m_tooltipTimer = 0.f;
+	const wchar_t* m_toolTipText = 0;
+
 public:
 	Application();
 	~Application();
+
+	void ShowToolTip();
+	void ShowToolTip(int x, int y, const wchar_t* text);
+	void HideToolTip();
 
 	bool OnCreate(const char* videoDriver);
 	void MainLoop();
@@ -269,6 +351,10 @@ public:
 	void GetRayFromScreen(alRay* ray, const alVec2f& coords, const alVec4f& viewportRect, const alMat4& VPInvert);
 
 	void OnWindowSizeChanged();
+	
+	void ProcessShortcuts3D();
+
+	void ViewportToggleFullView();
 };
 
 #endif

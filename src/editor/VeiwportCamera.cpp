@@ -192,6 +192,7 @@ void AppViewportCamera::PanMove()
 	//alMat4 MZ(alQuaternion(0.f, 0.f, m_rotationPlatform.z));
 	vec = alMath::Mul(vec, MY * MX);
 	m_positionPlatform += vec;
+	Update();
 }
 
 void AppViewportCamera::Rotate(float32_t x, float32_t y)
@@ -241,10 +242,12 @@ void AppViewportCamera::ChangeFOV()
 	if (m_fov > PI)
 		m_fov = PI;
 	//printf("m_fov %f\n", m_fov);
+	Update();
 }
 
 void AppViewportCamera::RotateZ()
 {
 	auto input = alLib::GetInput();
 	m_rotationPlatform.z += input->m_mouseDelta.x * g_app->m_dt;
+	Update();
 }

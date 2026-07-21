@@ -24,6 +24,7 @@
     <ClCompile Include="..\..\src\editor\Application.viewport.cpp" />
     <ClCompile Include="..\..\src\editor\Gizmo.cpp" />
     <ClCompile Include="..\..\src\editor\SelectionFrustum.cpp" />
+    <ClCompile Include="..\..\src\editor\ShortcutManager.cpp" />
     <ClCompile Include="..\..\src\editor\SystemWindowCallback.cpp" />
     <ClCompile Include="..\..\src\editor\VeiwportCamera.cpp" />
     <ClCompile Include="..\..\src\editor\Viewport.cpp" />

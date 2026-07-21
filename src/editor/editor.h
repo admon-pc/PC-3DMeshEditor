@@ -3,6 +3,7 @@
 #include "al.h"
 #include "System/alCursor.h"
 #include "System/alSystemWindow.h"
+#include "System/alSystemWindowWin32.h"
 #include "GS/alGS.h"
 #include "Image/alImage.h"
 #include "Geometry/alTriangle.h"
@@ -18,6 +19,7 @@ class AppViewportLayout;
 #include "Viewport.h"
 #include "Gizmo.h"
 #include "SelectionFrustum.h"
+#include "ShortcutManager.h"
 
 
 

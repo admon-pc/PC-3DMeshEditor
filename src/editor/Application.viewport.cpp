@@ -45,6 +45,7 @@ void Application::_initViewports()
 void Application::UpdateViewports()
 {
 	auto input = alLib::GetInput();
+
 //	if (m_gizmoModeUV != AppGizmoUVMode::NoTransform)
 //	{
 //		if (input->m_isLMBUp || input->m_isRMBUp)
@@ -167,8 +168,8 @@ void Application::UpdateViewports()
 //			}
 //			else
 //			{
-//				static miKeyboardModifier prevKbm = miKeyboardModifier::None;
-//				if (input->m_kbm == miKeyboardModifier::Shift && prevKbm != miKeyboardModifier::Shift)
+//				static alKeyboardModifier prevKbm = alKeyboardModifier::None;
+//				if (input->m_kbm == alKeyboardModifier::Shift && prevKbm != alKeyboardModifier::Shift)
 //				{
 //					_transform = true;
 //					//	m_gizmo->m_var_rotation_add = -m_gizmo->m_var_rotate_snap;
@@ -302,11 +303,11 @@ void Application::UpdateViewports()
 //			miSetCursor(miCursorType::Arrow, m_cursors[(u32)miCursorType::Size]);
 //			m_cursors[(u32)miCursorType::Size]->Activate();
 //			break;
-//		case miKeyboardModifier::Alt:
+//		case alKeyboardModifier::Alt:
 //			break;
-//		case miKeyboardModifier::CtrlAlt:
+//		case alKeyboardModifier::CtrlAlt:
 //			break;
-//		case miKeyboardModifier::ShiftCtrlAlt:
+//		case alKeyboardModifier::ShiftCtrlAlt:
 //			break;
 //		}
 //	}
@@ -327,49 +328,50 @@ void Application::UpdateViewports()
 //		if (input->m_isLMBUp || input->m_isRMBUp || input->IsKeyHit(miKey::K_ESCAPE))
 //			this->SetMouseMode(AppMouseMode::CommonMode);
 //	}
-//
-//	if (m_isCursorMove && m_isViewportInFocus)
-//	{
-//		m_cursorPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(input->m_cursorCoords);
-//
-//		if (m_gizmoMode == AppGizmoMode::NoTransform)
-//		{
-//			if ((m_mouseMode == AppMouseMode::CommonMode) ||
-//				(m_mouseMode == AppMouseMode::Other))
-//			{
-//				if (input->m_isLMBHold)
-//					m_isSelectByRectangle = true;
-//			}
-//
-//			if (
-//				(m_mouseMode == AppMouseMode::ClickAndDrag && input->m_isLMBHold)
-//				|| (m_mouseMode == AppMouseMode::SelectVertex && input->m_isLMBHold))
-//			{
-//				if (!m_isClickAndDrag)
-//					m_isClickAndDrag = true;
-//			}
-//		}
-//
-//		if (input->m_isMMBHold)
-//		{
-//			switch (input->m_kbm)
-//			{
-//			default:
-//				m_activeViewportLayout->m_activeViewport->PanMove();
-//				break;
-//			case miKeyboardModifier::Alt:
-//				m_activeViewportLayout->m_activeViewport->Rotate(input->m_mouseDelta.x, input->m_mouseDelta.y);
-//				break;
-//			case miKeyboardModifier::CtrlAlt:
-//				m_activeViewportLayout->m_activeViewport->ChangeFOV();
-//				break;
-//			case miKeyboardModifier::ShiftCtrlAlt:
-//				m_activeViewportLayout->m_activeViewport->RotateZ();
-//				break;
-//			}
-//		}
-//	}
-//
+
+	if (m_isCursorMove && m_isViewportInFocus)
+	{
+		m_cursorPosition3D = m_activeViewportLayout->m_activeViewport->GetCursorRayHitPosition(input->m_cursorCoordsForGUI);
+
+		if (m_gizmoMode == AppGizmoMode::NoTransform)
+		{
+			if ((m_mouseMode == AppMouseMode::CommonMode) ||
+				(m_mouseMode == AppMouseMode::Other))
+			{
+				//if (input->m_isLMBHold)
+				//	m_isSelectByRectangle = true;
+			}
+
+			if (
+				(m_mouseMode == AppMouseMode::ClickAndDrag && input->m_isLMBHold)
+				|| (m_mouseMode == AppMouseMode::SelectVertex && input->m_isLMBHold))
+			{
+				//if (!m_isClickAndDrag)
+				//	m_isClickAndDrag = true;
+			}
+		}
+
+		if (input->m_isRMBHold)
+		{
+			switch (input->m_kbm)
+			{
+			case alKeyboardModifier::Ctrl:
+				m_activeViewportLayout->m_activeViewport->PanMove();
+				break;
+			case alKeyboardModifier::CtrlAlt:
+			case alKeyboardModifier::Alt:
+				m_activeViewportLayout->m_activeViewport->Rotate(input->m_mouseDelta.x, input->m_mouseDelta.y);
+				break;
+			case alKeyboardModifier::ShiftAlt:
+				m_activeViewportLayout->m_activeViewport->ChangeFOV();
+				break;
+			case alKeyboardModifier::ShiftCtrlAlt:
+				m_activeViewportLayout->m_activeViewport->RotateZ();
+				break;
+			}
+		}
+	}
+
 //	if (input->IsKeyHit(miKey::K_NUM_4))
 //		m_activeViewportLayout->m_activeViewport->Rotate(-5.f, 0.f);
 //	if (input->IsKeyHit(miKey::K_NUM_6))
@@ -381,16 +383,16 @@ void Application::UpdateViewports()
 //	if (input->IsKeyHit(miKey::K_NUM_5))
 //		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho =
 //		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho ? false : true;
-//
-//	if (m_isCursorInWindow && !m_isCursorInGUI)
-//	{
-//		if (input->m_isMMBDown || input->m_isLMBDown)
-//		{
-//			m_isViewportInFocus = true;
-//			m_viewportInMouseFocus = m_viewportUnderCursor;
-//		}
-//	}
-//
+
+	//if (m_isCursorInWindow && !m_isCursorInGUI)
+	{
+		if (input->m_isRMBDown)
+		{
+			m_isViewportInFocus = true;
+			m_viewportInMouseFocus = m_viewportUnderCursor;
+		}
+	}
+
 //	if (input->m_isLMBUp || input->m_isMMBUp)
 //	{
 //		m_isViewportInFocus = false;
@@ -404,8 +406,8 @@ void Application::UpdateViewports()
 //	case AppGizmoMode::RotateZ:
 //	case AppGizmoMode::RotateScreen:
 //	{
-//		/*static miKeyboardModifier prevKbm = miKeyboardModifier::None;
-//		if (input->m_kbm == miKeyboardModifier::Shift && prevKbm != miKeyboardModifier::Shift)
+//		/*static alKeyboardModifier prevKbm = alKeyboardModifier::None;
+//		if (input->m_kbm == alKeyboardModifier::Shift && prevKbm != alKeyboardModifier::Shift)
 //		{
 //			printf("shift\n");
 //		}
