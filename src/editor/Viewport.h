@@ -2,7 +2,7 @@
 #ifndef _PCViewport_H_
 #define _PCViewport_H_
 
-#include "VeiwportCamera.h"
+#include "ViewportCamera.h"
 
 constexpr float32_t AppViewportBorderSize = 1.f;
 constexpr float32_t g_leftPanelWidth = 24.f;
@@ -118,49 +118,8 @@ public:
 	void ChangeFOV();
 };
 
-class AppViewportLayout
-{
-public:
-	AppViewportLayout() {}
-	~AppViewportLayout()
-	{
-		for (size_t i = 0, sz = m_viewports.size(); i < sz; ++i)
-		{
-			delete m_viewports[i];
-		}
-	}
+#include "ViewportLayout.h"
 
-	alArray<AppViewport*> m_viewports;
-	AppViewport* m_activeViewport = 0;
-
-	void ShowGUI()
-	{
-		for (size_t i = 0, sz = m_viewports.size(); i < sz; ++i)
-		{
-			m_viewports[i]->ShowGUI();
-		}
-	}
-	void HideGUI()
-	{
-		for (size_t i = 0, sz = m_viewports.size(); i < sz; ++i)
-		{
-			m_viewports[i]->HideGUI();
-		}
-	}
-
-	AppViewport* Add(const alVec4f& rect, AppViewportCameraType vct, AppViewportType vt) 
-	{
-		AppViewport* newViewport = new AppViewport(vt, vct, rect);
-		m_activeViewport = newViewport;
-		m_viewports.push_back(newViewport);
-		newViewport->m_index = m_viewports.size();
-		newViewport->HideGUI();
-		newViewport->ResetCamera();
-		newViewport->UpdateAspect();
-
-		return newViewport;
-	}
-};
 
 #endif
 

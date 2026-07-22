@@ -267,8 +267,8 @@ void AppViewport::OnWindowSize()
 
 	AL_DESTROY(m_rtt);
 	alGSTextureInfo ti;
-	ti.m_width = m_rectSz.x;
-	ti.m_height = m_rectSz.y;
+	ti.m_width = (uint32_t)m_rectSz.x;
+	ti.m_height = (uint32_t)m_rectSz.y;
 	if (!ti.m_width)ti.m_width = 1;
 	if (!ti.m_height)ti.m_height = 1;
 	m_rtt = m_gs->CreateRTT(&ti);
@@ -557,7 +557,7 @@ void AppViewport::OnDrawUV()
 void AppViewport::Draw3D()
 {
 	m_gs->SetRenderTarget(m_rtt);
-	m_gs->SetViewport(0,0,m_rectSz.x, m_rectSz.y);
+	m_gs->SetViewport(0,0,(uint32_t)m_rectSz.x, (uint32_t)m_rectSz.y);
 	m_gs->SetClearColor(ColorTransparent);
 	m_gs->ClearAll();
 	//m_activeCamera->Update();

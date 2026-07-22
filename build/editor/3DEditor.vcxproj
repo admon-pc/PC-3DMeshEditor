@@ -22,12 +22,17 @@
     <ClCompile Include="..\..\src\editor\3DEditor_main.cpp" />
     <ClCompile Include="..\..\src\editor\Application.cpp" />
     <ClCompile Include="..\..\src\editor\Application.viewport.cpp" />
+    <ClCompile Include="..\..\src\editor\DialogWndProcs.cpp" />
     <ClCompile Include="..\..\src\editor\Gizmo.cpp" />
     <ClCompile Include="..\..\src\editor\SelectionFrustum.cpp" />
     <ClCompile Include="..\..\src\editor\ShortcutManager.cpp" />
     <ClCompile Include="..\..\src\editor\SystemWindowCallback.cpp" />
-    <ClCompile Include="..\..\src\editor\VeiwportCamera.cpp" />
+    <ClCompile Include="..\..\src\editor\ViewportCamera.cpp" />
     <ClCompile Include="..\..\src\editor\Viewport.cpp" />
+    <ClCompile Include="..\..\src\editor\ViewportLayout.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\editor\3DEditor.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

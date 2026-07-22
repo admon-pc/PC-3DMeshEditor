@@ -41,3 +41,8 @@ void SystemWindowCallback::OnSetCursor()
 {
 	m_app->OnSetCursor();
 }
+
+void SystemWindowCallback::OnPopupCommand(uint32_t cmd)
+{
+	m_app->OnPopupCommand(cmd);
+}

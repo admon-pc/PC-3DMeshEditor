@@ -79,7 +79,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_X = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_XAabb.m_min -= alVec4(0.f, sz, sz, 0.f);
 		m_XAabb.m_max += alVec4(0.f, sz, sz, 0.f);
 	}
@@ -111,7 +111,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_Y = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_YAabb.m_min -= alVec4(sz, 0.f, sz, 0.f);
 		m_YAabb.m_max += alVec4(sz, 0.f, sz, 0.f);
 	}
@@ -143,7 +143,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_Z = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_ZAabb.m_min -= alVec4(sz, sz, 0.f, 0.f);
 		m_ZAabb.m_max += alVec4(sz, sz, 0.f, 0.f);
 	}
@@ -200,7 +200,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_HeadMoveX = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_HeadXAabb.m_min -= alVec4(0.f, sz, sz, 0.f);
 		m_HeadXAabb.m_max += alVec4(0.f, sz, sz, 0.f);
 	}
@@ -268,7 +268,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_HeadScaleX = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_HeadScaleXAabb.m_min -= alVec4(sz, sz, sz, 0.f);
 		m_HeadScaleXAabb.m_max += alVec4(sz, sz, sz, 0.f);
 	}
@@ -336,7 +336,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_HeadScaleY = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_HeadScaleYAabb.m_min -= alVec4(sz, sz, sz, 0.f);
 		m_HeadScaleYAabb.m_max += alVec4(sz, sz, sz, 0.f);
 	}
@@ -404,7 +404,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_HeadScaleZ = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_HeadScaleZAabb.m_min -= alVec4(sz, sz, sz, 0.f);
 		m_HeadScaleZAabb.m_max += alVec4(sz, sz, sz, 0.f);
 	}
@@ -461,7 +461,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_HeadMoveY = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_HeadYAabb.m_min -= alVec4(sz, 0.f, sz, 0.f);
 		m_HeadYAabb.m_max += alVec4(sz, 0.f, sz, 0.f);
 	}
@@ -518,7 +518,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_HeadMoveZ = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_HeadZAabb.m_min -= alVec4(sz, sz, 0.f, 0.f);
 		m_HeadZAabb.m_max += alVec4(sz, sz, 0.f, 0.f);
 	}
@@ -565,7 +565,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_XZ = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_XZAabb.m_min -= alVec4(sz, 0.f, sz, 0.f);
 		m_XZAabb.m_max += alVec4(sz, 0.f, sz, 0.f);
 	}
@@ -612,7 +612,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_XY = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_XYAabb.m_min -= alVec4(sz, sz, 0.f, 0.f);
 		m_XYAabb.m_max += alVec4(sz, sz, 0.f, 0.f);
 	}
@@ -659,7 +659,7 @@ AppGizmo::AppGizmo(Application* app)
 		mi.m_meshPtr = mesh;
 		m_ZY = m_app->m_gs->CreateMesh(&mi);
 
-		float32_t sz = 0.0025;
+		float32_t sz = 0.0025f;
 		m_ZYAabb.m_min -= alVec4(0.f, sz, sz, 0.f);
 		m_ZYAabb.m_max += alVec4(0.f, sz, sz, 0.f);
 	}

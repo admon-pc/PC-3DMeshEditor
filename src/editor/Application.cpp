@@ -5,10 +5,28 @@
 Application* g_app = 0;
 alMat4 g_emptyMatrix;
 TOOLINFO g_toolTipInfo;
+INT_PTR CALLBACK DialogProcAbout(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
+void AppButtonIcon::OnButtonToggleOn()
+{
+	switch (GetID())
+	{
+	case Application::GUI::elementID_btnGizmoSelect:
+		g_app->SetTransformMode(AppTransformMode::NoTransform);
+		break;
+	case Application::GUI::elementID_btnGizmoMove:
+		g_app->SetTransformMode(AppTransformMode::Move);
+		break;
+	case Application::GUI::elementID_btnGizmoRotate:
+		g_app->SetTransformMode(AppTransformMode::Rotate);
+		break;
+	case Application::GUI::elementID_btnGizmoScale:
+		g_app->SetTransformMode(AppTransformMode::Scale);
+		break;
+	}
+}
 void AppButtonIcon::OnMouseEnter()
 {
-
 	auto input = alLib::GetInput();
 	Application::GUI* gui = (Application::GUI*)GetUserData();
 
@@ -40,45 +58,70 @@ void Application::GUI::CreateButtons()
 	m_panel = m_context->GetNewPanel();
 	m_panel->m_position.Set(0.f, 0.f);
 
-	m_ta->AddUV(alVec2u(0, 0), alVec2u(32, 32));
-	m_ta->AddUV(alVec2u(32 *1, 0), alVec2u(32 , 32));
-	m_ta->AddUV(alVec2u(32 *2, 0), alVec2u(32, 32));
-	m_ta->AddUV(alVec2u(32 *3, 0), alVec2u(32 , 32));
+	auto iconIDSel1 = m_ta->AddUV(alVec2u(0, 0), alVec2u(32, 32));
+	auto iconIDMov1 = m_ta->AddUV(alVec2u(32 *1, 0), alVec2u(32 , 32));
+	auto iconIDRot1 = m_ta->AddUV(alVec2u(32 *2, 0), alVec2u(32, 32));
+	auto iconIDSc1 = m_ta->AddUV(alVec2u(32 *3, 0), alVec2u(32 , 32));
+	auto iconIDSel2 = m_ta->AddUV(alVec2u(0, 64), alVec2u(32, 32));
+	auto iconIDMov2 = m_ta->AddUV(alVec2u(32 * 1, 64), alVec2u(32, 32));
+	auto iconIDRot2 = m_ta->AddUV(alVec2u(32 * 2, 64), alVec2u(32, 32));
+	auto iconIDSc2 = m_ta->AddUV(alVec2u(32 * 3, 64), alVec2u(32, 32));
 
 	float32_t position = 0.f;
-	AppButtonIcon* btn = alCreate<AppButtonIcon>(m_context, m_ta, 0);
+	AppButtonIcon* btn = alCreate<AppButtonIcon>(m_context, m_ta, iconIDSel1);
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoSelect);
 	btn->m_position.x = position;
 	btn->m_position.y = 0;
 	btn->m_size.Set(32.f,32.f);
+	btn->m_toggleButton = true;	
+	btn->m_radioButton = true;
+	btn->m_radioGroup = 1;
+	btn->m_iconIndexPress = iconIDSel2;
+	btn->RadioCheck();
+	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = alCreate<AppButtonIcon>(m_context, m_ta, 1);
+	btn = alCreate<AppButtonIcon>(m_context, m_ta, iconIDMov1);
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoMove);
 	btn->m_position.x = position;
 	btn->m_position.y = 0;
 	btn->m_size.Set(32.f, 32.f);
+	btn->m_toggleButton = true;
+	btn->m_radioButton = true;
+	btn->m_radioGroup = 1;
+	btn->m_iconIndexPress = iconIDMov2;
+	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = alCreate<AppButtonIcon>(m_context, m_ta, 2);
+	btn = alCreate<AppButtonIcon>(m_context, m_ta, iconIDRot1);
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoRotate);
 	btn->m_position.x = position;
 	btn->m_position.y = 0;
 	btn->m_size.Set(32.f, 32.f);
+	btn->m_toggleButton = true;
+	btn->m_radioButton = true;
+	btn->m_radioGroup = 1;
+	btn->m_iconIndexPress = iconIDRot2;
+	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = alCreate<AppButtonIcon>(m_context, m_ta, 3);
+	btn = alCreate<AppButtonIcon>(m_context, m_ta, iconIDSc1);
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoScale);
 	btn->m_position.x = position;
 	btn->m_position.y = 0;
 	btn->m_size.Set(32.f, 32.f);
+	btn->m_toggleButton = true;
+	btn->m_radioButton = true;
+	btn->m_radioGroup = 1;
+	btn->m_iconIndexPress = iconIDSc2;
+	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
 	m_panel->AddElement(btn, true);
 	position += 32;
 
@@ -258,14 +301,20 @@ bool Application::OnCreate(const char* videoDriver)
 		AppendMenu(menu_view, MF_STRING, AppMenuID_VIEW_TOGGLEFULLVIEW, L"Toggle Full View");
 
 		HMENU menu_create = CreateMenu();
-		AppendMenu(menu_view, MF_STRING, 0, L"Plane");
-		AppendMenu(menu_view, MF_STRING, 0, L"Cube");
-		AppendMenu(menu_view, MF_STRING, 0, L"Sphere");
+		AppendMenu(menu_create, MF_STRING, 0, L"Plane");
+		AppendMenu(menu_create, MF_STRING, 0, L"Cube");
+		AppendMenu(menu_create, MF_STRING, 0, L"Sphere");
+
+		HMENU menu_help = CreateMenu();
+		AppendMenu(menu_help, MF_STRING, AppMenuID_HELP_ABOUT, L"About");
+		AppendMenu(menu_help, MF_STRING, 0, L"Send feedback");
 
 		HMENU mMainMenu = CreateMenu();
 		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_file, L"&File");
 		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_edit, L"&Edit");
 		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_view, L"View");
+		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_create, L"Create");
+		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_help, L"Help");
 		alSystemWindowOSDataWin32* w32 = (alSystemWindowOSDataWin32*)m_mainWindow->GetOSData();
 		SetMenu(w32->m_hwnd, mMainMenu);
 
@@ -326,6 +375,10 @@ bool Application::OnCreate(const char* videoDriver)
 	m_gui->m_ta = alCreate<alGUITextureAtlas>(
 		m_gui->m_taTexture ? m_gui->m_taTexture : m_whiteTexture);
 	m_gui->CreateButtons();
+
+	m_colorThemeCurr->m_GUIColorTheme.m_buttonIcon_enabled = ColorWhite;
+	m_colorThemeCurr->m_GUIColorTheme.m_buttonIcon_mouseHover = ColorYellow;
+	m_colorThemeCurr->m_GUIColorTheme.m_buttonIcon_press = ColorWhite;
 
 	_callViewportOnWindowSize();
 	return true;
@@ -408,7 +461,7 @@ void Application::MainLoop()
 		m_gs->EndDraw();
 		m_gs->SwapBuffers();
 
-		OnSetCursor();
+	//	OnSetCursor();
 	}
 }
 
@@ -787,4 +840,38 @@ void Application::ProcessShortcuts3D()
 void Application::OnSetCursor()
 {
 	m_cursors[(uint32_t)m_currentCursor]->Activate();
+}
+
+void Application::SetTransformMode(AppTransformMode mode)
+{
+	m_transformMode = mode;
+}
+
+void Application::OnPopupCommand(uint32_t cmd)
+{
+	switch (cmd)
+	{
+	case AppMenuID_FILE_EXIT:
+		CloseProgramm();
+		break;
+	case AppMenuID_HELP_ABOUT:
+		ShowAbout();
+		break;
+	}
+}
+
+void Application::CloseProgramm()
+{
+	m_run = false;
+}
+
+void Application::ShowAbout()
+{
+	alSystemWindowOSDataWin32* w32 = (alSystemWindowOSDataWin32*)m_mainWindow->GetOSData();
+	auto hdlg = CreateDialog(
+		GetModuleHandle(NULL),
+		MAKEINTRESOURCE(IDD_PROPPAGE_SMALL),
+		w32->m_hwnd,
+		DialogProcAbout);
+	ShowWindow(hdlg, SW_SHOW);
 }

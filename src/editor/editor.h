@@ -1,5 +1,7 @@
 ﻿#pragma once
 #ifndef _PCEDITOR_H_
+#include "resource.h"
+
 #include "al.h"
 #include "System/alCursor.h"
 #include "System/alSystemWindow.h"

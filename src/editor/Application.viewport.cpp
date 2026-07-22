@@ -1,5 +1,40 @@
 ﻿#include "editor.h"
 
+class AppViewportResizer_Standart : public AppViewportResizer
+{
+public:
+	AppViewportResizer_Standart(int id) : AppViewportResizer(id) {}
+	virtual ~AppViewportResizer_Standart() {}
+	virtual void Rebuild() override
+	{
+		switch (m_id)
+		{
+		case 0:
+		{
+			m_rect.x = m_layout->m_viewports.m_data[0]->m_rect.z - 2;
+			m_rect.y = m_layout->m_viewports.m_data[0]->m_rect.y;
+			m_rect.z = m_layout->m_viewports.m_data[0]->m_rect.z + 2;
+			m_rect.w = m_layout->m_viewports.m_data[3]->m_rect.w;
+		}break;
+		case 1:
+		{
+			m_rect.x = m_layout->m_viewports.m_data[0]->m_rect.x;
+			m_rect.y = m_layout->m_viewports.m_data[0]->m_rect.w - 2;
+			m_rect.z = m_layout->m_viewports.m_data[1]->m_rect.z;
+			m_rect.w = m_layout->m_viewports.m_data[3]->m_rect.y + 2;
+		}break;
+		case 2:
+		{
+			m_rect.x = m_layout->m_viewports.m_data[0]->m_rect.z - 5;
+			m_rect.y = m_layout->m_viewports.m_data[0]->m_rect.w - 5;
+			m_rect.z = m_layout->m_viewports.m_data[0]->m_rect.z + 5;
+			m_rect.w = m_layout->m_viewports.m_data[0]->m_rect.w + 5;
+		}break;
+		}
+		
+	}
+};
+
 void UVCameraOnMoveToSelection(AppViewportCamera* c) 
 {
 	c->m_positionPlatform.x = 0.5f;
@@ -26,6 +61,10 @@ void Application::_initViewports()
 			m_viewportLayouts[i]->Add(alVec4f(midX, 0.f, 1.0f, 0.5f), AppViewportCameraType::Left, AppViewportType::Scene);
 			m_viewportLayouts[i]->Add(alVec4f(0.f, 0.5f, midX, 1.0f), AppViewportCameraType::Front, AppViewportType::Scene);
 			m_viewportLayouts[i]->Add(alVec4f(midX, 0.5f, 1.0f, 1.0f), AppViewportCameraType::Perspective, AppViewportType::Scene);
+
+			m_viewportLayouts[i]->AddResizer(new AppViewportResizer_Standart(2), AppCursorType::Size);
+			m_viewportLayouts[i]->AddResizer(new AppViewportResizer_Standart(0), AppCursorType::SizeWE);
+			m_viewportLayouts[i]->AddResizer(new AppViewportResizer_Standart(1), AppCursorType::SizeNS);
 		}break;
 		}
 	}
@@ -238,10 +277,20 @@ void Application::UpdateViewports()
 //	}
 
 	m_isCursorInViewport = false;
-	//if (!m_isCursorInGUI)
+	if (!m_isCursorInGUI)
 	{
 		//if (input->m_isLMBDown)
 		//	m_cursorLMBClickPosition = input->m_cursorCoords;
+
+		for (size_t k = 0; k < m_activeViewportLayout->m_resizers.m_size; ++k)
+		{
+			auto ct = m_activeViewportLayout->CursorInResizer(input);
+			if (ct != AppCursorType::No)
+			{
+				m_currentCursor = ct;
+				OnSetCursor();
+			}
+		}
 
 		for (size_t i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
 		{
@@ -379,6 +428,7 @@ void Application::UpdateViewports()
 				m_currentCursor = AppCursorType::Rotate;
 				break;
 			}
+			OnSetCursor();
 		}
 	}
 
@@ -451,7 +501,7 @@ void Application::DrawViewports()
 	for (size_t i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
 	{
 		m_gs->SetScissorRect(alVec4f(0.f, 0.f, (float32_t)m_mainWindow->m_clientSize.x, (float32_t)m_mainWindow->m_clientSize.y));
-		m_gs->SetViewport(0.f, 0.f, (float32_t)m_mainWindow->m_clientSize.x, (float32_t)m_mainWindow->m_clientSize.y);
+		m_gs->SetViewport(0, 0, m_mainWindow->m_clientSize.x, m_mainWindow->m_clientSize.y);
 
 		auto viewport = m_activeViewportLayout->m_viewports[i];
 		if (viewport == m_activeViewportLayout->m_activeViewport)
@@ -503,9 +553,15 @@ void Application::DrawViewports()
 		m_gs->DisableDepth();
 		m_gs->DrawRectangle(viewport->m_rect, m_colorThemeCurr->m_viewportColor, 0, 0);
 		m_gs->DrawRectangle(viewport->m_rect, ColorWhite, viewport->m_rtt, 0);
+
+		for (size_t k = 0; k < m_activeViewportLayout->m_resizers.m_size; ++k)
+		{
+			m_gs->DrawRectangle(m_activeViewportLayout->m_resizers.m_data[k]->m_rect, ColorRed);
+		}
+		
 	}
 	
-	m_gs->SetViewport(0.f, 0.f, (float32_t)m_mainWindow->m_clientSize.x, (float32_t)m_mainWindow->m_clientSize.y);
+	m_gs->SetViewport(0, 0, m_mainWindow->m_clientSize.x, m_mainWindow->m_clientSize.y);
 	m_gs->SetScissorRect(alVec4f(0.f, 0.f, (float32_t)m_mainWindow->m_clientSize.x, (float32_t)m_mainWindow->m_clientSize.y));
 }
 
@@ -522,6 +578,11 @@ void Application::_callViewportOnWindowSize()
 	for (size_t i = 0, sz = m_UVViewport->m_viewports.size(); i < sz; ++i)
 	{
 		m_UVViewport->m_viewports[i]->OnWindowSize();
+	}
+
+	for (size_t i = 0; i < AppViewportLayout_Count; ++i)
+	{
+		m_viewportLayouts[i]->Rebuild();
 	}
 }
 

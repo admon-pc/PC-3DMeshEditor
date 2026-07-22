@@ -79,7 +79,7 @@ void AppSelectionFrust::CreateWithAabb(const alAabb& aabb)
 	m_data.m_FrontN.Normalize2();
 }
 
-void AppSelectionFrust::CreateWithFrame(const alVec4& frame, const alVec4f& vp_rect, const alMat4& VP_invert)
+void AppSelectionFrust::CreateWithFrame(const alVec4f& frame, const alVec4f& vp_rect, const alMat4& VP_invert)
 {
 	// get 4 rays from screen
 
@@ -229,7 +229,7 @@ bool AppSelectionFrust::RayTest_MT(const alVec4& ray_origin, const alVec4& ray_e
 	ray_dir.w = 1.f;
 	alVec4  pvec;
 	ray_dir.Cross2(e2, pvec);
-	float det = e1.Dot(pvec);
+	float64_t det = e1.Dot(pvec);
 
 	if (std::fabs(det) < alEpsilon) return false;
 
@@ -239,15 +239,15 @@ bool AppSelectionFrust::RayTest_MT(const alVec4& ray_origin, const alVec4& ray_e
 		ray_origin.z - v1.z,
 		0.f);
 
-	float32_t inv_det = 1.f / det;
-	float32_t U = tvec.Dot(pvec) * inv_det;
+	float64_t inv_det = 1.f / det;
+	float64_t U = tvec.Dot(pvec) * inv_det;
 
 	if (U < 0.f || U > 1.f)
 		return false;
 
 	alVec4  qvec;
 	tvec.Cross2(e1, qvec);
-	float32_t V = ray_dir.Dot(qvec) * inv_det;
+	float64_t V = ray_dir.Dot(qvec) * inv_det;
 
 	if (V < 0.f || U + V > 1.f)
 		return false;

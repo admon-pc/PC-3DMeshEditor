@@ -18,6 +18,7 @@
 #define AppMenuID_EDIT_SELECTALL 8
 #define AppMenuID_EDIT_INVERTSELECT 9
 #define AppMenuID_VIEW_TOGGLEFULLVIEW 10
+#define AppMenuID_HELP_ABOUT 11
 
 class AppButtonIcon : public alGUIButtonIcon
 {
@@ -30,6 +31,8 @@ public:
 	virtual ~AppButtonIcon() {}
 	virtual void OnMouseEnter() override;
 	virtual void OnMouseLeave() override;
+
+	virtual void OnButtonToggleOn() override;
 };
 
 class AppGSShaderCallback_LineModel3D : public alGSShaderCallback
@@ -120,6 +123,16 @@ enum class AppGizmoMode : uint32_t
 	Other
 };
 
+enum class AppTransformMode : uint32_t
+{
+	NoTransform,
+	Move,
+	Rotate,
+	Scale,
+	RotateLocal,
+	ScaleLocal,
+};
+
 enum class AppGizmoUVMode : uint32_t
 {
 	NoTransform,
@@ -170,6 +183,7 @@ public:
 	virtual alVec2i OnMinMaxInfo(alSystemWindow* w) override;
 	virtual void OnClose(alSystemWindow* window) override;
 	virtual void OnSetCursor() override;
+	virtual void OnPopupCommand(uint32_t cmd) override;
 };
 
 struct AppColorTheme
@@ -177,6 +191,8 @@ struct AppColorTheme
 	alColor m_windowClearColor = alColor(0.41f);
 	alColor m_viewportColor = alColor(0.35f);
 	alColor m_viewportBorder = ColorYellow;
+
+	alGUIColorTheme m_GUIColorTheme;
 };
 
 class Application
@@ -205,6 +221,7 @@ class Application
 	bool m_isCursorMove = false;
 	bool m_isCursorInViewport = false;
 	bool m_isCursorInUVEditor = false;
+	bool m_isCursorInGUI = false;
 
 	AppMouseMode m_mouseMode = AppMouseMode::CommonMode;
 	void SetMouseMode(AppMouseMode mm);
@@ -326,11 +343,13 @@ class Application
 			elementID_btnGizmoMove,
 			elementID_btnGizmoRotate,
 			elementID_btnGizmoScale,
+			elementID_btnGizmoRotateLocal,
+			elementID_btnGizmoScaleLocal,
 		};
 	};
 	GUI* m_gui = 0;
 
-
+	AppTransformMode m_transformMode = AppTransformMode::NoTransform;
 
 	alStringW m_toolTipBuffer;
 	HWND m_hwndTT = 0;
@@ -351,6 +370,10 @@ public:
 	void PrintLog(const char* s);
 	void UpdateWindowTitle();
 	void OnSetCursor();
+	void OnPopupCommand(uint32_t cmd);
+	void CloseProgramm();
+	void ShowAbout();
+	alSystemWindow* GetMainWindow() { return m_mainWindow; }
 
 	void GetRayFromScreen(alRay* ray, const alVec2f& coords, const alVec4f& viewportRect, const alMat4& VPInvert);
 
@@ -359,6 +382,8 @@ public:
 	void ProcessShortcuts3D();
 
 	void ViewportToggleFullView();
+	
+	void SetTransformMode(AppTransformMode);
 };
 
 #endif
