@@ -29,7 +29,7 @@ void AppViewportCamera::Copy(AppViewportCamera* other)
 void AppViewportCamera::Update()
 {
 	{
-		float32_t zoom = m_positionPlatform.w;
+		float64_t zoom = m_positionPlatform.w;
 		alMath::OrthoRHMatrix(m_projectionMatrixOrtho,
 			zoom * m_aspect,
 			zoom,
@@ -47,9 +47,9 @@ void AppViewportCamera::Update()
 		m_projectionMatrix = m_projectionMatrixPersp;
 	}
 
-	alMat4 MX(alQuaternion(m_rotationPlatform.x, 0.f, 0.f));
-	alMat4 MY(alQuaternion(0.f, m_rotationPlatform.y, 0.f));
-	//alMat4 MZ(alQuaternion(0.f, 0.f, m_rotationPlatform.z));
+	alMat4 MX(alQuaternion((float32_t)m_rotationPlatform.x, 0.f, 0.f));
+	alMat4 MY(alQuaternion(0.f, (float32_t)m_rotationPlatform.y, 0.f));
+	//alMat4 MZ(alQuaternion(0.f, 0.f, (float32_t)m_rotationPlatform.z));
 
 	m_positionCamera = alVec3(0.f, m_positionPlatform.w, 0.f);
 	m_positionCamera = alMath::Mul(m_positionCamera, (MY * MX));

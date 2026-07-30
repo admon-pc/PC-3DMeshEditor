@@ -45,6 +45,15 @@ void AppButtonIcon::OnMouseEnter()
 	case Application::GUI::elementID_btnGizmoScale:
 		g_app->m_toolTipText = L"Scale";
 		break;
+	case Application::GUI::elementID_btnCreateAdd:
+		g_app->m_toolTipText = L"Create object";
+		break;
+	case Application::GUI::elementID_btnObjectEdit:
+		g_app->m_toolTipText = L"Edit object";
+		break;
+	case Application::GUI::elementID_btnObjectParameters:
+		g_app->m_toolTipText = L"Change object parameters";
+		break;
 	}
 	g_app->ShowToolTip();
 }
@@ -55,8 +64,7 @@ void AppButtonIcon::OnMouseLeave()
 
 void Application::GUI::CreateButtons()
 {
-	m_panel = m_context->GetNewPanel();
-	m_panel->m_position.Set(0.f, 0.f);
+	m_panel = m_context->GetNewPanel(alVec2f(), alVec2f());
 
 	auto iconIDSel1 = m_ta->AddUV(alVec2u(0, 0), alVec2u(32, 32));
 	auto iconIDMov1 = m_ta->AddUV(alVec2u(32 *1, 0), alVec2u(32 , 32));
@@ -66,14 +74,18 @@ void Application::GUI::CreateButtons()
 	auto iconIDMov2 = m_ta->AddUV(alVec2u(32 * 1, 64), alVec2u(32, 32));
 	auto iconIDRot2 = m_ta->AddUV(alVec2u(32 * 2, 64), alVec2u(32, 32));
 	auto iconIDSc2 = m_ta->AddUV(alVec2u(32 * 3, 64), alVec2u(32, 32));
+	
+	auto iconIDAdd1 = m_ta->AddUV(alVec2u(0, 96), alVec2u(32, 32));
+	auto iconIDParam1 = m_ta->AddUV(alVec2u(32 * 1, 96), alVec2u(32, 32));
+	auto iconIDEdit1 = m_ta->AddUV(alVec2u(32 * 2, 96), alVec2u(32, 32));
+	auto iconIDAdd2 = m_ta->AddUV(alVec2u(0, 128), alVec2u(32, 32));
+	auto iconIDParam2 = m_ta->AddUV(alVec2u(32 * 1, 128), alVec2u(32, 32));
+	auto iconIDEdit2 = m_ta->AddUV(alVec2u(32 * 2, 128), alVec2u(32, 32));
 
 	float32_t position = 0.f;
-	AppButtonIcon* btn = alCreate<AppButtonIcon>(m_context, m_ta, iconIDSel1);
+	AppButtonIcon* btn = new AppButtonIcon(m_context, m_ta, iconIDSel1, alVec2f(position,0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoSelect);
-	btn->m_position.x = position;
-	btn->m_position.y = 0;
-	btn->m_size.Set(32.f,32.f);
 	btn->m_toggleButton = true;	
 	btn->m_radioButton = true;
 	btn->m_radioGroup = 1;
@@ -83,12 +95,9 @@ void Application::GUI::CreateButtons()
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = alCreate<AppButtonIcon>(m_context, m_ta, iconIDMov1);
+	btn = new AppButtonIcon(m_context, m_ta, iconIDMov1, alVec2f(position, 0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoMove);
-	btn->m_position.x = position;
-	btn->m_position.y = 0;
-	btn->m_size.Set(32.f, 32.f);
 	btn->m_toggleButton = true;
 	btn->m_radioButton = true;
 	btn->m_radioGroup = 1;
@@ -97,12 +106,9 @@ void Application::GUI::CreateButtons()
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = alCreate<AppButtonIcon>(m_context, m_ta, iconIDRot1);
+	btn = new AppButtonIcon(m_context, m_ta, iconIDRot1, alVec2f(position, 0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoRotate);
-	btn->m_position.x = position;
-	btn->m_position.y = 0;
-	btn->m_size.Set(32.f, 32.f);
 	btn->m_toggleButton = true;
 	btn->m_radioButton = true;
 	btn->m_radioGroup = 1;
@@ -111,12 +117,9 @@ void Application::GUI::CreateButtons()
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = alCreate<AppButtonIcon>(m_context, m_ta, iconIDSc1);
+	btn = new AppButtonIcon(m_context, m_ta, iconIDSc1, alVec2f(position, 0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoScale);
-	btn->m_position.x = position;
-	btn->m_position.y = 0;
-	btn->m_size.Set(32.f, 32.f);
 	btn->m_toggleButton = true;
 	btn->m_radioButton = true;
 	btn->m_radioGroup = 1;
@@ -125,7 +128,45 @@ void Application::GUI::CreateButtons()
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	m_panel->m_size.Set((float32_t)g_app->m_mainWindow->m_clientSize.x,
+	position = 0;
+	btn = new AppButtonIcon(m_context, m_ta, iconIDEdit1, alVec2f(position, 0), alVec2f(32.f, 32.f));
+	btn->SetUserData(this);
+	btn->SetID(elementID_btnObjectEdit);
+	btn->m_toggleButton = true;
+	btn->m_radioButton = true;
+	btn->m_radioGroup = 2;
+	btn->m_iconIndexPress = iconIDEdit2;
+	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
+	btn->m_alignment = alGUIElementAlignment::RightTop;
+	m_panel->AddElement(btn, true);
+	position += 32;
+
+	btn = new AppButtonIcon(m_context, m_ta, iconIDParam1, alVec2f(position, 0), alVec2f(32.f, 32.f));
+	btn->SetUserData(this);
+	btn->SetID(elementID_btnObjectParameters);
+	btn->m_toggleButton = true;
+	btn->m_radioButton = true;
+	btn->m_radioGroup = 2;
+	btn->m_iconIndexPress = iconIDParam2;
+	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
+	btn->m_alignment = alGUIElementAlignment::RightTop;
+	m_panel->AddElement(btn, true);
+	position += 32;
+
+	btn = new AppButtonIcon(m_context, m_ta, iconIDAdd1, alVec2f(position, 0), alVec2f(32.f, 32.f));
+	btn->SetUserData(this);
+	btn->SetID(elementID_btnCreateAdd);
+	btn->m_toggleButton = true;
+	btn->m_radioButton = true;
+	btn->m_radioGroup = 2;
+	btn->m_iconIndexPress = iconIDAdd2;
+	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
+	btn->m_alignment = alGUIElementAlignment::RightTop;
+	m_panel->AddElement(btn, true);
+	btn->RadioCheck();
+	position += 32;
+
+	m_panel->SetPositionAndSize(0.f, 0.f, (float32_t)g_app->m_mainWindow->m_clientSize.x,
 		32.f);
 	m_panel->Rebuild();
 
@@ -768,7 +809,7 @@ void Application::OnWindowSizeChanged()
 {
 	if (m_gui)
 	{
-		m_gui->m_panel->m_size.x = (float32_t)m_mainWindow->m_clientSize.x;
+		m_gui->m_panel->SetPositionAndSize(0.f,0.f, (float32_t)m_mainWindow->m_clientSize.x, 32.f);
 		m_gui->m_panel->Rebuild();
 	}
 

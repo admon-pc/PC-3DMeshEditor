@@ -30,8 +30,60 @@ public:
 			m_rect.z = m_layout->m_viewports.m_data[0]->m_rect.z + 5;
 			m_rect.w = m_layout->m_viewports.m_data[0]->m_rect.w + 5;
 		}break;
+		}		
+	}
+	virtual void OnResize() override
+	{
+		auto input = alLib::GetInput();
+
+		bool mouseMove = false;
+		if (input->m_mouseDelta.x != 0.f || input->m_mouseDelta.y != 0.f)
+			mouseMove = true;
+		if (mouseMove)
+		{
+	/*
+	if (m_isOnLeftBorder) m_rect.x += g_leftPanelWidth;
+	if (m_isOnRightBorder) m_rect.z -= g_rightPanelWidth;
+	if (m_isOnTopBorder) m_rect.y += g_topPanelHeight;
+	if (m_isOnBottomBorder) m_rect.w -= g_bottomPanelHeight;
+	*/
+			switch (m_id)
+			{
+			case 0:
+			{
+				float32_t leftSide = m_layout->m_viewports.m_data[0]->m_rect.x;
+				float32_t W = m_layout->m_viewports.m_data[1]->m_rect.z - leftSide;
+				if (input->m_cursorCoords.x >= leftSide)
+				{
+					if (input->m_cursorCoords.x <= m_layout->m_viewports.m_data[1]->m_rect.z)
+					{
+						//printf("%i\n", input->m_cursorCoords.x);
+						/*float32_t v = alMath::Normalize(W, input->m_cursorCoords.x
+							- leftSide 
+							- g_rightPanelWidth
+							+ g_leftPanelWidth
+							- AppViewportBorderSize);
+						if (v > 1.f)
+							v = 1.f;
+						if (v < 0.f)
+							v = 0.f;
+
+						m_layout->m_viewports.m_data[0]->m_rect1_0.z = v;
+						m_layout->m_viewports.m_data[1]->m_rect1_0.x = v;
+						m_layout->m_viewports.m_data[2]->m_rect1_0.z = v;
+						m_layout->m_viewports.m_data[3]->m_rect1_0.x = v;*/
+					}
+				}
+
+			}break;
+			case 1:
+			{
+			}break;
+			case 2:
+			{
+			}break;
+			}
 		}
-		
 	}
 };
 
@@ -276,57 +328,81 @@ void Application::UpdateViewports()
 //		}
 //	}
 
+	if (input->m_isLMBUp)
+	{
+		m_viewportResizeMode = false;
+		m_viewportResizer = 0;
+	}
+
 	m_isCursorInViewport = false;
 	if (!m_isCursorInGUI)
 	{
-		//if (input->m_isLMBDown)
-		//	m_cursorLMBClickPosition = input->m_cursorCoords;
+		if (input->m_isLMBDown)
+			m_cursorLMBClickPosition = input->m_cursorCoords;
+		bool cursorInResizer = false;
 
+		/*AppViewportResizer* rszr = 0;
 		for (size_t k = 0; k < m_activeViewportLayout->m_resizers.m_size; ++k)
 		{
-			auto ct = m_activeViewportLayout->CursorInResizer(input);
-			if (ct != AppCursorType::No)
+			rszr = m_activeViewportLayout->CursorInResizer(input);
+			if (rszr)
 			{
-				m_currentCursor = ct;
+				cursorInResizer = true;
+				m_currentCursor = rszr->m_cursorType;
 				OnSetCursor();
+
+				if (input->m_isLMBDown)
+				{
+					m_viewportResizeMode = true;
+					m_viewportResizer = rszr;
+				}
+				break;
 			}
+		}*/
+		if (m_viewportResizer)
+		{
+			m_viewportResizer->OnResize();
+			_callViewportOnWindowSize();
 		}
 
-		for (size_t i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
+		if (!cursorInResizer && !m_viewportResizeMode)
 		{
-			auto viewport = m_activeViewportLayout->m_viewports[i];
-
-			viewport->m_isCursorInRect =
-				alMath::PointInRect(input->m_cursorCoords.x, input->m_cursorCoords.y,
-					viewport->m_rect);
-
-			if (viewport->m_isCursorInRect)
+			for (size_t i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
 			{
-				GetRayFromScreen(&m_screenRayCurrent, input->m_cursorCoordsForGUI,
-					m_activeViewportLayout->m_activeViewport->m_rect,
-					m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
+				auto viewport = m_activeViewportLayout->m_viewports[i];
 
-				m_isCursorInViewport = true;
-				m_viewportUnderCursor = viewport;
+				viewport->m_isCursorInRect =
+					alMath::PointInRect(input->m_cursorCoords.x, input->m_cursorCoords.y,
+						viewport->m_rect);
 
-				m_isCursorInUVEditor = false;
-				if (viewport->m_viewportType == AppViewportType::UV)
+				if (viewport->m_isCursorInRect)
 				{
-					m_isCursorInUVEditor = true;
-				}
+					GetRayFromScreen(&m_screenRayCurrent, input->m_cursorCoordsForGUI,
+						m_activeViewportLayout->m_activeViewport->m_rect,
+						m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
+
+					m_isCursorInViewport = true;
+					m_viewportUnderCursor = viewport;
+
+					m_isCursorInUVEditor = false;
+					if (viewport->m_viewportType == AppViewportType::UV)
+					{
+						m_isCursorInUVEditor = true;
+					}
 
 
-				if (input->m_wheelDelta)
-					viewport->m_activeCamera->Zoom();
+					if (input->m_wheelDelta)
+						viewport->m_activeCamera->Zoom();
 
-				if (input->m_isLMBDown
-					|| input->m_isMMBDown
-					|| input->m_isRMBDown
-					|| input->m_isX1MBDown
-					|| input->m_isX2MBDown)
-				{
-					if (m_activeViewportLayout->m_activeViewport != viewport)
-						m_activeViewportLayout->m_activeViewport = viewport;
+					if (input->m_isLMBDown
+						|| input->m_isMMBDown
+						|| input->m_isRMBDown
+						|| input->m_isX1MBDown
+						|| input->m_isX2MBDown)
+					{
+						if (m_activeViewportLayout->m_activeViewport != viewport)
+							m_activeViewportLayout->m_activeViewport = viewport;
+					}
 				}
 			}
 		}
@@ -553,11 +629,10 @@ void Application::DrawViewports()
 		m_gs->DisableDepth();
 		m_gs->DrawRectangle(viewport->m_rect, m_colorThemeCurr->m_viewportColor, 0, 0);
 		m_gs->DrawRectangle(viewport->m_rect, ColorWhite, viewport->m_rtt, 0);
-
-		for (size_t k = 0; k < m_activeViewportLayout->m_resizers.m_size; ++k)
+		/*for (size_t k = 0; k < m_activeViewportLayout->m_resizers.m_size; ++k)
 		{
 			m_gs->DrawRectangle(m_activeViewportLayout->m_resizers.m_data[k]->m_rect, ColorRed);
-		}
+		}*/
 		
 	}
 	

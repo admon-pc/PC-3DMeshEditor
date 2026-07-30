@@ -242,8 +242,8 @@ void AppViewport::ShowGUI()
 
 void AppViewport::OnWindowSize()
 {
-	float32_t windowSizeX_1 = 1.f / g_app->m_mainWindow->m_clientSize.x;
-	float32_t windowSizeY_1 = 1.f / g_app->m_mainWindow->m_clientSize.y;
+	float32_t windowSizeX_1 = 1.f / (float)g_app->m_mainWindow->m_clientSize.x;
+	float32_t windowSizeY_1 = 1.f / (float)g_app->m_mainWindow->m_clientSize.y;
 
 	m_rect = m_rect1_0;
 
@@ -269,8 +269,8 @@ void AppViewport::OnWindowSize()
 	alGSTextureInfo ti;
 	ti.m_width = (uint32_t)m_rectSz.x;
 	ti.m_height = (uint32_t)m_rectSz.y;
-	if (!ti.m_width)ti.m_width = 1;
-	if (!ti.m_height)ti.m_height = 1;
+	if (!ti.m_width)ti.m_width = 2;
+	if (!ti.m_height)ti.m_height = 2;
 	m_rtt = m_gs->CreateRTT(&ti);
 
 	//m_currentRectSize.x = m_currentRect.z - m_currentRect.x;

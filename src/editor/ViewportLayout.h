@@ -8,12 +8,14 @@ public:
 	AppViewportResizer(int id) :m_id(id) {}
 	virtual ~AppViewportResizer() {}
 	virtual void Rebuild() = 0;
+	virtual void OnResize() = 0;
 
 	alVec4f m_rect;
 	int m_id = 0;
 	AppViewportLayout* m_layout = 0;
 
 	AppCursorType m_cursorType = AppCursorType::Arrow;
+
 };
 
 class AppViewportLayout
@@ -33,7 +35,8 @@ public:
 	void AddResizer(AppViewportResizer* r, AppCursorType ct);
 	void Rebuild();
 
-	AppCursorType CursorInResizer(alInput*);
+	AppViewportResizer* CursorInResizer(alInput*);
+	//void OnResize(AppViewportResizer*);
 };
 
 #endif

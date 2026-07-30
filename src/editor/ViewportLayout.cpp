@@ -62,17 +62,17 @@ void AppViewportLayout::Rebuild()
 	}
 }
 
-AppCursorType AppViewportLayout::CursorInResizer(alInput* input)
+AppViewportResizer* AppViewportLayout::CursorInResizer(alInput* input)
 {
 	for (size_t i = 0; i < m_resizers.m_size; ++i)
 	{
 		if (alMath::PointInRect(input->m_cursorCoordsForGUI.x, input->m_cursorCoordsForGUI.y,
 			m_resizers.m_data[i]->m_rect))
 		{
-			return m_resizers.m_data[i]->m_cursorType;
+			return m_resizers.m_data[i];
 		}
 	}
 
-	return AppCursorType::No;
+	return 0;
 }
 

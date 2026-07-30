@@ -20,15 +20,19 @@
 #define AppMenuID_VIEW_TOGGLEFULLVIEW 10
 #define AppMenuID_HELP_ABOUT 11
 
+class AppViewportResizer;
+
 class AppButtonIcon : public alGUIButtonIcon
 {
 public:
 	AppButtonIcon(alGUIContext* ct,
-		alGUITextureAtlas* ta, uint32_t ii)
+		alGUITextureAtlas* ta, uint32_t ii, const alVec2f& position, const alVec2f& size)
 		:
-		alGUIButtonIcon(ct, ta, ii)
+		alGUIButtonIcon(ct, ta, ii,position,size)
 	{}
 	virtual ~AppButtonIcon() {}
+	AL_DECLARE_DEFAULT_ALLOCATOR(AppButtonIcon);
+
 	virtual void OnMouseEnter() override;
 	virtual void OnMouseLeave() override;
 
@@ -261,6 +265,10 @@ class Application
 	alRay m_screenRayCurrent;
 
 	alVec4 m_cursorPosition3D;         // intersection point
+	alVec2i m_cursorLMBClickPosition;
+
+	bool m_viewportResizeMode = false;
+	AppViewportResizer* m_viewportResizer = 0;
 
 	AppSelectionFrust m_selectionFrust;
 
@@ -345,6 +353,9 @@ class Application
 			elementID_btnGizmoScale,
 			elementID_btnGizmoRotateLocal,
 			elementID_btnGizmoScaleLocal,
+			elementID_btnCreateAdd,
+			elementID_btnObjectParameters,
+			elementID_btnObjectEdit,
 		};
 	};
 	GUI* m_gui = 0;
