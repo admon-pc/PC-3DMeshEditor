@@ -1,2 +1,4 @@
-Info: Jul 31 2026 : 00:40:44
+Info: Aug  2 2026 : 14:26:21
 Load Image: ../data/gui/gui.png
+Info: Load plugin: plugins/PluginSTD.dll...
+Info: DONE (-)

@@ -57,3 +57,4 @@ build/.vs
 build/editor/.vs
 build/editor/Debug
 build/editor/Release
+build/PluginSTD/Debug

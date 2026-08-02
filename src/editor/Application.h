@@ -208,6 +208,8 @@ class Application
 	friend class AppShortcutManager;
 	friend class AppButtonIcon;
 
+	EditorInterface* m_editorInterface = 0;
+
 	FILE* m_fileLog = 0;
 	alCursor* m_cursors[(uint32_t)AppCursorType::_count];
 	AppCursorType m_currentCursor = AppCursorType::Arrow;
@@ -367,6 +369,13 @@ class Application
 	bool m_showToolTip = false;
 	float32_t m_tooltipTimer = 0.f;
 	const wchar_t* m_toolTipText = 0;
+	
+	struct plugin_info {
+		EditorPlugin* m_plugin = 0;
+		alStringA m_path;
+	};
+	alArray<plugin_info> m_plugins;
+	void _initPlugins();
 
 public:
 	Application();

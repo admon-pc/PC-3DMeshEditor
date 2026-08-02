@@ -1,5 +1,7 @@
 ﻿#pragma once
 #ifndef _PCEDITOR_H_
+#define _PCEDITOR_H_
+
 #include "resource.h"
 
 #include "al.h"
@@ -16,6 +18,11 @@ class Application;
 class AppVertex;
 class AppEdge;
 class AppViewportLayout;
+
+#define APP_SDK_VERSION 1
+
+#include "Plugin.h"
+#include "EditorInterfaceImpl.h"
 
 #include "Application.h"
 #include "Viewport.h"

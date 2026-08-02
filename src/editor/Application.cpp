@@ -1,6 +1,7 @@
 ﻿#include "editor.h"
 #include <Windows.h>
 #include <commctrl.h>
+#include <filesystem>
 
 Application* g_app = 0;
 alMat4 g_emptyMatrix;
@@ -236,6 +237,11 @@ Application::Application()
 
 Application::~Application()
 {
+	for (size_t i = 0; i < m_plugins.m_size; ++i)
+	{
+		AL_DESTROY(m_plugins.m_data[i].m_plugin);
+	}
+
 	AL_DESTROY(m_gui);
 	
 
@@ -245,6 +251,7 @@ Application::~Application()
 	AL_DESTROY(m_shaderLineModel);
 	AL_DESTROY(m_gs);
 	AL_DESTROY(m_windowCallback);
+	AL_DESTROY(m_editorInterface);
 
 	DestroyWindow(m_hwndTT);
 
@@ -286,6 +293,7 @@ bool Application::OnCreate(const char* videoDriver)
 	alLog::SetPrintFunction(PrintLogFunction);
 	alLog::PrintInfo("%s : %s\n", __DATE__, __TIME__);
 
+	m_editorInterface = alCreate<EditorInterfaceImpl>();
 
 	for (uint32_t i = 0; i < (uint32_t)AppCursorType::_count; ++i)
 	{
@@ -422,6 +430,9 @@ bool Application::OnCreate(const char* videoDriver)
 	m_colorThemeCurr->m_GUIColorTheme.m_buttonIcon_press = ColorWhite;
 
 	_callViewportOnWindowSize();
+
+	_initPlugins();
+
 	return true;
 }
 
@@ -915,4 +926,57 @@ void Application::ShowAbout()
 		w32->m_hwnd,
 		DialogProcAbout);
 	ShowWindow(hdlg, SW_SHOW);
+}
+
+void Application::_initPlugins()
+{
+	for (auto& entry : std::filesystem::directory_iterator(L"plugins/"))
+	{
+		auto path = entry.path();
+		if (!path.has_extension())
+			continue;
+
+		auto ex = path.extension();
+		if (ex != ".dll")
+			continue;
+
+		auto lib_str = path.generic_string();
+
+		auto module = alLib::DLLLoad(lib_str.c_str());
+		if (!module)
+			continue;
+
+		alLog::PrintInfo("Load plugin: %s...\n", lib_str.data());
+		const char* funcName = "EditorLoadPlugin";
+		EditorLoadPlugin_t CreatePlugin = (EditorLoadPlugin_t)alLib::DLLGetProc(funcName, module);
+		if (!CreatePlugin)
+		{
+			alLog::PrintInfo("FAIL (function %s not found)\n", funcName);
+			continue;
+		}
+
+
+		auto newPlugin = CreatePlugin(m_editorInterface);
+		if (newPlugin)
+		{
+			if (newPlugin->SDKVersion() != APP_SDK_VERSION)
+			{
+				alDestroy(newPlugin);
+				alLog::PrintError("FAIL (bad version)\n");
+				continue;
+			}
+
+			alLog::PrintInfo("DONE (%s)\n", alUnicodeString(newPlugin->Name()).GetStringA().c_str());
+
+			plugin_info pi;
+			pi.m_plugin = newPlugin;
+			pi.m_path = path.filename().generic_string().c_str();
+
+			m_plugins.push_back(pi);
+		}
+		else
+		{
+			alLog::PrintInfo("FAIL (nullptr)\n");
+		}
+	}
 }
