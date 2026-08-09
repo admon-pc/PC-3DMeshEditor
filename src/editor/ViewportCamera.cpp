@@ -29,7 +29,7 @@ void AppViewportCamera::Copy(AppViewportCamera* other)
 void AppViewportCamera::Update()
 {
 	{
-		float64_t zoom = m_positionPlatform.w;
+		float32_t zoom = (float32_t)m_positionPlatform.w;
 		alMath::OrthoRHMatrix(m_projectionMatrixOrtho,
 			zoom * m_aspect,
 			zoom,
@@ -61,9 +61,9 @@ void AppViewportCamera::Update()
 	T.m_data[3].z = -m_positionCamera.z;
 	T.m_data[3].w = 1.f;
 
-	alMat4 P(alQuaternion(alVec4f(-m_rotationPlatform.x + alMath::DegToRad(-90.f), 0.f, 0.f, 1.f)));
-	alMat4 Y(alQuaternion(alVec4f(0.f, -m_rotationPlatform.y + alMath::DegToRad(0.f), 0.f, 1.f)));
-	alMat4 R(alQuaternion(alVec4f(0.f, 0.f, m_rotationPlatform.z, 1.f)));
+	alMat4 P(alQuaternion(alVec4f(float32_t(-m_rotationPlatform.x) + alMath::DegToRad(-90.f), 0.f, 0.f, 1.f)));
+	alMat4 Y(alQuaternion(alVec4f(0.f, float32_t(-m_rotationPlatform.y) + alMath::DegToRad(0.f), 0.f, 1.f)));
+	alMat4 R(alQuaternion(alVec4f(0.f, 0.f, float32_t(m_rotationPlatform.z), 1.f)));
 
 	m_viewMatrix = (R * (P * Y)) * T;
 	m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
@@ -140,7 +140,7 @@ void AppViewportCamera::Reset()
 {
 	m_near = 0.01f;
 	m_far = 2500.f;
-	m_fov = 0.683264;
+	m_fov = 0.683264f;
 	m_aspect = 800.f / 600.f;
 	m_positionPlatform = alVec4(0.f, 0.f, 0.f, 15.f);
 	switch (m_type)
@@ -178,7 +178,7 @@ void AppViewportCamera::Reset()
 
 void AppViewportCamera::PanMove()
 {
-	float32_t speed = 10.f * (m_positionPlatform.w * 0.01f);
+	float32_t speed = 10.f * ((float32_t)m_positionPlatform.w * 0.01f);
 
 	auto input = alLib::GetInput();
 
@@ -187,8 +187,8 @@ void AppViewportCamera::PanMove()
 		0.f,
 		speed * -input->m_mouseDelta.y * g_app->m_dt,
 		0.f);
-	alMat4 MX(alQuaternion(m_rotationPlatform.x, 0.f, 0.f));
-	alMat4 MY(alQuaternion(0.f, m_rotationPlatform.y, 0.f));
+	alMat4 MX(alQuaternion((float32_t)m_rotationPlatform.x, 0.f, 0.f));
+	alMat4 MY(alQuaternion(0.f, (float32_t)m_rotationPlatform.y, 0.f));
 	//alMat4 MZ(alQuaternion(0.f, 0.f, m_rotationPlatform.z));
 	vec = alMath::Mul(vec, MY * MX);
 	m_positionPlatform += vec;
@@ -239,8 +239,8 @@ void AppViewportCamera::ChangeFOV()
 	m_fov += input->m_mouseDelta.x * g_app->m_dt;
 	if (m_fov < 0.01f)
 		m_fov = 0.01f;
-	if (m_fov > PI)
-		m_fov = PI;
+	if (m_fov > PIf)
+		m_fov = PIf;
 	//printf("m_fov %f\n", m_fov);
 	Update();
 }

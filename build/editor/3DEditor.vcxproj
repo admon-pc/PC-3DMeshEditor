@@ -23,8 +23,10 @@
     <ClCompile Include="..\..\src\editor\Application.cpp" />
     <ClCompile Include="..\..\src\editor\Application.viewport.cpp" />
     <ClCompile Include="..\..\src\editor\DialogWndProcs.cpp" />
-    <ClCompile Include="..\..\src\editor\EditorInterfaceImpl.cpp" />
+    <ClCompile Include="..\..\src\editor\PluginInterfaceImpl.cpp" />
     <ClCompile Include="..\..\src\editor\Gizmo.cpp" />
+    <ClCompile Include="..\..\src\editor\Scene.cpp" />
+    <ClCompile Include="..\..\src\editor\SceneObject.cpp" />
     <ClCompile Include="..\..\src\editor\SelectionFrustum.cpp" />
     <ClCompile Include="..\..\src\editor\ShortcutManager.cpp" />
     <ClCompile Include="..\..\src\editor\SystemWindowCallback.cpp" />

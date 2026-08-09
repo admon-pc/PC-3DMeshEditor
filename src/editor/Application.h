@@ -208,7 +208,7 @@ class Application
 	friend class AppShortcutManager;
 	friend class AppButtonIcon;
 
-	EditorInterface* m_editorInterface = 0;
+	PluginInterface* m_pluginInterface = 0;
 
 	FILE* m_fileLog = 0;
 	alCursor* m_cursors[(uint32_t)AppCursorType::_count];
@@ -371,7 +371,7 @@ class Application
 	const wchar_t* m_toolTipText = 0;
 	
 	struct plugin_info {
-		EditorPlugin* m_plugin = 0;
+		Plugin* m_plugin = 0;
 		alStringA m_path;
 	};
 	alArray<plugin_info> m_plugins;

@@ -251,7 +251,7 @@ Application::~Application()
 	AL_DESTROY(m_shaderLineModel);
 	AL_DESTROY(m_gs);
 	AL_DESTROY(m_windowCallback);
-	AL_DESTROY(m_editorInterface);
+	AL_DESTROY(m_pluginInterface);
 
 	DestroyWindow(m_hwndTT);
 
@@ -293,7 +293,7 @@ bool Application::OnCreate(const char* videoDriver)
 	alLog::SetPrintFunction(PrintLogFunction);
 	alLog::PrintInfo("%s : %s\n", __DATE__, __TIME__);
 
-	m_editorInterface = alCreate<EditorInterfaceImpl>();
+	m_pluginInterface = alCreate<PluginInterfaceImpl>();
 
 	for (uint32_t i = 0; i < (uint32_t)AppCursorType::_count; ++i)
 	{
@@ -432,6 +432,10 @@ bool Application::OnCreate(const char* videoDriver)
 	_callViewportOnWindowSize();
 
 	_initPlugins();
+	for (size_t i = 0; i < m_plugins.m_size; ++i)
+	{
+		auto plugin = m_plugins.m_data[i];
+	}
 
 	return true;
 }
@@ -947,8 +951,8 @@ void Application::_initPlugins()
 			continue;
 
 		alLog::PrintInfo("Load plugin: %s...\n", lib_str.data());
-		const char* funcName = "EditorLoadPlugin";
-		EditorLoadPlugin_t CreatePlugin = (EditorLoadPlugin_t)alLib::DLLGetProc(funcName, module);
+		const char* funcName = "PluginLoad";
+		LoadPlugin_t CreatePlugin = (LoadPlugin_t)alLib::DLLGetProc(funcName, module);
 		if (!CreatePlugin)
 		{
 			alLog::PrintInfo("FAIL (function %s not found)\n", funcName);
@@ -956,17 +960,20 @@ void Application::_initPlugins()
 		}
 
 
-		auto newPlugin = CreatePlugin(m_editorInterface);
+		auto newPlugin = CreatePlugin(m_pluginInterface);
 		if (newPlugin)
 		{
-			if (newPlugin->SDKVersion() != APP_SDK_VERSION)
+			if (newPlugin->SDKVersion() != PLUGIN_SDK_VERSION)
 			{
 				alDestroy(newPlugin);
 				alLog::PrintError("FAIL (bad version)\n");
 				continue;
 			}
 
-			alLog::PrintInfo("DONE (%s)\n", alUnicodeString(newPlugin->Name()).GetStringA().c_str());
+			alLog::PrintInfo("\t(%s)\n", alUnicodeString(newPlugin->Name()).GetStringA().c_str());
+			alLog::PrintInfo("\t(%s)\n", alUnicodeString(newPlugin->Desc()).GetStringA().c_str());
+			alLog::PrintInfo("\t\t(%s)\n", alUnicodeString(newPlugin->Author()).GetStringA().c_str());
+			alLog::PrintInfo("\t\t((c) %s)\n", alUnicodeString(newPlugin->Copyright()).GetStringA().c_str());
 
 			plugin_info pi;
 			pi.m_plugin = newPlugin;

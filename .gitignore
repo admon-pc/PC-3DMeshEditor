@@ -58,3 +58,5 @@ build/editor/.vs
 build/editor/Debug
 build/editor/Release
 build/PluginSTD/Debug
+build/std.object.plane/Debug
+build/std.object.plane/Release
