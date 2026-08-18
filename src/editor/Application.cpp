@@ -62,7 +62,18 @@ void AppButtonIcon::OnMouseLeave()
 {
 	g_app->HideToolTip();
 }
+void Application::GUI::CreatePanels()
+{
+	m_panelCreate = m_context->GetNewPanel(alVec2f(), alVec2f(500,500));
 
+	m_comboCategories = new AppCombo_CreatePanel_Categories(m_context,
+		alVec2f(0,90), alVec2f(100,10));
+	m_comboCategories->SetFont(g_app->m_fontGUI);
+	
+
+	m_panelCreate->AddElement(m_comboCategories, true);
+	m_panelCreate->Rebuild();
+}
 void Application::GUI::CreateButtons()
 {
 	m_panel = m_context->GetNewPanel(alVec2f(), alVec2f());
@@ -239,11 +250,12 @@ Application::~Application()
 {
 	for (size_t i = 0; i < m_plugins.m_size; ++i)
 	{
-		AL_DESTROY(m_plugins.m_data[i].m_plugin);
+		m_plugins.m_data[i].m_unloadFunc();
 	}
 
 	AL_DESTROY(m_gui);
-	
+	AL_DESTROY(m_fontGUI);
+
 
 	AL_DESTROY(m_shortcutManager);
 	AL_DESTROY(m_blackTexture);
@@ -394,6 +406,10 @@ bool Application::OnCreate(const char* videoDriver)
 			return false;
 	}
 
+	alLib::InitializeDefaultFont(m_gs);
+	m_fontGUI = alLib::CreateGUIFont();
+	m_fontGUI->Load("../data/font.zip", m_gs);
+
 	m_gs->GetDepthRange(&m_gpuDepthRange);
 	{
 		alImage img;
@@ -424,10 +440,13 @@ bool Application::OnCreate(const char* videoDriver)
 	m_gui->m_ta = alCreate<alGUITextureAtlas>(
 		m_gui->m_taTexture ? m_gui->m_taTexture : m_whiteTexture);
 	m_gui->CreateButtons();
+	m_gui->CreatePanels();
 
 	m_colorThemeCurr->m_GUIColorTheme.m_buttonIcon_enabled = ColorWhite;
 	m_colorThemeCurr->m_GUIColorTheme.m_buttonIcon_mouseHover = ColorYellow;
 	m_colorThemeCurr->m_GUIColorTheme.m_buttonIcon_press = ColorWhite;
+
+	
 
 	_callViewportOnWindowSize();
 
@@ -435,6 +454,70 @@ bool Application::OnCreate(const char* videoDriver)
 	for (size_t i = 0; i < m_plugins.m_size; ++i)
 	{
 		auto plugin = m_plugins.m_data[i];
+		auto pluginType = plugin.m_plugin->PluginType();
+		if (alLib::GUIDIsEqual(pluginType, PLUGIN_CLASS_ID_PLUGIN_TYPE_OBJECT))
+		{
+			PluginObject* po = dynamic_cast<PluginObject*>(plugin.m_plugin);
+			if (po)
+			{
+				const char32_t* cat = po->Category();
+				const char32_t* subcat = po->SubCategory();
+
+				if (cat && subcat)
+				{
+					Application::new_object_basic_data::new_object_category* category = 0;
+					for (size_t ci = 0; ci < m_new_object_basic_data.m_categories.m_size; ++ci)
+					{
+						category = &m_new_object_basic_data.m_categories.m_data[ci];
+						if (alLib::strcmp(category->m_name, cat) == 0)
+							break;
+						category = 0;
+					}
+
+					if (!category)
+					{
+						Application::new_object_basic_data::new_object_category newCategory;
+						alLib::snprintf(
+							newCategory.m_name, 
+							Application::new_object_basic_data::NAME_SIZE,
+							U"%s", cat);
+						m_new_object_basic_data.m_categories.push_back(newCategory);
+						category = &m_new_object_basic_data.m_categories
+							.m_data[m_new_object_basic_data.m_categories.m_size - 1];
+					}
+
+					Application::new_object_basic_data::new_object_subcategory* subcategory = 0;
+					for (size_t si = 0; si < category->m_subcategories.m_size; ++si)
+					{
+						subcategory = &category->m_subcategories.m_data[si];
+						if (alLib::strcmp(subcategory->m_name, subcat) == 0)
+							break;
+						subcategory = 0;
+					}
+
+					if (!subcategory)
+					{
+						Application::new_object_basic_data::new_object_subcategory newSubCategory;
+						alLib::snprintf(
+							newSubCategory.m_name,
+							Application::new_object_basic_data::NAME_SIZE,
+							U"%s", subcat);
+						category->m_subcategories.push_back(newSubCategory);
+						subcategory = &category->m_subcategories
+							.m_data[category->m_subcategories.m_size - 1];
+					}
+				}
+			}
+		}
+	}
+	if(m_new_object_basic_data.m_categories.m_size)
+	{
+		m_gui->m_comboCategories->SetItems(
+			m_new_object_basic_data.m_categories.m_data,
+			m_new_object_basic_data.m_categories.m_size,
+			sizeof(new_object_basic_data::new_object_category),
+			0);
+		m_gui->m_comboCategories->Rebuild();
 	}
 
 	return true;
@@ -951,16 +1034,23 @@ void Application::_initPlugins()
 			continue;
 
 		alLog::PrintInfo("Load plugin: %s...\n", lib_str.data());
-		const char* funcName = "PluginLoad";
-		LoadPlugin_t CreatePlugin = (LoadPlugin_t)alLib::DLLGetProc(funcName, module);
-		if (!CreatePlugin)
+		const char* funcName_load = "PluginLoad";
+		const char* funcName_unload = "PluginUnload";
+		PluginLoad_t PluginLoad = (PluginLoad_t)alLib::DLLGetProc(funcName_load, module);
+		if (!PluginLoad)
 		{
-			alLog::PrintInfo("FAIL (function %s not found)\n", funcName);
+			alLog::PrintInfo("FAIL (function %s not found)\n", funcName_load);
+			continue;
+		}
+		PluginUnload_t PluginUnload = (PluginUnload_t)alLib::DLLGetProc(funcName_unload, module);
+		if (!PluginUnload)
+		{
+			alLog::PrintInfo("FAIL (function %s not found)\n", funcName_load);
 			continue;
 		}
 
 
-		auto newPlugin = CreatePlugin(m_pluginInterface);
+		auto newPlugin = PluginLoad(m_pluginInterface);
 		if (newPlugin)
 		{
 			if (newPlugin->SDKVersion() != PLUGIN_SDK_VERSION)
@@ -978,6 +1068,7 @@ void Application::_initPlugins()
 			plugin_info pi;
 			pi.m_plugin = newPlugin;
 			pi.m_path = path.filename().generic_string().c_str();
+			pi.m_unloadFunc = PluginUnload;
 
 			m_plugins.push_back(pi);
 		}

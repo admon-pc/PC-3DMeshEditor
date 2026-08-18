@@ -86,7 +86,8 @@ public:
 
 
 
-typedef Plugin* (AL_CDECL* LoadPlugin_t)(PluginInterface*);
+typedef Plugin* (AL_CDECL* PluginLoad_t)(PluginInterface*);
+typedef void (AL_CDECL* PluginUnload_t)();
 
 #endif
 

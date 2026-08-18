@@ -22,6 +22,17 @@
 
 class AppViewportResizer;
 
+class AppCombo_CreatePanel_Categories : public alGUIComboBox
+{
+public:
+	AppCombo_CreatePanel_Categories(alGUIContext* ct, const alVec2f& position, const alVec2f& size)
+		:
+		alGUIComboBox(ct,position,size)
+	{}
+	virtual ~AppCombo_CreatePanel_Categories() {}
+	AL_DECLARE_DEFAULT_ALLOCATOR(AppCombo_CreatePanel_Categories);
+};
+
 class AppButtonIcon : public alGUIButtonIcon
 {
 public:
@@ -312,6 +323,8 @@ class Application
 	AppColorTheme m_colorTheme;
 	AppColorTheme* m_colorThemeCurr = 0;
 
+	alGUIFont* m_fontGUI = 0;
+
 	AppGSShaderCallback_LineModel3D* m_shaderLineModel = 0;
 
 	alInput* m_input = 0;
@@ -342,11 +355,15 @@ class Application
 		AppButtonIcon* m_button_gizmoRotate = 0;
 		AppButtonIcon* m_button_gizmoScale= 0;*/
 		void CreateButtons();
+		void CreatePanels();
 
 		alGUIContext* m_context = 0;
 		alGUIPanel* m_panel = 0;
+		alGUIPanel* m_panelCreate = 0;
 		alGUITextureAtlas* m_ta = 0;
 		alGSTexture* m_taTexture = 0;
+
+		AppCombo_CreatePanel_Categories* m_comboCategories = 0;
 
 		enum {
 			elementID_btnGizmoSelect = 1,
@@ -373,9 +390,27 @@ class Application
 	struct plugin_info {
 		Plugin* m_plugin = 0;
 		alStringA m_path;
+		PluginUnload_t m_unloadFunc = 0;
 	};
 	alArray<plugin_info> m_plugins;
 	void _initPlugins();
+	
+	struct new_object_basic_data
+	{
+		static const uint32_t NAME_SIZE = 50;
+		struct new_object_subcategory
+		{
+			char32_t m_name[NAME_SIZE];
+			//Plugin* m_plugin = 0;
+		};
+		struct new_object_category
+		{
+			char32_t m_name[NAME_SIZE];
+			alArray<new_object_subcategory> m_subcategories;
+		};
+		alArray<new_object_category> m_categories;
+	};
+	new_object_basic_data m_new_object_basic_data;
 
 public:
 	Application();

@@ -1,13 +1,24 @@
 ﻿#include "PluginInterface.h"
 #include "std.object.plane.h"
 
+PluginObject_plane* g_plugin = 0;
+
 extern "C"
 {
 	_declspec(dllexport) Plugin* AL_CDECL PluginLoad(PluginInterface* ei)
 	{
-		PluginObject_plane* plugin = (PluginObject_plane*)ei->MemAlloc(sizeof(PluginObject_plane));
-		new(plugin)PluginObject_plane(ei);
-		return plugin;
+		if(!g_plugin)
+			g_plugin = new PluginObject_plane(ei);
+		return g_plugin;
+	}
+
+	_declspec(dllexport) void AL_CDECL PluginUnload()
+	{
+		if (g_plugin)
+		{
+			delete g_plugin;
+			g_plugin = 0;
+		}
 	}
 }
 
