@@ -8,6 +8,20 @@ alMat4 g_emptyMatrix;
 TOOLINFO g_toolTipInfo;
 INT_PTR CALLBACK DialogProcAbout(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
+void AppGUICombo::OnComboSelectItem(size_t index)
+{
+	m_selected = index;
+	uint8_t* ptr = (uint8_t*)m_items;
+	m_text = (char32_t*)(&ptr[index * m_stride] + m_textOffset);
+
+	switch (GetID())
+	{
+	case AppGUIID_Combo_Create_Category: {
+		g_app->OnCombo_Create_Category(index);
+	}break;
+	}
+}
+
 void AppButtonIcon::OnButtonToggleOn()
 {
 	switch (GetID())
@@ -64,14 +78,13 @@ void AppButtonIcon::OnMouseLeave()
 }
 void Application::GUI::CreatePanels()
 {
-	m_panelCreate = m_context->GetNewPanel(alVec2f(), alVec2f(500,500));
+	m_panelCreate = m_context->GetNewPanel(alVec2f(), alVec2f(0,0));
+	AppGUICombo* combo = new AppGUICombo(m_context,
+		alVec2f(0,10), alVec2f(g_rightPanelWidth,10));
+	combo->SetFont(g_app->m_fontGUI);
+	combo->SetID(AppGUIID_Combo_Create_Category);
+	m_panelCreate->AddElement(combo, true);
 
-	m_comboCategories = new AppCombo_CreatePanel_Categories(m_context,
-		alVec2f(0,90), alVec2f(100,10));
-	m_comboCategories->SetFont(g_app->m_fontGUI);
-	
-
-	m_panelCreate->AddElement(m_comboCategories, true);
 	m_panelCreate->Rebuild();
 }
 void Application::GUI::CreateButtons()
@@ -446,9 +459,7 @@ bool Application::OnCreate(const char* videoDriver)
 	m_colorThemeCurr->m_GUIColorTheme.m_buttonIcon_mouseHover = ColorYellow;
 	m_colorThemeCurr->m_GUIColorTheme.m_buttonIcon_press = ColorWhite;
 
-	
-
-	_callViewportOnWindowSize();
+//	_callViewportOnWindowSize();
 
 	_initPlugins();
 	for (size_t i = 0; i < m_plugins.m_size; ++i)
@@ -461,9 +472,8 @@ bool Application::OnCreate(const char* videoDriver)
 			if (po)
 			{
 				const char32_t* cat = po->Category();
-				const char32_t* subcat = po->SubCategory();
 
-				if (cat && subcat)
+				if (cat)
 				{
 					Application::new_object_basic_data::new_object_category* category = 0;
 					for (size_t ci = 0; ci < m_new_object_basic_data.m_categories.m_size; ++ci)
@@ -486,41 +496,35 @@ bool Application::OnCreate(const char* videoDriver)
 							.m_data[m_new_object_basic_data.m_categories.m_size - 1];
 					}
 
-					Application::new_object_basic_data::new_object_subcategory* subcategory = 0;
-					for (size_t si = 0; si < category->m_subcategories.m_size; ++si)
-					{
-						subcategory = &category->m_subcategories.m_data[si];
-						if (alLib::strcmp(subcategory->m_name, subcat) == 0)
-							break;
-						subcategory = 0;
-					}
-
-					if (!subcategory)
-					{
-						Application::new_object_basic_data::new_object_subcategory newSubCategory;
-						alLib::snprintf(
-							newSubCategory.m_name,
-							Application::new_object_basic_data::NAME_SIZE,
-							U"%s", subcat);
-						category->m_subcategories.push_back(newSubCategory);
-						subcategory = &category->m_subcategories
-							.m_data[category->m_subcategories.m_size - 1];
-					}
 				}
 			}
 		}
 	}
 	if(m_new_object_basic_data.m_categories.m_size)
 	{
-		m_gui->m_comboCategories->SetItems(
-			m_new_object_basic_data.m_categories.m_data,
-			m_new_object_basic_data.m_categories.m_size,
-			sizeof(new_object_basic_data::new_object_category),
-			0);
-		m_gui->m_comboCategories->Rebuild();
+		auto e = m_gui->m_panelCreate->GetElementByID(AppGUIID_Combo_Create_Category);
+		if (e)
+		{
+			alGUIComboBox* combo = dynamic_cast<alGUIComboBox*>(e);
+			if (combo)
+			{
+				combo->SetItems(
+					m_new_object_basic_data.m_categories.m_data,
+					m_new_object_basic_data.m_categories.m_size,
+					sizeof(new_object_basic_data::new_object_category),
+					0);
+				combo->OnComboSelectItem(0);
+				combo->Rebuild();
+			}
+		}
 	}
-
+	OnWindowSizeChanged();
 	return true;
+}
+
+void Application::OnCombo_Create_Category(uint32_t index)
+{
+	
 }
 
 void Application::UpdateWindowTitle()
@@ -907,6 +911,13 @@ void Application::OnWindowSizeChanged()
 {
 	if (m_gui)
 	{
+		m_gui->m_panelCreate->SetPositionAndSize(
+			m_mainWindow->m_clientSize.x - g_rightPanelWidth,
+			g_topPanelHeight,
+			g_rightPanelWidth,
+			(float32_t)m_mainWindow->m_clientSize.y);
+		m_gui->m_panelCreate->Rebuild();
+
 		m_gui->m_panel->SetPositionAndSize(0.f,0.f, (float32_t)m_mainWindow->m_clientSize.x, 32.f);
 		m_gui->m_panel->Rebuild();
 	}

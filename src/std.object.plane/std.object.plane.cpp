@@ -70,12 +70,7 @@ PluginClassID PluginObject_plane::PluginType()
 
 const char32_t* PluginObject_plane::Category()
 {
-	return U"Polygonal";
-}
-
-const char32_t* PluginObject_plane::SubCategory()
-{
-	return U"Basic shapes";
+	return U"Standart";
 }
 
 const char32_t* PluginObject_plane::TitleName()

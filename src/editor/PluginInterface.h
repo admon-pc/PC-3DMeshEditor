@@ -64,8 +64,28 @@ public:
 	PluginObject(PluginInterface* i):Plugin(i){}
 	virtual ~PluginObject() {}
 
+	// This will set where creation button will be located.
+	// All objects on the scene are one of these types.
+	// When you need to create new object, you click on Create button,
+	// then on specific button that represent this EObjectType.
+	// After this, below, there must appear a ComboBox.
+	// This combobox will have categories. Category is a plugin thing.
+	// When you create PluginObject, you return 'Category' as a string.
+	// I don't know how to call it. Let's call it category. It's your category.
+	// When you select category, you know, from which plugin all this coming.
+	// Each plugin contains only one object. If they all have same category,
+	// buttons for creating these objects will be shown together.
+	// Each Button will have title (method TitleName should return this title).
+	// All objects should have unique PluginClassID.
+	//
+	enum EObjectType
+	{
+		EObjectType_Polygonal,
+		EObjectType_Helper,
+	};
+
+	virtual EObjectType* ObjectType() = 0;
 	virtual const char32_t* Category() = 0;
-	virtual const char32_t* SubCategory() = 0;
 	virtual const char32_t* TitleName() = 0;
 	virtual PluginClassID ClassID() = 0;
 };

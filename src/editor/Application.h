@@ -20,17 +20,23 @@
 #define AppMenuID_VIEW_TOGGLEFULLVIEW 10
 #define AppMenuID_HELP_ABOUT 11
 
+#define AppGUIID_Combo_Create_Category 1
+
 class AppViewportResizer;
 
-class AppCombo_CreatePanel_Categories : public alGUIComboBox
+class AppGUICombo : public alGUIComboBox
 {
 public:
-	AppCombo_CreatePanel_Categories(alGUIContext* ct, const alVec2f& position, const alVec2f& size)
+	AppGUICombo(alGUIContext* ct, const alVec2f& position, const alVec2f& size)
 		:
 		alGUIComboBox(ct,position,size)
 	{}
-	virtual ~AppCombo_CreatePanel_Categories() {}
-	AL_DECLARE_DEFAULT_ALLOCATOR(AppCombo_CreatePanel_Categories);
+	virtual ~AppGUICombo() {}
+	AL_DECLARE_DEFAULT_ALLOCATOR(AppGUICombo);
+
+	virtual void OnComboSelectItem(size_t) override;
+
+	size_t m_selected = 0;
 };
 
 class AppButtonIcon : public alGUIButtonIcon
@@ -363,7 +369,7 @@ class Application
 		alGUITextureAtlas* m_ta = 0;
 		alGSTexture* m_taTexture = 0;
 
-		AppCombo_CreatePanel_Categories* m_comboCategories = 0;
+		//AppCombo_CreatePanel_Categories* m_comboCategories = 0;
 
 		enum {
 			elementID_btnGizmoSelect = 1,
@@ -398,15 +404,9 @@ class Application
 	struct new_object_basic_data
 	{
 		static const uint32_t NAME_SIZE = 50;
-		struct new_object_subcategory
-		{
-			char32_t m_name[NAME_SIZE];
-			//Plugin* m_plugin = 0;
-		};
 		struct new_object_category
 		{
 			char32_t m_name[NAME_SIZE];
-			alArray<new_object_subcategory> m_subcategories;
 		};
 		alArray<new_object_category> m_categories;
 	};
@@ -439,6 +439,8 @@ public:
 	void ViewportToggleFullView();
 	
 	void SetTransformMode(AppTransformMode);
+	
+	void OnCombo_Create_Category(uint32_t);
 };
 
 #endif
