@@ -366,6 +366,8 @@ class Application
 		alGUIContext* m_context = 0;
 		alGUIPanel* m_panel = 0;
 		alGUIPanel* m_panelCreate = 0;
+		alGUIPanel* m_panelCreate_typePolygonal = 0;
+		alGUIPanel* m_panelCreate_typeHelper = 0;
 		alGUITextureAtlas* m_ta = 0;
 		alGSTexture* m_taTexture = 0;
 
@@ -401,14 +403,22 @@ class Application
 	alArray<plugin_info> m_plugins;
 	void _initPlugins();
 	
+	// this structure should contain everything for GUI that creates new objects
 	struct new_object_basic_data
 	{
 		static const uint32_t NAME_SIZE = 50;
-		struct new_object_category
+
+		struct _object_category
 		{
 			char32_t m_name[NAME_SIZE];
 		};
-		alArray<new_object_category> m_categories;
+
+		struct _EObjectType_data
+		{
+			alArray<_object_category> m_categories;
+		};
+
+		_EObjectType_data m_data[PluginObject::EObjectType::EObjectType__end];
 	};
 	new_object_basic_data m_new_object_basic_data;
 
@@ -440,6 +450,11 @@ public:
 	
 	void SetTransformMode(AppTransformMode);
 	
+	enum class RightTabMode
+	{
+		Create, Edit, Parameters,
+	};
+	void SetRightTabMode(RightTabMode);
 	void OnCombo_Create_Category(uint32_t);
 };
 

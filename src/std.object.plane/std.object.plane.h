@@ -18,6 +18,7 @@ public:
 	virtual PluginClassID PluginType() override;
 
 	/// PluginObject
+	virtual EObjectType ObjectType() override;
 	virtual const char32_t* Category() override;
 	virtual const char32_t* TitleName() override;
 	virtual PluginClassID ClassID() override;

@@ -67,6 +67,10 @@ PluginClassID PluginObject_plane::PluginType()
 	return PLUGIN_CLASS_ID_PLUGIN_TYPE_OBJECT;
 }
 
+PluginObject::EObjectType PluginObject_plane::ObjectType()
+{
+	return PluginObject::EObjectType::EObjectType_Polygonal;
+}
 
 const char32_t* PluginObject_plane::Category()
 {

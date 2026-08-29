@@ -38,6 +38,16 @@ void AppButtonIcon::OnButtonToggleOn()
 	case Application::GUI::elementID_btnGizmoScale:
 		g_app->SetTransformMode(AppTransformMode::Scale);
 		break;
+
+	case Application::GUI::elementID_btnCreateAdd:
+		g_app->SetRightTabMode(Application::RightTabMode::Create);
+		break;
+	case Application::GUI::elementID_btnObjectEdit:
+		g_app->SetRightTabMode(Application::RightTabMode::Edit);
+		break;
+	case Application::GUI::elementID_btnObjectParameters:
+		g_app->SetRightTabMode(Application::RightTabMode::Parameters);
+		break;
 	}
 }
 void AppButtonIcon::OnMouseEnter()
@@ -79,11 +89,13 @@ void AppButtonIcon::OnMouseLeave()
 void Application::GUI::CreatePanels()
 {
 	m_panelCreate = m_context->GetNewPanel(alVec2f(), alVec2f(0,0));
-	AppGUICombo* combo = new AppGUICombo(m_context,
+	
+	
+	/*AppGUICombo* combo = new AppGUICombo(m_context,
 		alVec2f(0,10), alVec2f(g_rightPanelWidth,10));
 	combo->SetFont(g_app->m_fontGUI);
 	combo->SetID(AppGUIID_Combo_Create_Category);
-	m_panelCreate->AddElement(combo, true);
+	m_panelCreate->AddElement(combo, true);*/
 
 	m_panelCreate->Rebuild();
 }
@@ -472,13 +484,15 @@ bool Application::OnCreate(const char* videoDriver)
 			if (po)
 			{
 				const char32_t* cat = po->Category();
-
-				if (cat)
+				auto objType = po->ObjectType();
+				if (cat && objType != PluginObject::EObjectType::EObjectType__end)
 				{
-					Application::new_object_basic_data::new_object_category* category = 0;
-					for (size_t ci = 0; ci < m_new_object_basic_data.m_categories.m_size; ++ci)
+					auto* otData = &m_new_object_basic_data.m_data[objType];
+					
+					Application::new_object_basic_data::_object_category* category = 0;
+					for (size_t ci = 0; ci < otData->m_categories.m_size; ++ci)
 					{
-						category = &m_new_object_basic_data.m_categories.m_data[ci];
+						category = &otData->m_categories.m_data[ci];
 						if (alLib::strcmp(category->m_name, cat) == 0)
 							break;
 						category = 0;
@@ -486,21 +500,20 @@ bool Application::OnCreate(const char* videoDriver)
 
 					if (!category)
 					{
-						Application::new_object_basic_data::new_object_category newCategory;
+						Application::new_object_basic_data::_object_category newCategory;
 						alLib::snprintf(
 							newCategory.m_name, 
 							Application::new_object_basic_data::NAME_SIZE,
 							U"%s", cat);
-						m_new_object_basic_data.m_categories.push_back(newCategory);
-						category = &m_new_object_basic_data.m_categories
-							.m_data[m_new_object_basic_data.m_categories.m_size - 1];
+						otData->m_categories.push_back(newCategory);
+						category = &otData->m_categories
+							.m_data[otData->m_categories.m_size - 1];
 					}
-
 				}
 			}
 		}
 	}
-	if(m_new_object_basic_data.m_categories.m_size)
+	/*if(m_new_object_basic_data.m_categories.m_size)
 	{
 		auto e = m_gui->m_panelCreate->GetElementByID(AppGUIID_Combo_Create_Category);
 		if (e)
@@ -517,7 +530,7 @@ bool Application::OnCreate(const char* videoDriver)
 				combo->Rebuild();
 			}
 		}
-	}
+	}*/
 	OnWindowSizeChanged();
 	return true;
 }
@@ -1087,5 +1100,23 @@ void Application::_initPlugins()
 		{
 			alLog::PrintInfo("FAIL (nullptr)\n");
 		}
+	}
+}
+
+void Application::SetRightTabMode(Application::RightTabMode mode)
+{
+	switch (mode)
+	{
+	case Application::RightTabMode::Create:
+		m_gui->m_panelCreate->SetVisible(true);
+		break;
+	case Application::RightTabMode::Edit:
+		m_gui->m_panelCreate->SetVisible(false);
+		break;
+	case Application::RightTabMode::Parameters:
+		m_gui->m_panelCreate->SetVisible(false);
+		break;
+	default:
+		break;
 	}
 }

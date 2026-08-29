@@ -82,9 +82,11 @@ public:
 	{
 		EObjectType_Polygonal,
 		EObjectType_Helper,
+
+		EObjectType__end,
 	};
 
-	virtual EObjectType* ObjectType() = 0;
+	virtual EObjectType ObjectType() = 0;
 	virtual const char32_t* Category() = 0;
 	virtual const char32_t* TitleName() = 0;
 	virtual PluginClassID ClassID() = 0;
