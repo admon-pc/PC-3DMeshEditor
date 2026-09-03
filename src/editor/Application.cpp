@@ -8,21 +8,38 @@ alMat4 g_emptyMatrix;
 TOOLINFO g_toolTipInfo;
 INT_PTR CALLBACK DialogProcAbout(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
+void AppGUIButton::OnMouseEnter()
+{
+	auto input = alLib::GetInput();
+	Application::GUI* gui = (Application::GUI*)GetUserData();
+
+	g_app->m_toolTipText = L"...";
+	switch (GetID())
+	{
+	case Application::GUI::elementID_btnCreateTypePoly:
+		g_app->m_toolTipText = L"Polygonal Objects";
+		break;
+	case Application::GUI::elementID_btnCreateTypeHelp:
+		g_app->m_toolTipText = L"Helper Objects";
+		break;
+	}
+	g_app->ShowToolTip();
+}
+
+void AppGUIButton::OnMouseLeave()
+{
+	g_app->HideToolTip();
+}
+
+
 void AppGUICombo::OnComboSelectItem(size_t index)
 {
 	m_selected = index;
 	uint8_t* ptr = (uint8_t*)m_items;
 	m_text = (char32_t*)(&ptr[index * m_stride] + m_textOffset);
-
-	switch (GetID())
-	{
-	case AppGUIID_Combo_Create_Category: {
-		g_app->OnCombo_Create_Category(index);
-	}break;
-	}
 }
 
-void AppButtonIcon::OnButtonToggleOn()
+void AppGUIButtonIcon::OnButtonToggleOn()
 {
 	switch (GetID())
 	{
@@ -50,7 +67,7 @@ void AppButtonIcon::OnButtonToggleOn()
 		break;
 	}
 }
-void AppButtonIcon::OnMouseEnter()
+void AppGUIButtonIcon::OnMouseEnter()
 {
 	auto input = alLib::GetInput();
 	Application::GUI* gui = (Application::GUI*)GetUserData();
@@ -82,15 +99,44 @@ void AppButtonIcon::OnMouseEnter()
 	}
 	g_app->ShowToolTip();
 }
-void AppButtonIcon::OnMouseLeave()
+void AppGUIButtonIcon::OnMouseLeave()
 {
 	g_app->HideToolTip();
 }
 void Application::GUI::CreatePanels()
 {
 	m_panelCreate = m_context->GetNewPanel(alVec2f(), alVec2f(0,0));
-	
-	
+	g_app->m_colorThemeCurr->m_GUIColorTheme2 = *alLib::GetDefaultColorTheme();
+	g_app->m_colorThemeCurr->m_GUIColorTheme2.m_button_bg1_enabled = ColorTransparent;
+	g_app->m_colorThemeCurr->m_GUIColorTheme2.m_button_bg2_enabled = ColorTransparent;
+	g_app->m_colorThemeCurr->m_GUIColorTheme2.m_button_bg1_mouseHover = ColorRed;
+	g_app->m_colorThemeCurr->m_GUIColorTheme2.m_button_bg2_mouseHover = ColorTransparent;
+	g_app->m_colorThemeCurr->m_GUIColorTheme2.m_button_bg1_press = ColorLime;
+	g_app->m_colorThemeCurr->m_GUIColorTheme2.m_button_bg2_press = ColorTransparent;
+
+	AppGUIButton* btn = new AppGUIButton(m_context,
+		alVec2f(0, 0), alVec2f(32, 32));
+	btn->SetFont(g_app->m_fontGUIIcons32);
+	char32_t s[2] = { 0x1, 0 };
+	btn->SetText(s);
+	btn->SetID(GUI::elementID_btnCreateTypePoly);
+	btn->m_toggleButton = true;
+	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme2;
+	btn->m_radioGroup = AppGUIRadioGroupID_CreateOBJTYPE;
+	btn->m_radioButton = true;
+	btn->RadioCheck();
+	m_panelCreate->AddElement(btn, true);
+	btn = new AppGUIButton(m_context,
+		alVec2f(32, 0), alVec2f(32, 32));
+	btn->SetFont(g_app->m_fontGUIIcons32);
+	s[0] = 0x2;
+	btn->SetText(s);
+	btn->SetID(GUI::elementID_btnCreateTypeHelp);
+	btn->m_radioGroup = AppGUIRadioGroupID_CreateOBJTYPE;
+	btn->m_radioButton = true;
+	btn->m_toggleButton = true;
+	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme2;
+	m_panelCreate->AddElement(btn, true);
 	/*AppGUICombo* combo = new AppGUICombo(m_context,
 		alVec2f(0,10), alVec2f(g_rightPanelWidth,10));
 	combo->SetFont(g_app->m_fontGUI);
@@ -120,82 +166,82 @@ void Application::GUI::CreateButtons()
 	auto iconIDEdit2 = m_ta->AddUV(alVec2u(32 * 2, 128), alVec2u(32, 32));
 
 	float32_t position = 0.f;
-	AppButtonIcon* btn = new AppButtonIcon(m_context, m_ta, iconIDSel1, alVec2f(position,0), alVec2f(32.f, 32.f));
+	AppGUIButtonIcon* btn = new AppGUIButtonIcon(m_context, m_ta, iconIDSel1, alVec2f(position,0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoSelect);
 	btn->m_toggleButton = true;	
 	btn->m_radioButton = true;
-	btn->m_radioGroup = 1;
+	btn->m_radioGroup = AppGUIRadioGroupID_GIZMOMODE;
 	btn->m_iconIndexPress = iconIDSel2;
 	btn->RadioCheck();
 	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = new AppButtonIcon(m_context, m_ta, iconIDMov1, alVec2f(position, 0), alVec2f(32.f, 32.f));
+	btn = new AppGUIButtonIcon(m_context, m_ta, iconIDMov1, alVec2f(position, 0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoMove);
 	btn->m_toggleButton = true;
 	btn->m_radioButton = true;
-	btn->m_radioGroup = 1;
+	btn->m_radioGroup = AppGUIRadioGroupID_GIZMOMODE;
 	btn->m_iconIndexPress = iconIDMov2;
 	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = new AppButtonIcon(m_context, m_ta, iconIDRot1, alVec2f(position, 0), alVec2f(32.f, 32.f));
+	btn = new AppGUIButtonIcon(m_context, m_ta, iconIDRot1, alVec2f(position, 0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoRotate);
 	btn->m_toggleButton = true;
 	btn->m_radioButton = true;
-	btn->m_radioGroup = 1;
+	btn->m_radioGroup = AppGUIRadioGroupID_GIZMOMODE;
 	btn->m_iconIndexPress = iconIDRot2;
 	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = new AppButtonIcon(m_context, m_ta, iconIDSc1, alVec2f(position, 0), alVec2f(32.f, 32.f));
+	btn = new AppGUIButtonIcon(m_context, m_ta, iconIDSc1, alVec2f(position, 0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoScale);
 	btn->m_toggleButton = true;
 	btn->m_radioButton = true;
-	btn->m_radioGroup = 1;
+	btn->m_radioGroup = AppGUIRadioGroupID_GIZMOMODE;
 	btn->m_iconIndexPress = iconIDSc2;
 	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
 	m_panel->AddElement(btn, true);
 	position += 32;
 
 	position = 0;
-	btn = new AppButtonIcon(m_context, m_ta, iconIDEdit1, alVec2f(position, 0), alVec2f(32.f, 32.f));
+	btn = new AppGUIButtonIcon(m_context, m_ta, iconIDEdit1, alVec2f(position, 0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnObjectEdit);
 	btn->m_toggleButton = true;
 	btn->m_radioButton = true;
-	btn->m_radioGroup = 2;
+	btn->m_radioGroup = AppGUIRadioGroupID_RIGHTPANELMODE;
 	btn->m_iconIndexPress = iconIDEdit2;
 	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
 	btn->m_alignment = alGUIElementAlignment::RightTop;
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = new AppButtonIcon(m_context, m_ta, iconIDParam1, alVec2f(position, 0), alVec2f(32.f, 32.f));
+	btn = new AppGUIButtonIcon(m_context, m_ta, iconIDParam1, alVec2f(position, 0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnObjectParameters);
 	btn->m_toggleButton = true;
 	btn->m_radioButton = true;
-	btn->m_radioGroup = 2;
+	btn->m_radioGroup = AppGUIRadioGroupID_RIGHTPANELMODE;
 	btn->m_iconIndexPress = iconIDParam2;
 	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
 	btn->m_alignment = alGUIElementAlignment::RightTop;
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = new AppButtonIcon(m_context, m_ta, iconIDAdd1, alVec2f(position, 0), alVec2f(32.f, 32.f));
+	btn = new AppGUIButtonIcon(m_context, m_ta, iconIDAdd1, alVec2f(position, 0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnCreateAdd);
 	btn->m_toggleButton = true;
 	btn->m_radioButton = true;
-	btn->m_radioGroup = 2;
+	btn->m_radioGroup = AppGUIRadioGroupID_RIGHTPANELMODE;
 	btn->m_iconIndexPress = iconIDAdd2;
 	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
 	btn->m_alignment = alGUIElementAlignment::RightTop;
@@ -280,6 +326,7 @@ Application::~Application()
 
 	AL_DESTROY(m_gui);
 	AL_DESTROY(m_fontGUI);
+	AL_DESTROY(m_fontGUIIcons32);
 
 
 	AL_DESTROY(m_shortcutManager);
@@ -435,6 +482,9 @@ bool Application::OnCreate(const char* videoDriver)
 	m_fontGUI = alLib::CreateGUIFont();
 	m_fontGUI->Load("../data/font.zip", m_gs);
 
+	m_fontGUIIcons32 = alLib::CreateGUIFont();
+	m_fontGUIIcons32->Load("../data/gui/guiicons.zip", m_gs);
+
 	m_gs->GetDepthRange(&m_gpuDepthRange);
 	{
 		alImage img;
@@ -535,10 +585,10 @@ bool Application::OnCreate(const char* videoDriver)
 	return true;
 }
 
-void Application::OnCombo_Create_Category(uint32_t index)
-{
-	
-}
+//void Application::OnCombo_Create_Category(uint32_t index)
+//{
+//	
+//}
 
 void Application::UpdateWindowTitle()
 {
@@ -1117,6 +1167,29 @@ void Application::SetRightTabMode(Application::RightTabMode mode)
 		m_gui->m_panelCreate->SetVisible(false);
 		break;
 	default:
+		break;
+	}
+}
+
+void Application::SetPanelCreateObjectType(PluginObject::EObjectType type)
+{
+	
+	switch (type)
+	{
+	case PluginObject::EObjectType_Polygonal:
+	default:
+	{
+		/*AppGUIButton* btnPoly = dynamic_cast<AppGUIButton*>(m_gui->m_panelCreate->GetElementByID(AppGUIID_BTN_Create_Type_Poly));
+		AppGUIButton* btnHelp = dynamic_cast<AppGUIButton*>(m_gui->m_panelCreate->GetElementByID(AppGUIID_BTN_Create_Type_Help));
+		if (btnPoly && btnHelp)
+		{
+			btnPoly->
+		}*/
+	}
+		break;
+	case PluginObject::EObjectType_Helper:
+		break;
+	case PluginObject::EObjectType__end:
 		break;
 	}
 }

@@ -20,7 +20,14 @@
 #define AppMenuID_VIEW_TOGGLEFULLVIEW 10
 #define AppMenuID_HELP_ABOUT 11
 
-#define AppGUIID_Combo_Create_Category 1
+//#define AppGUIID_Combo_Create_Category 1
+//#define AppGUIID_BTN_Create_Type_Poly 2
+//#define AppGUIID_BTN_Create_Type_Help 3
+
+#define AppGUIRadioGroupID_GIZMOMODE 1
+#define AppGUIRadioGroupID_CreateOBJTYPE 2
+#define AppGUIRadioGroupID_RIGHTPANELMODE 3
+
 
 class AppViewportResizer;
 
@@ -38,17 +45,30 @@ public:
 
 	size_t m_selected = 0;
 };
-
-class AppButtonIcon : public alGUIButtonIcon
+class AppGUIButton : public alGUIButton
 {
 public:
-	AppButtonIcon(alGUIContext* ct,
+	AppGUIButton(alGUIContext* ct,
+		 const alVec2f& position, const alVec2f& size)
+		:
+		alGUIButton(ct,  position, size)
+	{}
+	virtual ~AppGUIButton() {}
+	AL_DECLARE_DEFAULT_ALLOCATOR(AppGUIButton);
+
+	virtual void OnMouseEnter() override;
+	virtual void OnMouseLeave() override;
+};
+class AppGUIButtonIcon : public alGUIButtonIcon
+{
+public:
+	AppGUIButtonIcon(alGUIContext* ct,
 		alGUITextureAtlas* ta, uint32_t ii, const alVec2f& position, const alVec2f& size)
 		:
 		alGUIButtonIcon(ct, ta, ii,position,size)
 	{}
-	virtual ~AppButtonIcon() {}
-	AL_DECLARE_DEFAULT_ALLOCATOR(AppButtonIcon);
+	virtual ~AppGUIButtonIcon() {}
+	AL_DECLARE_DEFAULT_ALLOCATOR(AppGUIButtonIcon);
 
 	virtual void OnMouseEnter() override;
 	virtual void OnMouseLeave() override;
@@ -214,6 +234,7 @@ struct AppColorTheme
 	alColor m_viewportBorder = ColorYellow;
 
 	alGUIColorTheme m_GUIColorTheme;
+	alGUIColorTheme m_GUIColorTheme2;
 };
 
 class Application
@@ -223,7 +244,8 @@ class Application
 	friend class AppViewportCamera;
 	friend class AppViewport;
 	friend class AppShortcutManager;
-	friend class AppButtonIcon;
+	friend class AppGUIButtonIcon;
+	friend class AppGUIButton;
 
 	PluginInterface* m_pluginInterface = 0;
 
@@ -330,6 +352,7 @@ class Application
 	AppColorTheme* m_colorThemeCurr = 0;
 
 	alGUIFont* m_fontGUI = 0;
+	alGUIFont* m_fontGUIIcons32 = 0;
 
 	AppGSShaderCallback_LineModel3D* m_shaderLineModel = 0;
 
@@ -383,6 +406,8 @@ class Application
 			elementID_btnCreateAdd,
 			elementID_btnObjectParameters,
 			elementID_btnObjectEdit,
+			elementID_btnCreateTypePoly,
+			elementID_btnCreateTypeHelp,
 		};
 	};
 	GUI* m_gui = 0;
@@ -455,7 +480,8 @@ public:
 		Create, Edit, Parameters,
 	};
 	void SetRightTabMode(RightTabMode);
-	void OnCombo_Create_Category(uint32_t);
+	void SetPanelCreateObjectType(PluginObject::EObjectType);
+	//void OnCombo_Create_Category(uint32_t);
 };
 
 #endif

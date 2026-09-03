@@ -1,5 +1,6 @@
-Info: Aug 29 2026 : 22:28:39
+Info: Sep  4 2026 : 01:05:43
 Load Image: ../font0.png
+Load Image: ../guiicons0.png
 Load Image: ../data/gui/gui.png
 Info: Load plugin: plugins/std.object.plane.dll...
 Info: 	(Plane plugin)
