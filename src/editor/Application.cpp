@@ -3,10 +3,41 @@
 #include <commctrl.h>
 #include <filesystem>
 
+#pragma comment(lib, "Plugin.lib")
+
 Application* g_app = 0;
 alMat4 g_emptyMatrix;
 TOOLINFO g_toolTipInfo;
 INT_PTR CALLBACK DialogProcAbout(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
+void AppGUIListBox::OnListSelectItem(size_t index)
+{
+	
+	uint8_t* ptr = (uint8_t*)m_items;
+	uint32_t* flags = (uint32_t*)(&ptr[index * m_stride] + m_flagsOffset);
+	if (*flags & flag_selected)
+	{
+		*flags &= ~flag_selected;
+	}
+	else
+	{
+		DeselectAll();
+		*flags |= flag_selected;
+	}
+
+	switch (GetID())
+	{
+	case Application::GUI::elementID_lbCreate:
+	{
+		uint8_t* ptr = (uint8_t*)m_items;
+		Application::new_object_basic_data::_object* object = (Application::new_object_basic_data::_object*)
+			(&ptr[index * m_stride]);
+
+		g_app->_onLBSelect_createPanel(object->m_pluginObject);
+	}
+		break;
+	}
+}
 
 void AppGUIButton::OnMouseEnter()
 {
@@ -22,6 +53,9 @@ void AppGUIButton::OnMouseEnter()
 	case Application::GUI::elementID_btnCreateTypeHelp:
 		g_app->m_toolTipText = L"Helper Objects";
 		break;
+	case Application::GUI::elementID_btnCreate_CreateButton:
+		g_app->m_toolTipText = L"Create";
+		break;
 	}
 	g_app->ShowToolTip();
 }
@@ -31,7 +65,28 @@ void AppGUIButton::OnMouseLeave()
 	g_app->HideToolTip();
 }
 
+void AppGUIButton::OnButtonRelease()
+{
+	switch (GetID())
+	{
+	case Application::GUI::elementID_btnCreate_CreateButton:
+		g_app->OnButtonCreateNewObject();
+		break;
+	}
+}
 
+void AppGUIButton::OnButtonToggleOn()
+{
+	switch (GetID())
+	{
+	case Application::GUI::elementID_btnCreateTypePoly:
+		g_app->SetPanelCreateObjectType(PluginObject::EObjectType::EObjectType_Polygonal);
+		break;
+	case Application::GUI::elementID_btnCreateTypeHelp:
+		g_app->SetPanelCreateObjectType(PluginObject::EObjectType::EObjectType_Helper);
+		break;
+	}
+}
 void AppGUICombo::OnComboSelectItem(size_t index)
 {
 	m_selected = index;
@@ -137,11 +192,25 @@ void Application::GUI::CreatePanels()
 	btn->m_toggleButton = true;
 	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme2;
 	m_panelCreate->AddElement(btn, true);
+
+	AppGUIListBox* lb = new AppGUIListBox(m_context,
+		alVec2f(0, 30), alVec2f(g_rightPanelWidth, 300));
+	lb->SetFont(g_app->m_fontGUI);
+	lb->SetID(GUI::elementID_lbCreate);
+	m_panelCreate->AddElement(lb, true);
 	/*AppGUICombo* combo = new AppGUICombo(m_context,
 		alVec2f(0,10), alVec2f(g_rightPanelWidth,10));
 	combo->SetFont(g_app->m_fontGUI);
 	combo->SetID(AppGUIID_Combo_Create_Category);
 	m_panelCreate->AddElement(combo, true);*/
+	btn = new AppGUIButton(m_context,
+		alVec2f(35, 10), alVec2f(150, 32));
+	btn->SetFont(g_app->m_fontGUI);
+	btn->SetText(U"Create");
+	btn->SetID(GUI::elementID_btnCreate_CreateButton);
+	btn->m_alignment = alGUIElementAlignment::RightBottom;
+	btn->SetVisible(false);
+	m_panelCreate->AddElement(btn, true);
 
 	m_panelCreate->Rebuild();
 }
@@ -319,6 +388,8 @@ Application::Application()
 
 Application::~Application()
 {
+	AL_DESTROY(m_scene);
+
 	for (size_t i = 0; i < m_plugins.m_size; ++i)
 	{
 		m_plugins.m_data[i].m_unloadFunc();
@@ -523,6 +594,10 @@ bool Application::OnCreate(const char* videoDriver)
 
 //	_callViewportOnWindowSize();
 
+	m_scene = new AppScene();
+	
+	PluginString pstr;
+
 	_initPlugins();
 	for (size_t i = 0; i < m_plugins.m_size; ++i)
 	{
@@ -534,15 +609,17 @@ bool Application::OnCreate(const char* videoDriver)
 			if (po)
 			{
 				const char32_t* cat = po->Category();
+				const char32_t* title = po->TitleName();
 				auto objType = po->ObjectType();
 				if (cat && objType != PluginObject::EObjectType::EObjectType__end)
 				{
 					auto* otData = &m_new_object_basic_data.m_data[objType];
 					
-					Application::new_object_basic_data::_object_category* category = 0;
-					for (size_t ci = 0; ci < otData->m_categories.m_size; ++ci)
+					// ПОКА БУДЕТ НЕ ТАК
+					/*Application::new_object_basic_data::_object* category = 0;
+					for (size_t ci = 0; ci < otData->m_objs.m_size; ++ci)
 					{
-						category = &otData->m_categories.m_data[ci];
+						category = &otData->m_objs.m_data[ci];
 						if (alLib::strcmp(category->m_name, cat) == 0)
 							break;
 						category = 0;
@@ -550,19 +627,30 @@ bool Application::OnCreate(const char* videoDriver)
 
 					if (!category)
 					{
-						Application::new_object_basic_data::_object_category newCategory;
+						Application::new_object_basic_data::_object newCategory;
 						alLib::snprintf(
 							newCategory.m_name, 
 							Application::new_object_basic_data::NAME_SIZE,
 							U"%s", cat);
-						otData->m_categories.push_back(newCategory);
-						category = &otData->m_categories
-							.m_data[otData->m_categories.m_size - 1];
-					}
+						otData->m_objs.push_back(newCategory);
+						category = &otData->m_objs
+							.m_data[otData->m_objs.m_size - 1];
+					}*/
+
+					// ПОКА БУДЕТ ПРОСТОЙ СПИСОК
+					Application::new_object_basic_data::_object obj;
+					alLib::snprintf(
+						obj.m_name,
+						Application::new_object_basic_data::NAME_SIZE,
+						U"%s:%s", cat, title);
+					obj.m_pluginObject = po;
+					otData->m_objs.push_back(obj);
 				}
 			}
 		}
 	}
+	SetRightTabMode(Application::RightTabMode::Create);
+	SetPanelCreateObjectType(PluginObject::EObjectType::EObjectType_Polygonal);
 	/*if(m_new_object_basic_data.m_categories.m_size)
 	{
 		auto e = m_gui->m_panelCreate->GetElementByID(AppGUIID_Combo_Create_Category);
@@ -974,11 +1062,15 @@ void Application::OnWindowSizeChanged()
 {
 	if (m_gui)
 	{
-		m_gui->m_panelCreate->SetPositionAndSize(
+		/*m_gui->m_panelCreate->SetPositionAndSize(
 			m_mainWindow->m_clientSize.x - g_rightPanelWidth,
 			g_topPanelHeight,
 			g_rightPanelWidth,
-			(float32_t)m_mainWindow->m_clientSize.y);
+			(float32_t)m_mainWindow->m_clientSize.y - g_topPanelHeight);*/
+		m_gui->m_panelCreate->m_position.x = m_mainWindow->m_clientSize.x - g_rightPanelWidth;
+		m_gui->m_panelCreate->m_position.y = g_topPanelHeight;
+		m_gui->m_panelCreate->m_size.x = g_rightPanelWidth;
+		m_gui->m_panelCreate->m_size.y = (float32_t)m_mainWindow->m_clientSize.y - g_topPanelHeight;
 		m_gui->m_panelCreate->Rebuild();
 
 		m_gui->m_panel->SetPositionAndSize(0.f,0.f, (float32_t)m_mainWindow->m_clientSize.x, 32.f);
@@ -1173,12 +1265,28 @@ void Application::SetRightTabMode(Application::RightTabMode mode)
 
 void Application::SetPanelCreateObjectType(PluginObject::EObjectType type)
 {
-	
+	// для простоты реализации от множеств панелей решил
+	// отказаться. Буду просто обновлять список.
+	//
+	auto lb = dynamic_cast<AppGUIListBox*>(m_gui->m_panelCreate->GetElementByID(GUI::elementID_lbCreate));
+
 	switch (type)
 	{
 	case PluginObject::EObjectType_Polygonal:
 	default:
 	{
+		if (lb)
+		{
+			auto* o = &m_new_object_basic_data.m_data[
+				PluginObject::EObjectType::EObjectType_Polygonal];
+			void* ptr = &o->m_objs.m_data[0];
+			lb->SetItems(
+				ptr, 
+				o->m_objs.m_size,
+				sizeof(new_object_basic_data::_object),
+				4,
+				0);
+		}
 		/*AppGUIButton* btnPoly = dynamic_cast<AppGUIButton*>(m_gui->m_panelCreate->GetElementByID(AppGUIID_BTN_Create_Type_Poly));
 		AppGUIButton* btnHelp = dynamic_cast<AppGUIButton*>(m_gui->m_panelCreate->GetElementByID(AppGUIID_BTN_Create_Type_Help));
 		if (btnPoly && btnHelp)
@@ -1188,8 +1296,43 @@ void Application::SetPanelCreateObjectType(PluginObject::EObjectType type)
 	}
 		break;
 	case PluginObject::EObjectType_Helper:
+		if (lb)
+		{
+			auto* o = &m_new_object_basic_data.m_data[
+				PluginObject::EObjectType::EObjectType_Helper];
+			void* ptr = &o->m_objs.m_data[0];
+			lb->SetItems(
+				ptr,
+				o->m_objs.m_size,
+				sizeof(new_object_basic_data::_object),
+				4,
+				0);
+		}
 		break;
 	case PluginObject::EObjectType__end:
+		lb->SetItems(0,0,0,0,0);
 		break;
+	}
+}
+
+void Application::_onLBSelect_createPanel(PluginObject* po)
+{
+	auto btn = dynamic_cast<AppGUIButton*>(m_gui->m_panelCreate->GetElementByID(GUI::elementID_btnCreate_CreateButton));
+	if (btn)
+	{
+		btn->SetVisible(true);
+		m_pluginObject_onCreateNew = po;
+	}
+}
+
+void Application::OnButtonCreateNewObject()
+{
+	if (m_pluginObject_onCreateNew)
+	{
+		auto o = m_pluginObject_onCreateNew->CreateObject();
+		if (o)
+		{
+			m_scene->AddObject(o);
+		}
 	}
 }

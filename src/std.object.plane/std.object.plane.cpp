@@ -1,5 +1,6 @@
 ﻿#include "PluginInterface.h"
 #include "std.object.plane.h"
+#pragma comment(lib, "Plugin.lib")
 
 PluginObject_plane* g_plugin = 0;
 
@@ -85,5 +86,27 @@ const char32_t* PluginObject_plane::TitleName()
 PluginClassID PluginObject_plane::ClassID()
 {
 	return PLUGIN_CLASS_ID_OBJECT_PLANE;
+}
+
+AppSceneObject* PluginObject_plane::CreateObject()
+{
+	AppSceneObject_plane* o = new AppSceneObject_plane(/*m_interface*/);
+	return o;
+}
+
+// ====================================================================
+AppSceneObject_plane::AppSceneObject_plane(/*PluginInterface* pi*/)
+	/*:
+	AppSceneObject(pi)*/
+{
+}
+
+AppSceneObject_plane::~AppSceneObject_plane()
+{
+}
+
+void AppSceneObject_plane::Destroy()
+{
+	delete this;
 }
 

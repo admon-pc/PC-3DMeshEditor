@@ -31,6 +31,16 @@
 
 class AppViewportResizer;
 
+class AppGUIListBox : public alGUIListBox
+{
+public:
+	AppGUIListBox(alGUIContext* ct, const alVec2f& position, const alVec2f& size)
+		:alGUIListBox(ct, position, size) {}
+	virtual ~AppGUIListBox() {}
+	AL_DECLARE_DEFAULT_ALLOCATOR(AppGUIListBox);
+	virtual void OnListSelectItem(size_t) override;
+};
+
 class AppGUICombo : public alGUIComboBox
 {
 public:
@@ -58,6 +68,8 @@ public:
 
 	virtual void OnMouseEnter() override;
 	virtual void OnMouseLeave() override;
+	virtual void OnButtonRelease() override;
+	virtual void OnButtonToggleOn() override;
 };
 class AppGUIButtonIcon : public alGUIButtonIcon
 {
@@ -246,8 +258,18 @@ class Application
 	friend class AppShortcutManager;
 	friend class AppGUIButtonIcon;
 	friend class AppGUIButton;
-
+	friend class AppGUIListBox;
 	PluginInterface* m_pluginInterface = 0;
+
+	AppScene* m_scene = 0;
+
+	// When I need to create new object
+	// click on list box item and I need to save
+	// some information for later use when I will click 
+	// on "Create" button
+	PluginObject* m_pluginObject_onCreateNew = 0;
+
+	void _onLBSelect_createPanel(PluginObject*);
 
 	FILE* m_fileLog = 0;
 	alCursor* m_cursors[(uint32_t)AppCursorType::_count];
@@ -408,6 +430,8 @@ class Application
 			elementID_btnObjectEdit,
 			elementID_btnCreateTypePoly,
 			elementID_btnCreateTypeHelp,
+			elementID_lbCreate,
+			elementID_btnCreate_CreateButton,
 		};
 	};
 	GUI* m_gui = 0;
@@ -431,16 +455,20 @@ class Application
 	// this structure should contain everything for GUI that creates new objects
 	struct new_object_basic_data
 	{
-		static const uint32_t NAME_SIZE = 50;
+		static const uint32_t NAME_SIZE = 150;
 
-		struct _object_category
+		struct _object
 		{
+			uint32_t m_lbFlags = 0;
 			char32_t m_name[NAME_SIZE];
+			PluginObject* m_pluginObject = 0;
 		};
 
 		struct _EObjectType_data
 		{
-			alArray<_object_category> m_categories;
+			//alArray<_object_category> m_categories;
+			
+			alArray<_object> m_objs;
 		};
 
 		_EObjectType_data m_data[PluginObject::EObjectType::EObjectType__end];
@@ -468,8 +496,9 @@ public:
 	void GetRayFromScreen(alRay* ray, const alVec2f& coords, const alVec4f& viewportRect, const alMat4& VPInvert);
 
 	void OnWindowSizeChanged();
-	
 	void ProcessShortcuts3D();
+	
+	void OnButtonCreateNewObject();
 
 	void ViewportToggleFullView();
 	

@@ -5,6 +5,8 @@
 #include "al.h"
 #include "Common/alGUID.h"
 
+#include "plugin/plugin.h"
+
 #define PLUGIN_SDK_VERSION 1
 
 #define PLUGIN_DEFINE_GUID AL_DEFINE_GUID
@@ -29,7 +31,6 @@ PLUGIN_DEFINE_GUID(PLUGIN_CLASS_ID_OBJECT_PLANE,
 
 #define PluginClassID alGUID
 
-#include "Scene.h"
 
 class PluginInterface
 {
@@ -40,10 +41,18 @@ public:
 	virtual void* MemAlloc(size_t) = 0;
 	virtual void MemFree(void*) = 0;
 	virtual bool GUIDIsEqual(const alGUID&, const alGUID&) = 0;
+	virtual size_t strlen(const char32_t* s) = 0;
+	virtual int32_t strcmp(const char32_t* s1, const char32_t* s2) = 0;
+	virtual uint32_t sprintf(char32_t* str, const char32_t* format, ...) = 0;
+	virtual uint32_t snprintf(char32_t* str, size_t n, const char32_t* format, ...) = 0;
+
 };
+
+#include "Scene.h"
 
 class Plugin
 {
+protected:
 	PluginInterface* m_interface = 0;
 public:
 	Plugin(PluginInterface* i) : m_interface(i) {}
@@ -55,7 +64,8 @@ public:
 	virtual uint32_t Version() = 0;
 	virtual uint32_t SDKVersion() = 0;
 	virtual PluginClassID PluginType() = 0;
-
+	
+	PluginInterface* GetPluginInterface() { return m_interface; }
 };
 
 class PluginObject : public Plugin
@@ -90,6 +100,7 @@ public:
 	virtual const char32_t* Category() = 0;
 	virtual const char32_t* TitleName() = 0;
 	virtual PluginClassID ClassID() = 0;
+	virtual AppSceneObject* CreateObject() = 0;
 };
 
 class PluginImport : public Plugin

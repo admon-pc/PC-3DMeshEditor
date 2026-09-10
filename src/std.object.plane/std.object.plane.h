@@ -2,6 +2,14 @@
 #ifndef _PLUGINSTDo_H_
 #define _PLUGINSTDo_H_
 
+class AppSceneObject_plane : public AppSceneObject
+{
+public:
+	AppSceneObject_plane(/*PluginInterface* pi*/);
+	virtual ~AppSceneObject_plane();
+	virtual void Destroy() override;
+};
+
 class PluginObject_plane : public PluginObject
 {
 public:
@@ -22,6 +30,7 @@ public:
 	virtual const char32_t* Category() override;
 	virtual const char32_t* TitleName() override;
 	virtual PluginClassID ClassID() override;
+	virtual AppSceneObject* CreateObject() override;
 };
 
 #endif
