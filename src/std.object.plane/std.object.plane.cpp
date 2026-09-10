@@ -90,14 +90,21 @@ PluginClassID PluginObject_plane::ClassID()
 
 AppSceneObject* PluginObject_plane::CreateObject()
 {
-	AppSceneObject_plane* o = new AppSceneObject_plane(/*m_interface*/);
+	AppSceneObject_plane* o = new AppSceneObject_plane(this);
+	o->SetName(U"Plane");
 	return o;
 }
 
+void PluginObject_plane::DestroyObject(AppSceneObject* o)
+{
+	if(o)
+		delete o;
+}
+
 // ====================================================================
-AppSceneObject_plane::AppSceneObject_plane(/*PluginInterface* pi*/)
-	/*:
-	AppSceneObject(pi)*/
+AppSceneObject_plane::AppSceneObject_plane(PluginObject* po)
+	:
+	AppSceneObject(po)
 {
 }
 
@@ -105,8 +112,4 @@ AppSceneObject_plane::~AppSceneObject_plane()
 {
 }
 
-void AppSceneObject_plane::Destroy()
-{
-	delete this;
-}
 

@@ -1,0 +1,9 @@
+Info: Sep 11 2026 : 00:25:28
+Load Image: ../font0.png
+Load Image: ../guiicons0.png
+Load Image: ../data/gui/gui.png
+Info: Load plugin: plugins/std.object.plane.dll...
+Info: 	(Plane plugin)
+Info: 	(Basic 2D plane mesh)
+Info: 		(Artemy Basov)
+Info: 		((c) Artemy Basov)

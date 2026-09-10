@@ -101,6 +101,7 @@ public:
 	virtual const char32_t* TitleName() = 0;
 	virtual PluginClassID ClassID() = 0;
 	virtual AppSceneObject* CreateObject() = 0;
+	virtual void DestroyObject(AppSceneObject*) = 0;
 };
 
 class PluginImport : public Plugin

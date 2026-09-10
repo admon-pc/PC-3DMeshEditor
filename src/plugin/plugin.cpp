@@ -39,19 +39,3 @@ FILE* PluginFopenW(const wchar_t* str, const wchar_t* mode)
 }
 
 
-PluginVec4u::PluginVec4u() 
-{
-	m_data[0] = 0;
-	m_data[1] = 0;
-	m_data[2] = 0;
-	m_data[3] = 0;
-}
-PluginVec4u::PluginVec4u(uint32_t x, uint32_t y, uint32_t z, uint32_t w)
-{
-	m_data[0] = x;
-	m_data[1] = y;
-	m_data[2] = z;
-	m_data[3] = w;
-}
-
-PluginVec4u::~PluginVec4u() {}

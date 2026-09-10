@@ -5,9 +5,8 @@
 class AppSceneObject_plane : public AppSceneObject
 {
 public:
-	AppSceneObject_plane(/*PluginInterface* pi*/);
+	AppSceneObject_plane(PluginObject* po);
 	virtual ~AppSceneObject_plane();
-	virtual void Destroy() override;
 };
 
 class PluginObject_plane : public PluginObject
@@ -31,6 +30,7 @@ public:
 	virtual const char32_t* TitleName() override;
 	virtual PluginClassID ClassID() override;
 	virtual AppSceneObject* CreateObject() override;
+	virtual void DestroyObject(AppSceneObject*) override;
 };
 
 #endif

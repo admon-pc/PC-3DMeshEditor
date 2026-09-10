@@ -12,22 +12,27 @@ class AppScene
 	public:
 		_root_t();
 		virtual ~_root_t();
-		virtual void Destroy() override;
 	};
 
-	//AppSceneObject* m_rootObject = 0;
-	AppSceneObjectInternal* m_rootObject = 0;
+	AppSceneObject* m_rootObject = 0;
+	//AppSceneObjectInternal* m_rootObject = 0;
+
+	PluginArray<AppSceneObject*>* m_getAllObjectArrayPtr = 0;
+	void _onGetAllObjects(AppSceneObject*);
 
 public:
 	AppScene();
 	~AppScene();
 	AL_DECLARE_DEFAULT_ALLOCATOR(AppScene);
 
+	void DeleteObject(AppSceneObject*);
 	// Delete all objects
 	void ClearScene();
 
 	void AddObject(AppSceneObject*);
+	void GetAllObjects(PluginArray<AppSceneObject*>*);
 
+	bool IsNameFree(AppSceneObject* , alUnicodeString*);
 	void GetFreeName(alUnicodeString*);
 
 };

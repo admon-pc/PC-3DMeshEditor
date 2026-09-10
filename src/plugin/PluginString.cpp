@@ -202,12 +202,12 @@ void PluginUnicodeConverter::_find8From32()
 	}
 }
 
-uint32_t PluginUnicodeConverter::Set(PluginVec4u* c)
+uint32_t PluginUnicodeConverter::Set(const plVec4u& c)
 {
-	uint32_t c1 = c->m_data[0];
-	uint32_t c2 = c->m_data[1];
-	uint32_t c3 = c->m_data[2];
-	uint32_t c4 = c->m_data[3];
+	uint32_t c1 = c.x;
+	uint32_t c2 = c.y;
+	uint32_t c3 = c.z;
+	uint32_t c4 = c.w;
 
 	m_32 = 0;
 	m_16[0] = 0;
@@ -358,8 +358,7 @@ void PluginUnicodeConverter::char_to_wchar(const char* str, size_t sz, std::wstr
 			if (i + 2 < sz) c3 = str[i + 2];
 			if (i + 3 < sz) c4 = str[i + 3];
 
-			PluginVec4u v = PluginVec4u(c1, c2, c3, c4);
-			auto n = uc.Set(&v);
+			auto n = uc.Set(plVec4u(c1, c2, c3, c4));
 			if (uc.m_16Num)
 			{
 				for (size_t o = 0; o < uc.m_16Num; ++o)
@@ -558,23 +557,23 @@ void PluginString::Append(const char8_t* str)
 	{
 		auto p_begin = p;
 
-		PluginVec4u vec;
-		vec.m_data[0] = *p;
+		plVec4u vec;
+		vec.x = *p;
 		++p;
 		if (*p)
 		{
-			vec.m_data[1] = *p;
+			vec.y = *p;
 			++p;
 			if (*p)
 			{
-				vec.m_data[2] = *p;
+				vec.z = *p;
 				++p;
 				if (*p)
-					vec.m_data[3] = *p;
+					vec.w = *p;
 			}
 		}
 
-		auto ret = uc.Set(&vec);
+		auto ret = uc.Set(vec);
 		if (!ret)
 			break;
 
@@ -947,8 +946,7 @@ uint32_t PluginString::_readFromFile(FILE* f)
 				if (!r)
 					break;
 
-				PluginVec4u vec = PluginVec4u(buf[0], buf[1], buf[2], buf[3]);
-				uint32_t b = uc.Set(&vec);
+				uint32_t b = uc.Set(plVec4u(buf[0], buf[1], buf[2], buf[3]));
 				if (!uc.m_32)
 					break;
 

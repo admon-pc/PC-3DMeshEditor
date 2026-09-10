@@ -2,8 +2,19 @@
 #ifndef _PCSCENEO_H_
 #define _PCSCENEO_H_
 
+class PluginObject;
 class AppSceneObject
 {
+	friend class AppScene;
+
+	uint32_t m_flags = 0;
+	enum
+	{
+		// this flag will be used in app
+		// it will be used to know that this object was added on scene only once
+		flag_addedToScene = 0x1,
+	};
+
 protected:
 	//PluginInterface* m_pi = 0;
 	//char32_t m_name[100];
@@ -11,15 +22,15 @@ protected:
 
 	PluginString m_name;
 
-	//AppSceneObject* m_parent = 0;
-	//alList<AppSceneObject*> m_children;
+	AppSceneObject* m_parent = 0;
+	PluginList<AppSceneObject*> m_children;
+
+	PluginObject* m_plugin = 0;
 public:
-	AppSceneObject(/*PluginInterface* pi*/) {}// : m_pi(pi) { m_name[0] = 0; }
+	AppSceneObject(PluginObject* po) : m_plugin(po) {}
 	virtual ~AppSceneObject() {}
 
-	virtual void Destroy() = 0;
-
-	/*virtual void SetParent(AppSceneObject* parent)
+	virtual void SetParent(AppSceneObject* parent)
 	{
 		if (m_parent)
 		{
@@ -30,25 +41,29 @@ public:
 
 		if (parent)
 			parent->m_children.push_back(this);
-	}*/
+	}
+	virtual const PluginList<AppSceneObject*>& GetChildren() const { return m_children; }
+	virtual void ClearChildrenList() { m_children.clear(); }
 
-
+	virtual AppSceneObject* GetParent() { return m_parent; }
 	virtual const char32_t* GetName() { return m_name.Data(); }
+	virtual void SetName(const char32_t* s) { if (s) { m_name.Assign(s); } }
 	/*virtual void SetName(const char32_t* name)
 	{
 		m_pi->snprintf(m_name, 100, U"%s", name);
 	}*/
 
 	virtual const PluginClassID& GetClassID() { return m_classID; }
+	virtual PluginObject* GetPlugin() { return m_plugin; }
 };
 
 // Will be used only in .exe
-class AppSceneObjectInternal
-{
-public:
-	AppSceneObjectInternal() {}
-	virtual ~AppSceneObjectInternal() {}
-};
+//class AppSceneObjectInternal
+//{
+//public:
+//	AppSceneObjectInternal() {}
+//	virtual ~AppSceneObjectInternal() {}
+//};
 
 #endif
 
