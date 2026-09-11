@@ -1,7 +1,8 @@
 ﻿#pragma once
 #ifndef _PCApp_H_
 #define _PCApp_H_
-
+#include <Windows.h>
+#include <commctrl.h>
 #include "SelectionFrustum.h"
 
 #define AppViewportLayout_Full 0
@@ -19,6 +20,7 @@
 #define AppMenuID_EDIT_INVERTSELECT 9
 #define AppMenuID_VIEW_TOGGLEFULLVIEW 10
 #define AppMenuID_HELP_ABOUT 11
+#define AppMenuID_EDIT_OBJECTLISTWINDOW 12
 
 //#define AppGUIID_Combo_Create_Category 1
 //#define AppGUIID_BTN_Create_Type_Poly 2
@@ -260,6 +262,10 @@ class Application
 	friend class AppGUIButton;
 	friend class AppGUIListBox;
 	PluginInterface* m_pluginInterface = 0;
+
+	HWND m_hwnd_About = 0;
+
+	HIMAGELIST m_hImgList_treeView = 0;
 
 	AppScene* m_scene = 0;
 
@@ -511,6 +517,8 @@ public:
 	void SetRightTabMode(RightTabMode);
 	void SetPanelCreateObjectType(PluginObject::EObjectType);
 	//void OnCombo_Create_Category(uint32_t);
+
+	HWND m_hTreeView_objectList = 0;
 };
 
 #endif

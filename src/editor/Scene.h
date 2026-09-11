@@ -18,6 +18,8 @@ class AppScene
 	//AppSceneObjectInternal* m_rootObject = 0;
 
 	PluginArray<AppSceneObject*>* m_getAllObjectArrayPtr = 0;
+	PluginArray<AppSceneObject*> m_allObjectsOnScene;
+	void _onGetAllObjectsIntoArray();
 	void _onGetAllObjects(AppSceneObject*);
 
 public:
@@ -35,6 +37,8 @@ public:
 	bool IsNameFree(AppSceneObject* , alUnicodeString*);
 	void GetFreeName(alUnicodeString*);
 
+	void Update(float32_t dt);
+	void Draw(float32_t dt);
 };
 
 #endif

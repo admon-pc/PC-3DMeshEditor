@@ -72,9 +72,15 @@ void AppScene::_onGetAllObjects(AppSceneObject* o)
 	}
 }
 
+void AppScene::_onGetAllObjectsIntoArray()
+{
+	GetAllObjects(&m_allObjectsOnScene);
+}
+
 void AppScene::GetAllObjects(PluginArray<AppSceneObject*>* out)
 {
 	m_getAllObjectArrayPtr = out;
+	m_getAllObjectArrayPtr->clear();
 
 	auto& children = m_rootObject->GetChildren();
 	auto node = children.m_head;
@@ -138,3 +144,12 @@ bool AppScene::IsNameFree(AppSceneObject* o, alUnicodeString* name)
 
 	return true;
 }
+
+void AppScene::Update(float32_t dt)
+{
+}
+
+void AppScene::Draw(float32_t dt)
+{
+}
+

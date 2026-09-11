@@ -56,9 +56,9 @@ BEGIN
     IDD_PROPPAGE_SMALL, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 194
+        RIGHTMARGIN, 290
         TOPMARGIN, 7
-        BOTTOMMARGIN, 57
+        BOTTOMMARGIN, 239
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -69,15 +69,16 @@ END
 // Dialog
 //
 
-IDD_PROPPAGE_SMALL DIALOGEX 0, 0, 201, 64
+IDD_PROPPAGE_SMALL DIALOGEX 0, 0, 297, 246
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
-    PUSHBUTTON      "OK",IDC_BUTTON1,144,43,50,14
+    PUSHBUTTON      "OK",IDC_BUTTON1,240,225,50,14
     LTEXT           "3DEditor Version 1.0",IDC_STATIC,15,15,66,8
     LTEXT           "Basov Artyom, 2026",IDC_STATIC,15,31,66,8
-    EDITTEXT        IDC_EDIT1,14,39,108,11,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    EDITTEXT        IDC_EDIT1,14,39,108,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    CONTROL         "",IDC_TREE1,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | WS_BORDER | WS_HSCROLL | WS_TABSTOP,104,83,173,129
 END
 
 
@@ -90,6 +91,18 @@ IDD_PROPPAGE_SMALL AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_FOLDER              ICON                    "icon1.ico"
+
+IDI_FILE                ICON                    "folder1.ico"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

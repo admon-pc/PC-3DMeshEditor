@@ -37,6 +37,14 @@
   <ItemGroup>
     <ResourceCompile Include="..\..\src\editor\3DEditor.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\editor\resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\src\editor\bitmap1.bmp" />
+    <Image Include="..\..\src\editor\folder1.ico" />
+    <Image Include="..\..\src\editor\icon1.ico" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

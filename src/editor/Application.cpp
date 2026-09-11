@@ -1,6 +1,5 @@
 ﻿#include "editor.h"
-#include <Windows.h>
-#include <commctrl.h>
+
 #include <filesystem>
 
 #pragma comment(lib, "Plugin.lib")
@@ -384,6 +383,7 @@ Application::Application()
 	g_app = this;
 	m_input = alLib::GetInput();
 	m_colorThemeCurr = &m_colorTheme;
+
 }
 
 Application::~Application()
@@ -409,6 +409,9 @@ Application::~Application()
 	AL_DESTROY(m_pluginInterface);
 
 	DestroyWindow(m_hwndTT);
+
+	if (m_hwnd_About)
+		DestroyWindow(m_hwnd_About);
 
 	if (m_fileLog)
 		fclose(m_fileLog);
@@ -500,9 +503,12 @@ bool Application::OnCreate(const char* videoDriver)
 		HMENU menu_edit = CreateMenu();
 		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_SELECTALL, L"Select All");
 		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_INVERTSELECT, L"Invert Selection");
+		AppendMenu(menu_edit, MF_SEPARATOR, 0, 0);
+		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_OBJECTLISTWINDOW, L"");
 
 		HMENU menu_view = CreateMenu();
 		AppendMenu(menu_view, MF_STRING, AppMenuID_VIEW_TOGGLEFULLVIEW, L"Toggle Full View");
+	
 
 		HMENU menu_create = CreateMenu();
 		AppendMenu(menu_create, MF_STRING, 0, L"Plane");
@@ -670,6 +676,10 @@ bool Application::OnCreate(const char* videoDriver)
 		}
 	}*/
 	OnWindowSizeChanged();
+
+	InitCommonControls();
+	
+
 	return true;
 }
 
@@ -1170,15 +1180,109 @@ void Application::CloseProgramm()
 	m_run = false;
 }
 
+//void ExpandAllItems(HWND hTree)
+//{
+//	HTREEITEM hItem = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM, TVGN_FIRSTVISIBLE, 0);
+//
+//	while (hItem)
+//	{
+//		SendMessage(hTree, TVM_EXPAND, TVE_EXPAND, (LPARAM)hItem);
+//		hItem = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM, TVGN_NEXT, (LPARAM)hItem);
+//	}
+//}
+
+void ExpandAllItems(HWND hTree, HTREEITEM hItem)
+{
+	SendMessage(hTree, TVM_EXPAND, TVE_EXPAND, (LPARAM)hItem);
+	// hParent = NULL for root level
+	HTREEITEM hChild = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM,
+		TVGN_CHILD, (LPARAM)hItem);
+	while (hChild)
+	{
+		ExpandAllItems(hTree, hChild);
+		hChild = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM,
+			TVGN_NEXT, (LPARAM)hChild);
+	}
+	//while (hParent)
+	//{
+	//	SendMessage(hTree, TVM_EXPAND, TVE_EXPAND, (LPARAM)hParent);
+
+	//	// Recurse into children
+	//	HTREEITEM hChild = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM,
+	//		TVGN_CHILD, (LPARAM)hParent);
+	//	if (hChild)
+	//		ExpandAllItems(hTree, hParent);
+
+	//	// Next sibling
+	//	hParent = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM,
+	//		TVGN_NEXT, (LPARAM)hParent);
+	//}
+}
+
+void ExpandTree(HWND hTree)
+{
+	HTREEITEM root = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM,
+		TVGN_ROOT, (LPARAM)0);
+	ExpandAllItems(hTree, root);
+}
+
 void Application::ShowAbout()
 {
 	alSystemWindowOSDataWin32* w32 = (alSystemWindowOSDataWin32*)m_mainWindow->GetOSData();
-	auto hdlg = CreateDialog(
-		GetModuleHandle(NULL),
-		MAKEINTRESOURCE(IDD_PROPPAGE_SMALL),
-		w32->m_hwnd,
-		DialogProcAbout);
-	ShowWindow(hdlg, SW_SHOW);
+	if (!m_hwnd_About)
+	{
+		m_hwnd_About = CreateDialog(
+			GetModuleHandle(NULL),
+			MAKEINTRESOURCE(IDD_PROPPAGE_SMALL),
+			w32->m_hwnd,
+			DialogProcAbout);
+
+		m_hTreeView_objectList = GetDlgItem(m_hwnd_About, IDC_TREE1);
+		// From resource icons
+		m_hImgList_treeView = ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 4, 4);
+		HICON hIcon = (HICON)LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_FOLDER),
+			IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
+		int iFolder = ImageList_AddIcon(m_hImgList_treeView, hIcon);
+		DestroyIcon(hIcon);
+
+		hIcon = (HICON)LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_FILE),
+			IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
+		int iFile = ImageList_AddIcon(m_hImgList_treeView, hIcon);
+		TreeView_SetImageList(m_hTreeView_objectList, m_hImgList_treeView, TVSIL_NORMAL);
+
+		DestroyIcon(hIcon);
+		TV_INSERTSTRUCT tvInsert = { 0 };
+		tvInsert.hParent = NULL;
+		tvInsert.hInsertAfter = TVI_ROOT;
+		tvInsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+		tvInsert.item.pszText = (LPWSTR)L"Root Item";
+		tvInsert.item.iImage = iFolder;           // icon when unselected
+		tvInsert.item.iSelectedImage = iFolder;   // icon when selected
+
+		HTREEITEM hRoot = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
+	//	SendMessage(m_hTreeView_objectList, TVM_EXPAND, TVE_EXPAND, (LPARAM)&hRoot);
+
+		// Add a child
+		tvInsert.hParent = hRoot;
+		tvInsert.hInsertAfter = TVI_LAST;
+		tvInsert.item.pszText = (LPWSTR)L"Child Item";
+		tvInsert.item.iImage = iFile;           // icon when unselected
+		tvInsert.item.iSelectedImage = iFile;   // icon when selected
+		HTREEITEM hChild = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
+		 hChild = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
+		SendMessage(m_hTreeView_objectList, TVM_EXPAND, TVE_EXPAND, (LPARAM)&hChild);
+		
+		 tvInsert.hParent = hChild;
+		 tvInsert.hInsertAfter = TVI_LAST;
+		 tvInsert.item.pszText = (LPWSTR)L"Child Item2";
+		 tvInsert.item.iImage = iFile;           // icon when unselected
+		 tvInsert.item.iSelectedImage = iFile;   // icon when selected
+		hChild = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
+
+		
+		 ExpandTree(m_hTreeView_objectList);
+	}
+	ShowWindow(m_hwnd_About, SW_SHOW);
 }
 
 void Application::_initPlugins()
