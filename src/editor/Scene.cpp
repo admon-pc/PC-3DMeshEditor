@@ -1,11 +1,15 @@
 ﻿#include "editor.h"
 
+extern Application* g_app;
+
+
 AppScene::_root_t::_root_t():AppSceneObject(0){}
 AppScene::_root_t::~_root_t(){}
 
 AppScene::AppScene()
 {
 	m_rootObject = new _root_t();
+	m_rootObject->SetName(U"Root");
 }
 
 AppScene::~AppScene()
@@ -33,6 +37,7 @@ void AppScene::ClearScene()
 	}
 
 	m_rootObject->ClearChildrenList();
+	g_app->UpdateObjectList();
 }
 
 void AppScene::AddObject(AppSceneObject* object)
@@ -48,6 +53,7 @@ void AppScene::AddObject(AppSceneObject* object)
 
 		object->SetParent(m_rootObject);
 		object->m_flags |= AppSceneObject::flag_addedToScene;
+		g_app->UpdateObjectList();
 	}
 }
 

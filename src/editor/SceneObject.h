@@ -2,6 +2,11 @@
 #ifndef _PCSCENEO_H_
 #define _PCSCENEO_H_
 
+enum class AppSceneObjectType
+{
+	Polygonal
+};
+
 class PluginObject;
 class AppSceneObject
 {
@@ -21,11 +26,14 @@ protected:
 	PluginClassID m_classID; // object type
 
 	PluginString m_name;
+	std::wstring m_nameW;
 
 	AppSceneObject* m_parent = 0;
 	PluginList<AppSceneObject*> m_children;
 
 	PluginObject* m_plugin = 0;
+
+	AppSceneObjectType m_sceneObjectType = AppSceneObjectType::Polygonal;
 public:
 	AppSceneObject(PluginObject* po) : m_plugin(po) {}
 	virtual ~AppSceneObject() {}
@@ -47,7 +55,8 @@ public:
 
 	virtual AppSceneObject* GetParent() { return m_parent; }
 	virtual const char32_t* GetName() { return m_name.Data(); }
-	virtual void SetName(const char32_t* s) { if (s) { m_name.Assign(s); } }
+	virtual const wchar_t* GetNameW() { return m_nameW.c_str(); }
+	virtual void SetName(const char32_t* s) { if (s) { m_name.Assign(s); } m_name.ToUTF16(m_nameW); }
 	/*virtual void SetName(const char32_t* name)
 	{
 		m_pi->snprintf(m_name, 100, U"%s", name);
@@ -55,6 +64,8 @@ public:
 
 	virtual const PluginClassID& GetClassID() { return m_classID; }
 	virtual PluginObject* GetPlugin() { return m_plugin; }
+
+	AppSceneObjectType GetSceneObjectType() { return m_sceneObjectType; }
 };
 
 // Will be used only in .exe

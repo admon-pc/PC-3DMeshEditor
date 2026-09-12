@@ -255,6 +255,7 @@ class Application
 {
 	friend class SystemWindowCallback;
 	friend class AppGizmo;
+	friend class AppScene;
 	friend class AppViewportCamera;
 	friend class AppViewport;
 	friend class AppShortcutManager;
@@ -265,7 +266,16 @@ class Application
 
 	HWND m_hwnd_About = 0;
 
-	HIMAGELIST m_hImgList_treeView = 0;
+	friend INT_PTR CALLBACK DialogProcObjectList(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	struct _objectListWindowData
+	{
+		HWND m_hwnd_ObjectList = 0;
+		HIMAGELIST m_hImgList_treeView = 0;
+		HWND m_hTreeView_objectList = 0;
+		int m_iconID = 0;
+	}m_objectListWindowData;
+	void _updateObjectList(HTREEITEM parent, AppSceneObject* sceneObject);
+	void UpdateObjectList();
 
 	AppScene* m_scene = 0;
 
@@ -498,6 +508,8 @@ public:
 	void CloseProgramm();
 	void ShowAbout();
 	alSystemWindow* GetMainWindow() { return m_mainWindow; }
+	
+	void ShowObjectListWindow();
 
 	void GetRayFromScreen(alRay* ray, const alVec2f& coords, const alVec4f& viewportRect, const alMat4& VPInvert);
 
@@ -518,7 +530,6 @@ public:
 	void SetPanelCreateObjectType(PluginObject::EObjectType);
 	//void OnCombo_Create_Category(uint32_t);
 
-	HWND m_hTreeView_objectList = 0;
 };
 
 #endif

@@ -8,6 +8,7 @@ Application* g_app = 0;
 alMat4 g_emptyMatrix;
 TOOLINFO g_toolTipInfo;
 INT_PTR CALLBACK DialogProcAbout(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK DialogProcObjectList(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 void AppGUIListBox::OnListSelectItem(size_t index)
 {
@@ -413,6 +414,12 @@ Application::~Application()
 	if (m_hwnd_About)
 		DestroyWindow(m_hwnd_About);
 
+	if (m_objectListWindowData.m_hwnd_ObjectList)
+		DestroyWindow(m_objectListWindowData.m_hwnd_ObjectList);
+
+	if (m_objectListWindowData.m_hImgList_treeView)
+		ImageList_Destroy(m_objectListWindowData.m_hImgList_treeView);
+	
 	if (m_fileLog)
 		fclose(m_fileLog);
 }
@@ -504,7 +511,7 @@ bool Application::OnCreate(const char* videoDriver)
 		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_SELECTALL, L"Select All");
 		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_INVERTSELECT, L"Invert Selection");
 		AppendMenu(menu_edit, MF_SEPARATOR, 0, 0);
-		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_OBJECTLISTWINDOW, L"");
+		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_OBJECTLISTWINDOW, L"Open Objects List");
 
 		HMENU menu_view = CreateMenu();
 		AppendMenu(menu_view, MF_STRING, AppMenuID_VIEW_TOGGLEFULLVIEW, L"Toggle Full View");
@@ -1172,6 +1179,9 @@ void Application::OnPopupCommand(uint32_t cmd)
 	case AppMenuID_HELP_ABOUT:
 		ShowAbout();
 		break;
+	case AppMenuID_EDIT_OBJECTLISTWINDOW:
+		ShowObjectListWindow();
+		break;
 	}
 }
 
@@ -1179,17 +1189,6 @@ void Application::CloseProgramm()
 {
 	m_run = false;
 }
-
-//void ExpandAllItems(HWND hTree)
-//{
-//	HTREEITEM hItem = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM, TVGN_FIRSTVISIBLE, 0);
-//
-//	while (hItem)
-//	{
-//		SendMessage(hTree, TVM_EXPAND, TVE_EXPAND, (LPARAM)hItem);
-//		hItem = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM, TVGN_NEXT, (LPARAM)hItem);
-//	}
-//}
 
 void ExpandAllItems(HWND hTree, HTREEITEM hItem)
 {
@@ -1203,20 +1202,6 @@ void ExpandAllItems(HWND hTree, HTREEITEM hItem)
 		hChild = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM,
 			TVGN_NEXT, (LPARAM)hChild);
 	}
-	//while (hParent)
-	//{
-	//	SendMessage(hTree, TVM_EXPAND, TVE_EXPAND, (LPARAM)hParent);
-
-	//	// Recurse into children
-	//	HTREEITEM hChild = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM,
-	//		TVGN_CHILD, (LPARAM)hParent);
-	//	if (hChild)
-	//		ExpandAllItems(hTree, hParent);
-
-	//	// Next sibling
-	//	hParent = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM,
-	//		TVGN_NEXT, (LPARAM)hParent);
-	//}
 }
 
 void ExpandTree(HWND hTree)
@@ -1224,6 +1209,122 @@ void ExpandTree(HWND hTree)
 	HTREEITEM root = (HTREEITEM)SendMessage(hTree, TVM_GETNEXTITEM,
 		TVGN_ROOT, (LPARAM)0);
 	ExpandAllItems(hTree, root);
+}
+
+void Application::_updateObjectList(HTREEITEM parent, AppSceneObject* sceneObject)
+{
+	auto& children = sceneObject->GetChildren();
+	if (children.m_head)
+	{
+		auto curr = children.m_head;
+		auto last = children.m_head->m_left;
+		while (true)
+		{
+			TV_INSERTSTRUCT tvInsert = { 0 };
+			tvInsert.hParent = parent;
+			tvInsert.hInsertAfter = TVI_LAST;
+			tvInsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+			tvInsert.item.pszText = (LPWSTR)curr->m_data->GetNameW();
+			tvInsert.item.iImage = m_objectListWindowData.m_iconID;         
+			tvInsert.item.iSelectedImage = m_objectListWindowData.m_iconID;
+			HTREEITEM hItem = (HTREEITEM)SendMessage(m_objectListWindowData.m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
+
+			_updateObjectList(hItem, curr->m_data);
+
+			if (curr == last)
+				break;
+
+			curr = curr->m_right;
+		}
+	}
+}
+void Application::UpdateObjectList()
+{
+	if (m_objectListWindowData.m_hwnd_ObjectList)
+	{
+		m_objectListWindowData.m_hTreeView_objectList = GetDlgItem(m_objectListWindowData.m_hwnd_ObjectList, IDC_TREE1);
+		TreeView_DeleteAllItems(m_objectListWindowData.m_hTreeView_objectList);
+
+		// From resource icons
+		m_objectListWindowData.m_hImgList_treeView = ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 4, 4);
+		HICON hIcon = (HICON)LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_FOLDER),
+			IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
+		m_objectListWindowData.m_iconID = ImageList_AddIcon(m_objectListWindowData.m_hImgList_treeView, hIcon);
+		DestroyIcon(hIcon);
+		TreeView_SetImageList(m_objectListWindowData.m_hTreeView_objectList, m_objectListWindowData.m_hImgList_treeView, TVSIL_NORMAL);
+
+		TV_INSERTSTRUCT tvInsert = { 0 };
+		tvInsert.hParent = NULL;
+		tvInsert.hInsertAfter = TVI_ROOT;
+		tvInsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+		tvInsert.item.pszText = (LPWSTR)L"Root";
+		tvInsert.item.iImage = m_objectListWindowData.m_iconID;           // icon when unselected
+		tvInsert.item.iSelectedImage = m_objectListWindowData.m_iconID;   // icon when selected
+
+		HTREEITEM hRoot = (HTREEITEM)SendMessage(m_objectListWindowData.m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
+		_updateObjectList(hRoot, m_scene->GetRootObject());
+		ExpandTree(m_objectListWindowData.m_hTreeView_objectList);
+	}
+}
+
+void Application::ShowObjectListWindow()
+{
+	alSystemWindowOSDataWin32* w32 = (alSystemWindowOSDataWin32*)m_mainWindow->GetOSData();
+	if (!m_objectListWindowData.m_hwnd_ObjectList)
+	{
+		m_objectListWindowData.m_hwnd_ObjectList = CreateDialog(
+			GetModuleHandle(NULL),
+			MAKEINTRESOURCE(IDD_DIALOG1),
+			w32->m_hwnd,
+			DialogProcObjectList);
+
+		UpdateObjectList();
+		//m_hTreeView_objectList = GetDlgItem(m_hwnd_ObjectList, IDC_TREE1);
+		//// From resource icons
+		//m_hImgList_treeView = ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 4, 4);
+		//HICON hIcon = (HICON)LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_FOLDER),
+		//	IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
+		//int iFolder = ImageList_AddIcon(m_hImgList_treeView, hIcon);
+		//DestroyIcon(hIcon);
+
+		//hIcon = (HICON)LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_FILE),
+		//	IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
+		//int iFile = ImageList_AddIcon(m_hImgList_treeView, hIcon);
+		//TreeView_SetImageList(m_hTreeView_objectList, m_hImgList_treeView, TVSIL_NORMAL);
+
+		//DestroyIcon(hIcon);
+		//TV_INSERTSTRUCT tvInsert = { 0 };
+		//tvInsert.hParent = NULL;
+		//tvInsert.hInsertAfter = TVI_ROOT;
+		//tvInsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+		//tvInsert.item.pszText = (LPWSTR)L"Root Item";
+		//tvInsert.item.iImage = iFolder;           // icon when unselected
+		//tvInsert.item.iSelectedImage = iFolder;   // icon when selected
+
+		//HTREEITEM hRoot = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
+		////	SendMessage(m_hTreeView_objectList, TVM_EXPAND, TVE_EXPAND, (LPARAM)&hRoot);
+
+		//	// Add a child
+		//tvInsert.hParent = hRoot;
+		//tvInsert.hInsertAfter = TVI_LAST;
+		//tvInsert.item.pszText = (LPWSTR)L"Child Item";
+		//tvInsert.item.iImage = iFile;           // icon when unselected
+		//tvInsert.item.iSelectedImage = iFile;   // icon when selected
+		//HTREEITEM hChild = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
+		//hChild = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
+		//SendMessage(m_hTreeView_objectList, TVM_EXPAND, TVE_EXPAND, (LPARAM)&hChild);
+
+		//tvInsert.hParent = hChild;
+		//tvInsert.hInsertAfter = TVI_LAST;
+		//tvInsert.item.pszText = (LPWSTR)L"Child Item2";
+		//tvInsert.item.iImage = iFile;           // icon when unselected
+		//tvInsert.item.iSelectedImage = iFile;   // icon when selected
+		//hChild = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
+
+
+		//ExpandTree(m_hTreeView_objectList);
+	}
+	ShowWindow(m_objectListWindowData.m_hwnd_ObjectList, SW_SHOW);
 }
 
 void Application::ShowAbout()
@@ -1236,51 +1337,6 @@ void Application::ShowAbout()
 			MAKEINTRESOURCE(IDD_PROPPAGE_SMALL),
 			w32->m_hwnd,
 			DialogProcAbout);
-
-		m_hTreeView_objectList = GetDlgItem(m_hwnd_About, IDC_TREE1);
-		// From resource icons
-		m_hImgList_treeView = ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 4, 4);
-		HICON hIcon = (HICON)LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_FOLDER),
-			IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-		int iFolder = ImageList_AddIcon(m_hImgList_treeView, hIcon);
-		DestroyIcon(hIcon);
-
-		hIcon = (HICON)LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_FILE),
-			IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-		int iFile = ImageList_AddIcon(m_hImgList_treeView, hIcon);
-		TreeView_SetImageList(m_hTreeView_objectList, m_hImgList_treeView, TVSIL_NORMAL);
-
-		DestroyIcon(hIcon);
-		TV_INSERTSTRUCT tvInsert = { 0 };
-		tvInsert.hParent = NULL;
-		tvInsert.hInsertAfter = TVI_ROOT;
-		tvInsert.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
-		tvInsert.item.pszText = (LPWSTR)L"Root Item";
-		tvInsert.item.iImage = iFolder;           // icon when unselected
-		tvInsert.item.iSelectedImage = iFolder;   // icon when selected
-
-		HTREEITEM hRoot = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
-	//	SendMessage(m_hTreeView_objectList, TVM_EXPAND, TVE_EXPAND, (LPARAM)&hRoot);
-
-		// Add a child
-		tvInsert.hParent = hRoot;
-		tvInsert.hInsertAfter = TVI_LAST;
-		tvInsert.item.pszText = (LPWSTR)L"Child Item";
-		tvInsert.item.iImage = iFile;           // icon when unselected
-		tvInsert.item.iSelectedImage = iFile;   // icon when selected
-		HTREEITEM hChild = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
-		 hChild = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
-		SendMessage(m_hTreeView_objectList, TVM_EXPAND, TVE_EXPAND, (LPARAM)&hChild);
-		
-		 tvInsert.hParent = hChild;
-		 tvInsert.hInsertAfter = TVI_LAST;
-		 tvInsert.item.pszText = (LPWSTR)L"Child Item2";
-		 tvInsert.item.iImage = iFile;           // icon when unselected
-		 tvInsert.item.iSelectedImage = iFile;   // icon when selected
-		hChild = (HTREEITEM)SendMessage(m_hTreeView_objectList, TVM_INSERTITEM, 0, (LPARAM)&tvInsert);
-
-		
-		 ExpandTree(m_hTreeView_objectList);
 	}
 	ShowWindow(m_hwnd_About, SW_SHOW);
 }

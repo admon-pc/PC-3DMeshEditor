@@ -829,6 +829,7 @@ float64_t PluginString::ToFloat64()
 
 void PluginString::ToUTF8(std::string& str)
 {
+	str.clear();
 	PluginUnicodeConverter uc;
 	for (size_t i = 0; i < m_size; ++i)
 	{
@@ -846,6 +847,7 @@ void PluginString::ToUTF8(std::string& str)
 
 void PluginString::ToUTF16(std::wstring& str)
 {
+	str.clear();
 	PluginUnicodeConverter uc;
 	for (size_t i = 0; i < m_size; ++i)
 	{

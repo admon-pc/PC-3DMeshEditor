@@ -26,12 +26,37 @@ INT_PTR CALLBACK DialogProcAbout(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		}
 		break;
 
+	}
+	return (INT_PTR)FALSE; // Return FALSE for unhandled messages
+}
+
+INT_PTR CALLBACK DialogProcObjectList(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_INITDIALOG:
+	{
+	}return (INT_PTR)TRUE;
+	//case WM_SHOWWINDOW:
+	//	break;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDC_BUTTON1:
+		case IDOK:
+		case IDCANCEL:
+			ShowWindow(hDlg, SW_HIDE);
+			//DestroyWindow(hDlg);
+			return (INT_PTR)TRUE;
+		}
+		break;
+
 	case WM_NOTIFY:
 	{
 		NMHDR* pnmhdr = (NMHDR*)lParam;
 
 		// Verify it's from our tree control
-		if (pnmhdr->hwndFrom == g_app->m_hTreeView_objectList)
+		if (pnmhdr->hwndFrom == g_app->m_objectListWindowData.m_hTreeView_objectList)
 		{
 			switch (pnmhdr->code)
 			{

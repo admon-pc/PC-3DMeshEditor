@@ -39,6 +39,8 @@ public:
 
 	void Update(float32_t dt);
 	void Draw(float32_t dt);
+
+	AppSceneObject* GetRootObject() { return m_rootObject; }
 };
 
 #endif
