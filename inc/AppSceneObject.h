@@ -7,7 +7,7 @@ enum class AppSceneObjectType
 	Polygonal
 };
 
-class PluginObject;
+class AppPluginObject;
 class AppSceneObject
 {
 	friend class AppScene;
@@ -23,7 +23,7 @@ class AppSceneObject
 protected:
 	//PluginInterface* m_pi = 0;
 	//char32_t m_name[100];
-	PluginClassID m_classID; // object type
+	AppPluginClassID m_classID; // object type
 
 	PluginString m_name;
 	std::wstring m_nameW;
@@ -31,11 +31,11 @@ protected:
 	AppSceneObject* m_parent = 0;
 	PluginList<AppSceneObject*> m_children;
 
-	PluginObject* m_plugin = 0;
+	AppPluginObject* m_plugin = 0;
 
 	AppSceneObjectType m_sceneObjectType = AppSceneObjectType::Polygonal;
 public:
-	AppSceneObject(PluginObject* po) : m_plugin(po) {}
+	AppSceneObject(AppPluginObject* po) : m_plugin(po) {}
 	virtual ~AppSceneObject() {}
 
 	virtual void SetParent(AppSceneObject* parent)
@@ -62,8 +62,8 @@ public:
 		m_pi->snprintf(m_name, 100, U"%s", name);
 	}*/
 
-	virtual const PluginClassID& GetClassID() { return m_classID; }
-	virtual PluginObject* GetPlugin() { return m_plugin; }
+	virtual const AppPluginClassID& GetClassID() { return m_classID; }
+	virtual AppPluginObject* GetPlugin() { return m_plugin; }
 
 	AppSceneObjectType GetSceneObjectType() { return m_sceneObjectType; }
 };

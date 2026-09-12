@@ -80,10 +80,10 @@ void AppGUIButton::OnButtonToggleOn()
 	switch (GetID())
 	{
 	case Application::GUI::elementID_btnCreateTypePoly:
-		g_app->SetPanelCreateObjectType(PluginObject::EObjectType::EObjectType_Polygonal);
+		g_app->SetPanelCreateObjectType(AppPluginObject::EObjectType::EObjectType_Polygonal);
 		break;
 	case Application::GUI::elementID_btnCreateTypeHelp:
-		g_app->SetPanelCreateObjectType(PluginObject::EObjectType::EObjectType_Helper);
+		g_app->SetPanelCreateObjectType(AppPluginObject::EObjectType::EObjectType_Helper);
 		break;
 	}
 }
@@ -458,7 +458,7 @@ bool Application::OnCreate(const char* videoDriver)
 	alLog::SetPrintFunction(PrintLogFunction);
 	alLog::PrintInfo("%s : %s\n", __DATE__, __TIME__);
 
-	m_pluginInterface = alCreate<PluginInterfaceImpl>();
+	m_pluginInterface = alCreate<AppPluginInterfaceImpl>();
 
 	for (uint32_t i = 0; i < (uint32_t)AppCursorType::_count; ++i)
 	{
@@ -618,13 +618,13 @@ bool Application::OnCreate(const char* videoDriver)
 		auto pluginType = plugin.m_plugin->PluginType();
 		if (alLib::GUIDIsEqual(pluginType, PLUGIN_CLASS_ID_PLUGIN_TYPE_OBJECT))
 		{
-			PluginObject* po = dynamic_cast<PluginObject*>(plugin.m_plugin);
+			AppPluginObject* po = dynamic_cast<AppPluginObject*>(plugin.m_plugin);
 			if (po)
 			{
 				const char32_t* cat = po->Category();
 				const char32_t* title = po->TitleName();
 				auto objType = po->ObjectType();
-				if (cat && objType != PluginObject::EObjectType::EObjectType__end)
+				if (cat && objType != AppPluginObject::EObjectType::EObjectType__end)
 				{
 					auto* otData = &m_new_object_basic_data.m_data[objType];
 					
@@ -663,7 +663,7 @@ bool Application::OnCreate(const char* videoDriver)
 		}
 	}
 	SetRightTabMode(Application::RightTabMode::Create);
-	SetPanelCreateObjectType(PluginObject::EObjectType::EObjectType_Polygonal);
+	SetPanelCreateObjectType(AppPluginObject::EObjectType::EObjectType_Polygonal);
 	/*if(m_new_object_basic_data.m_categories.m_size)
 	{
 		auto e = m_gui->m_panelCreate->GetElementByID(AppGUIID_Combo_Create_Category);
@@ -1423,7 +1423,7 @@ void Application::SetRightTabMode(Application::RightTabMode mode)
 	}
 }
 
-void Application::SetPanelCreateObjectType(PluginObject::EObjectType type)
+void Application::SetPanelCreateObjectType(AppPluginObject::EObjectType type)
 {
 	// для простоты реализации от множеств панелей решил
 	// отказаться. Буду просто обновлять список.
@@ -1432,13 +1432,13 @@ void Application::SetPanelCreateObjectType(PluginObject::EObjectType type)
 
 	switch (type)
 	{
-	case PluginObject::EObjectType_Polygonal:
+	case AppPluginObject::EObjectType_Polygonal:
 	default:
 	{
 		if (lb)
 		{
 			auto* o = &m_new_object_basic_data.m_data[
-				PluginObject::EObjectType::EObjectType_Polygonal];
+				AppPluginObject::EObjectType::EObjectType_Polygonal];
 			void* ptr = &o->m_objs.m_data[0];
 			lb->SetItems(
 				ptr, 
@@ -1455,11 +1455,11 @@ void Application::SetPanelCreateObjectType(PluginObject::EObjectType type)
 		}*/
 	}
 		break;
-	case PluginObject::EObjectType_Helper:
+	case AppPluginObject::EObjectType_Helper:
 		if (lb)
 		{
 			auto* o = &m_new_object_basic_data.m_data[
-				PluginObject::EObjectType::EObjectType_Helper];
+				AppPluginObject::EObjectType::EObjectType_Helper];
 			void* ptr = &o->m_objs.m_data[0];
 			lb->SetItems(
 				ptr,
@@ -1469,13 +1469,13 @@ void Application::SetPanelCreateObjectType(PluginObject::EObjectType type)
 				0);
 		}
 		break;
-	case PluginObject::EObjectType__end:
+	case AppPluginObject::EObjectType__end:
 		lb->SetItems(0,0,0,0,0);
 		break;
 	}
 }
 
-void Application::_onLBSelect_createPanel(PluginObject* po)
+void Application::_onLBSelect_createPanel(AppPluginObject* po)
 {
 	auto btn = dynamic_cast<AppGUIButton*>(m_gui->m_panelCreate->GetElementByID(GUI::elementID_btnCreate_CreateButton));
 	if (btn)

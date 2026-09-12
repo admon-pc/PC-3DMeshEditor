@@ -2,7 +2,7 @@
 #ifndef _PCSCENE_H_
 #define _PCSCENE_H_
 
-#include "SceneObject.h"
+#include "AppSceneObject.h"
 
 
 class AppScene

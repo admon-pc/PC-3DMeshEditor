@@ -215,5 +215,9 @@ using plVec4u = PluginVec4_t<uint32_t>;
 using plVec3 = PluginVec3_t<float64_t>;
 using plVec4 = PluginVec4_t<float64_t>;
 
+const plVec4 plVec4FltMax = plVec4(FLT_MAX);
+const plVec4 plVec4FltMaxNeg = plVec4(-FLT_MAX);
+const plVec4f plVec4fFltMax = plVec4f(FLT_MAX);
+const plVec4f plVec4fFltMaxNeg = plVec4f(-FLT_MAX);
 
 #endif

@@ -6,6 +6,7 @@
 #include "Common/alGUID.h"
 
 #include "plugin/plugin.h"
+#include "AppGraphicsObject.h"
 
 #define PLUGIN_SDK_VERSION 1
 
@@ -29,14 +30,14 @@ PLUGIN_DEFINE_GUID(PLUGIN_CLASS_ID_PLUGIN_TYPE_EXPORT,
 PLUGIN_DEFINE_GUID(PLUGIN_CLASS_ID_OBJECT_PLANE,
 	0x4fb9983c, 0xd263, 0x48b5, 0xa1, 0x49, 0x8d, 0x15, 0xab, 0x5a, 0xad, 0x43);
 
-#define PluginClassID alGUID
+#define AppPluginClassID alGUID
 
 
-class PluginInterface
+class AppPluginInterface
 {
 public:
-	PluginInterface() {}
-	virtual ~PluginInterface() {}
+	AppPluginInterface() {}
+	virtual ~AppPluginInterface() {}
 
 	virtual void* MemAlloc(size_t) = 0;
 	virtual void MemFree(void*) = 0;
@@ -45,34 +46,36 @@ public:
 	virtual int32_t strcmp(const char32_t* s1, const char32_t* s2) = 0;
 	virtual uint32_t sprintf(char32_t* str, const char32_t* format, ...) = 0;
 	virtual uint32_t snprintf(char32_t* str, size_t n, const char32_t* format, ...) = 0;
-
+	
+	virtual AppGraphicsObject* CreateGraphicsObject(AppGraphicsObjectDesc* desc) = 0;
+	virtual void Destroy(AppGraphicsObject*) = 0;
 };
 
-#include "Scene.h"
+#include "AppScene.h"
 
-class Plugin
+class AppPlugin
 {
 protected:
-	PluginInterface* m_interface = 0;
+	AppPluginInterface* m_interface = 0;
 public:
-	Plugin(PluginInterface* i) : m_interface(i) {}
-	virtual ~Plugin() {}
+	AppPlugin(AppPluginInterface* i) : m_interface(i) {}
+	virtual ~AppPlugin() {}
 	virtual const char32_t* Name() = 0;
 	virtual const char32_t* Desc() = 0;
 	virtual const char32_t* Author() = 0;
 	virtual const char32_t* Copyright() = 0;
 	virtual uint32_t Version() = 0;
 	virtual uint32_t SDKVersion() = 0;
-	virtual PluginClassID PluginType() = 0;
+	virtual AppPluginClassID PluginType() = 0;
 	
-	PluginInterface* GetPluginInterface() { return m_interface; }
+	AppPluginInterface* GetPluginInterface() { return m_interface; }
 };
 
-class PluginObject : public Plugin
+class AppPluginObject : public AppPlugin
 {
 public:
-	PluginObject(PluginInterface* i):Plugin(i){}
-	virtual ~PluginObject() {}
+	AppPluginObject(AppPluginInterface* i):AppPlugin(i){}
+	virtual ~AppPluginObject() {}
 
 	// This will set where creation button will be located.
 	// All objects on the scene are one of these types.
@@ -99,28 +102,28 @@ public:
 	virtual EObjectType ObjectType() = 0;
 	virtual const char32_t* Category() = 0;
 	virtual const char32_t* TitleName() = 0;
-	virtual PluginClassID ClassID() = 0;
+	virtual AppPluginClassID ClassID() = 0;
 	virtual AppSceneObject* CreateObject() = 0;
 	virtual void DestroyObject(AppSceneObject*) = 0;
 };
 
-class PluginImport : public Plugin
+class AppPluginImport : public AppPlugin
 {
 public:
-	PluginImport(PluginInterface* i) :Plugin(i) {}
-	virtual ~PluginImport() {}
+	AppPluginImport(AppPluginInterface* i) :AppPlugin(i) {}
+	virtual ~AppPluginImport() {}
 };
 
-class PluginExport : public Plugin
+class AppPluginExport : public AppPlugin
 {
 public:
-	PluginExport(PluginInterface* i) :Plugin(i) {}
-	virtual ~PluginExport() {}
+	AppPluginExport(AppPluginInterface* i) :AppPlugin(i) {}
+	virtual ~AppPluginExport() {}
 };
 
 
 
-typedef Plugin* (AL_CDECL* PluginLoad_t)(PluginInterface*);
+typedef AppPlugin* (AL_CDECL* PluginLoad_t)(AppPluginInterface*);
 typedef void (AL_CDECL* PluginUnload_t)();
 
 #endif

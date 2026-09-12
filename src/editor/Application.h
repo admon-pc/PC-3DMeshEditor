@@ -262,7 +262,7 @@ class Application
 	friend class AppGUIButtonIcon;
 	friend class AppGUIButton;
 	friend class AppGUIListBox;
-	PluginInterface* m_pluginInterface = 0;
+	AppPluginInterface* m_pluginInterface = 0;
 
 	HWND m_hwnd_About = 0;
 
@@ -283,9 +283,9 @@ class Application
 	// click on list box item and I need to save
 	// some information for later use when I will click 
 	// on "Create" button
-	PluginObject* m_pluginObject_onCreateNew = 0;
+	AppPluginObject* m_pluginObject_onCreateNew = 0;
 
-	void _onLBSelect_createPanel(PluginObject*);
+	void _onLBSelect_createPanel(AppPluginObject*);
 
 	FILE* m_fileLog = 0;
 	alCursor* m_cursors[(uint32_t)AppCursorType::_count];
@@ -461,7 +461,7 @@ class Application
 	const wchar_t* m_toolTipText = 0;
 	
 	struct plugin_info {
-		Plugin* m_plugin = 0;
+		AppPlugin* m_plugin = 0;
 		alStringA m_path;
 		PluginUnload_t m_unloadFunc = 0;
 	};
@@ -477,7 +477,7 @@ class Application
 		{
 			uint32_t m_lbFlags = 0;
 			char32_t m_name[NAME_SIZE];
-			PluginObject* m_pluginObject = 0;
+			AppPluginObject* m_pluginObject = 0;
 		};
 
 		struct _EObjectType_data
@@ -487,7 +487,7 @@ class Application
 			alArray<_object> m_objs;
 		};
 
-		_EObjectType_data m_data[PluginObject::EObjectType::EObjectType__end];
+		_EObjectType_data m_data[AppPluginObject::EObjectType::EObjectType__end];
 	};
 	new_object_basic_data m_new_object_basic_data;
 
@@ -527,7 +527,7 @@ public:
 		Create, Edit, Parameters,
 	};
 	void SetRightTabMode(RightTabMode);
-	void SetPanelCreateObjectType(PluginObject::EObjectType);
+	void SetPanelCreateObjectType(AppPluginObject::EObjectType);
 	//void OnCombo_Create_Category(uint32_t);
 
 };

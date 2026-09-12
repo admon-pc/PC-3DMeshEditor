@@ -5,15 +5,15 @@
 class AppSceneObject_plane : public AppSceneObject
 {
 public:
-	AppSceneObject_plane(PluginObject* po);
+	AppSceneObject_plane(AppPluginObject* po);
 	virtual ~AppSceneObject_plane();
 };
 
-class PluginObject_plane : public PluginObject
+class AppPluginObject_plane : public AppPluginObject
 {
 public:
-	PluginObject_plane(PluginInterface* i);
-	virtual ~PluginObject_plane();
+	AppPluginObject_plane(AppPluginInterface* i);
+	virtual ~AppPluginObject_plane();
 
 	/// Plugin
 	virtual const char32_t* Name() override;
@@ -22,13 +22,13 @@ public:
 	virtual const char32_t* Copyright() override;
 	virtual uint32_t Version() override;
 	virtual uint32_t SDKVersion() override;
-	virtual PluginClassID PluginType() override;
+	virtual AppPluginClassID PluginType() override;
 
 	/// PluginObject
 	virtual EObjectType ObjectType() override;
 	virtual const char32_t* Category() override;
 	virtual const char32_t* TitleName() override;
-	virtual PluginClassID ClassID() override;
+	virtual AppPluginClassID ClassID() override;
 	virtual AppSceneObject* CreateObject() override;
 	virtual void DestroyObject(AppSceneObject*) override;
 };

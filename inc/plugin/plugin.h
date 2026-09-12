@@ -18,6 +18,9 @@ typedef double float64_t;
 #endif
 
 #define PLUGIN_FORCE_INLINE __forceinline
+#define PLUGIN_MAKEFOURCC( ch0, ch1, ch2, ch3 )\
+	((uint32_t)(uint8_t)(ch0)|((uint32_t)(uint8_t)(ch1)<<8)|\
+	((uint32_t)(uint8_t)(ch2)<<16)|((uint32_t)(uint8_t)(ch3)<<24))
 
 extern "C"
 {
@@ -28,7 +31,13 @@ extern "C"
 	PLUGIN_API FILE* PluginFopenW(const wchar_t*, const wchar_t* mode);
 }
 
-#include "plugin/plugin_vec.h"
+
+#include "plugin/plugin_color.h"
+#include "plugin/plugin_math.h"
+
+
+#include "plugin/plugin_ray.h"
+#include "plugin/plugin_aabb.h"
 #include "plugin/plugin_unicodeConverter.h"
 #include "plugin/plugin_string.h"
 #include "plugin/plugin_list.h"

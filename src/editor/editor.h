@@ -22,10 +22,8 @@ class AppEdge;
 class AppViewportLayout;
 
 
-#include "PluginInterface.h"
-
-
-#include "PluginInterfaceImpl.h"
+#include "AppPluginInterface.h"
+#include "AppPluginInterfaceImpl.h"
 
 #include "Application.h"
 #include "Viewport.h"
