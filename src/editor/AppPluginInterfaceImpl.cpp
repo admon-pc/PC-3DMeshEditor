@@ -1,6 +1,6 @@
 ﻿#include "editor.h"
 
-AppPluginInterfaceImpl::AppPluginInterfaceImpl()
+AppPluginInterfaceImpl::AppPluginInterfaceImpl(Application* app) : m_app(app)
 {
 }
 
@@ -55,8 +55,36 @@ uint32_t AppPluginInterfaceImpl::snprintf(char32_t* str, size_t n, const char32_
 	return result;
 }
 
-AppGraphicsObject* AppPluginInterfaceImpl::CreateGraphicsObject(AppGraphicsObjectDesc* desc)
+AppGraphicsObject* AppPluginInterfaceImpl::CreateGraphicsObject(AppMesh* m)
 {
+	if (m)
+	{
+		alMesh mesh;
+		mesh.m_iCount = m->m_iCount;
+		mesh.m_vCount = m->m_vCount;
+		mesh.m_stride = m->m_stride;
+		switch (m->m_vertexType)
+		{
+		case AppMeshVertexType::Triangle:
+			mesh.m_vertexType = alMeshVertexType::AnimatedTriangle;
+			break;
+		case AppMeshVertexType::Line:
+			mesh.m_vertexType = alMeshVertexType::AnimatedLine;
+			break;
+		case AppMeshVertexType::Point:
+			mesh.m_vertexType = alMeshVertexType::AnimatedPoint;
+			break;
+		}
+
+		mesh.m_vertices = m->m_vertices;
+		mesh.m_indices = m->m_indices;
+
+		alGSMesh* gsmesh = m_app->m_gs->CreateMesh(&mesh);
+
+		mesh.m_vertices = 0;
+		mesh.m_indices = 0;
+	}
+
 	return 0;
 }
 

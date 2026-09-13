@@ -458,7 +458,7 @@ bool Application::OnCreate(const char* videoDriver)
 	alLog::SetPrintFunction(PrintLogFunction);
 	alLog::PrintInfo("%s : %s\n", __DATE__, __TIME__);
 
-	m_pluginInterface = alCreate<AppPluginInterfaceImpl>();
+	m_pluginInterface = alCreate<AppPluginInterfaceImpl>(this);
 
 	for (uint32_t i = 0; i < (uint32_t)AppCursorType::_count; ++i)
 	{
@@ -957,18 +957,14 @@ void Application::_initGridMesh()
 		_build(mesh, -5.f, linesNum, 1.f, colorBase, colorBase, ColorLime, ColorRed, 5, AppViewportCameraType::Perspective);
 
 		{
-			alGSMeshInfo mi;
-			mi.m_meshPtr = mesh;
-			m_gridModel_perspective1 = m_gs->CreateMesh(&mi);
+			m_gridModel_perspective1 = m_gs->CreateMesh(mesh);
 		}
 
 		colorBase = alColor(150, 150, 150, 255);
 		_build(mesh, -5.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 5, AppViewportCameraType::Perspective);
 
 		{
-			alGSMeshInfo mi;
-			mi.m_meshPtr = mesh;
-			m_gridModel_perspective2 = m_gs->CreateMesh(&mi);
+			m_gridModel_perspective2 = m_gs->CreateMesh(mesh);
 		}
 		AL_DESTROY(mesh);
 	}
@@ -979,18 +975,14 @@ void Application::_initGridMesh()
 		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, ColorLime, ColorRed, 251, AppViewportCameraType::Top);
 
 		{
-			alGSMeshInfo mi;
-			mi.m_meshPtr = mesh;
-			m_gridModel_top1 = m_gs->CreateMesh(&mi);
+			m_gridModel_top1 = m_gs->CreateMesh(mesh);
 		}
 
 		colorBase = alColor(150, 150, 150, 255);
 		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, AppViewportCameraType::Top);
 
 		{
-			alGSMeshInfo mi;
-			mi.m_meshPtr = mesh;
-			m_gridModel_top2 = m_gs->CreateMesh(&mi);
+			m_gridModel_top2 = m_gs->CreateMesh(mesh);
 		}
 		AL_DESTROY(mesh);
 	}
@@ -1001,18 +993,14 @@ void Application::_initGridMesh()
 		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, ColorBlue, ColorRed, 251, AppViewportCameraType::Front);
 
 		{
-			alGSMeshInfo mi;
-			mi.m_meshPtr = mesh;
-			m_gridModel_front1 = m_gs->CreateMesh(&mi);
+			m_gridModel_front1 = m_gs->CreateMesh(mesh);
 		}
 
 		colorBase = alColor(150, 150, 150, 255);
 		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, AppViewportCameraType::Front);
 
 		{
-			alGSMeshInfo mi;
-			mi.m_meshPtr = mesh;
-			m_gridModel_front2 = m_gs->CreateMesh(&mi);
+			m_gridModel_front2 = m_gs->CreateMesh(mesh);
 		}
 
 		AL_DESTROY(mesh);
@@ -1024,18 +1012,14 @@ void Application::_initGridMesh()
 		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, ColorBlue, ColorLime, 251, AppViewportCameraType::Left);
 
 		{
-			alGSMeshInfo mi;
-			mi.m_meshPtr = mesh;
-			m_gridModel_left1 = m_gs->CreateMesh(&mi);
+			m_gridModel_left1 = m_gs->CreateMesh(mesh);
 		}
 
 		colorBase = alColor(150, 150, 150, 255);
 		_build(mesh, -251.f, linesNum, 1.f, colorBase, colorBase, colorBase, colorBase, 251, AppViewportCameraType::Left);
 
 		{
-			alGSMeshInfo mi;
-			mi.m_meshPtr = mesh;
-			m_gridModel_left2 = m_gs->CreateMesh(&mi);
+			m_gridModel_left2 = m_gs->CreateMesh(mesh);
 		}
 
 		AL_DESTROY(mesh);
@@ -1243,7 +1227,10 @@ void Application::UpdateObjectList()
 	if (m_objectListWindowData.m_hwnd_ObjectList)
 	{
 		m_objectListWindowData.m_hTreeView_objectList = GetDlgItem(m_objectListWindowData.m_hwnd_ObjectList, IDC_TREE1);
+		SendMessage(m_objectListWindowData.m_hTreeView_objectList, WM_SETREDRAW, FALSE, 0);
 		TreeView_DeleteAllItems(m_objectListWindowData.m_hTreeView_objectList);
+		SendMessage(m_objectListWindowData.m_hTreeView_objectList, WM_SETREDRAW, TRUE, 0);
+		InvalidateRect(m_objectListWindowData.m_hTreeView_objectList, NULL, TRUE);
 
 		// From resource icons
 		m_objectListWindowData.m_hImgList_treeView = ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 4, 4);

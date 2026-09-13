@@ -39,14 +39,16 @@ struct AppMeshVertexLine
 struct AppMesh
 {
 	AppMeshVertexType m_vertexType = AppMeshVertexType::Triangle;
-	uint32_t m_stride = sizeof(AppMeshVertexTriangle);
+	uint8_t* m_vertices = 0;
+	uint8_t* m_indices = 0;
 
 	PluginAabb m_aabb;
-};
 
-struct AppGraphicsObjectDesc
-{
+	uint32_t m_vCount = 0;
+	uint32_t m_iCount = 0;
+	uint32_t m_stride = 0;
 
+	char m_name[100];
 };
 
 // GPU mesh.

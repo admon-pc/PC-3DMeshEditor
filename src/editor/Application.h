@@ -262,6 +262,7 @@ class Application
 	friend class AppGUIButtonIcon;
 	friend class AppGUIButton;
 	friend class AppGUIListBox;
+	friend class AppPluginInterfaceImpl;
 	AppPluginInterface* m_pluginInterface = 0;
 
 	HWND m_hwnd_About = 0;

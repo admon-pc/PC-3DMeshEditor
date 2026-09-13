@@ -47,9 +47,7 @@ AppGizmo::AppGizmo(Application* app)
 		*index = 0; index++;
 		*index = 3; index++;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_pivotModel = m_app->m_gs->CreateMesh(&mi);
+		m_pivotModel = m_app->m_gs->CreateMesh(mesh);
 	}
 	{ //
 		alMesh* mesh = alCreate<alMesh>();
@@ -75,9 +73,7 @@ AppGizmo::AppGizmo(Application* app)
 		*index = 0; index++;
 		*index = 1; index++;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_X = m_app->m_gs->CreateMesh(&mi);
+		m_X = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_XAabb.m_min -= alVec4(0.f, sz, sz, 0.f);
@@ -107,9 +103,7 @@ AppGizmo::AppGizmo(Application* app)
 		*index = 0; index++;
 		*index = 1; index++;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_Y = m_app->m_gs->CreateMesh(&mi);
+		m_Y = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_YAabb.m_min -= alVec4(sz, 0.f, sz, 0.f);
@@ -139,9 +133,7 @@ AppGizmo::AppGizmo(Application* app)
 		*index = 0; index++;
 		*index = 1; index++;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_Z = m_app->m_gs->CreateMesh(&mi);
+		m_Z = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_ZAabb.m_min -= alVec4(sz, sz, 0.f, 0.f);
@@ -196,9 +188,7 @@ AppGizmo::AppGizmo(Application* app)
 		*index = 4; index++;
 		*index = 1; index++;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_HeadMoveX = m_app->m_gs->CreateMesh(&mi);
+		m_HeadMoveX = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_HeadXAabb.m_min -= alVec4(0.f, sz, sz, 0.f);
@@ -264,9 +254,7 @@ AppGizmo::AppGizmo(Application* app)
 		index[28] = 6;
 		index[29] = 2;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_HeadScaleX = m_app->m_gs->CreateMesh(&mi);
+		m_HeadScaleX = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_HeadScaleXAabb.m_min -= alVec4(sz, sz, sz, 0.f);
@@ -332,9 +320,7 @@ AppGizmo::AppGizmo(Application* app)
 		index[28] = 6;
 		index[29] = 2;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_HeadScaleY = m_app->m_gs->CreateMesh(&mi);
+		m_HeadScaleY = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_HeadScaleYAabb.m_min -= alVec4(sz, sz, sz, 0.f);
@@ -400,9 +386,7 @@ AppGizmo::AppGizmo(Application* app)
 		index[28] = 6;
 		index[29] = 2;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_HeadScaleZ = m_app->m_gs->CreateMesh(&mi);
+		m_HeadScaleZ = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_HeadScaleZAabb.m_min -= alVec4(sz, sz, sz, 0.f);
@@ -457,9 +441,7 @@ AppGizmo::AppGizmo(Application* app)
 		*index = 4; index++;
 		*index = 1; index++;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_HeadMoveY = m_app->m_gs->CreateMesh(&mi);
+		m_HeadMoveY = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_HeadYAabb.m_min -= alVec4(sz, 0.f, sz, 0.f);
@@ -514,9 +496,7 @@ AppGizmo::AppGizmo(Application* app)
 		*index = 4; index++;
 		*index = 1; index++;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_HeadMoveZ = m_app->m_gs->CreateMesh(&mi);
+		m_HeadMoveZ = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_HeadZAabb.m_min -= alVec4(sz, sz, 0.f, 0.f);
@@ -561,9 +541,7 @@ AppGizmo::AppGizmo(Application* app)
 		*index = 2; index++;
 		*index = 3; index++;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_XZ = m_app->m_gs->CreateMesh(&mi);
+		m_XZ = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_XZAabb.m_min -= alVec4(sz, 0.f, sz, 0.f);
@@ -608,9 +586,7 @@ AppGizmo::AppGizmo(Application* app)
 		*index = 2; index++;
 		*index = 3; index++;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_XY = m_app->m_gs->CreateMesh(&mi);
+		m_XY = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_XYAabb.m_min -= alVec4(sz, sz, 0.f, 0.f);
@@ -655,9 +631,7 @@ AppGizmo::AppGizmo(Application* app)
 		*index = 2; index++;
 		*index = 3; index++;
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_ZY = m_app->m_gs->CreateMesh(&mi);
+		m_ZY = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
 		m_ZYAabb.m_min -= alVec4(0.f, sz, sz, 0.f);
@@ -691,9 +665,7 @@ AppGizmo::AppGizmo(Application* app)
 				index[i + 1] = 0;
 		}
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_rotateX = m_app->m_gs->CreateMesh(&mi);
+		m_rotateX = m_app->m_gs->CreateMesh(mesh);
 	}
 	{ // rotate Y
 		alMesh* mesh = alCreate<alMesh>();
@@ -723,9 +695,7 @@ AppGizmo::AppGizmo(Application* app)
 				index[i + 1] = 0;
 		}
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_rotateY = m_app->m_gs->CreateMesh(&mi);
+		m_rotateY = m_app->m_gs->CreateMesh(mesh);
 	}
 	{ // rotate Z
 		alMesh* mesh = alCreate<alMesh>();
@@ -755,9 +725,7 @@ AppGizmo::AppGizmo(Application* app)
 				index[i + 1] = 0;
 		}
 
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_rotateZ = m_app->m_gs->CreateMesh(&mi);
+		m_rotateZ = m_app->m_gs->CreateMesh(mesh);
 	}
 	{ // rotate screen
 		alMesh* mesh = alCreate<alMesh>();
@@ -786,10 +754,7 @@ AppGizmo::AppGizmo(Application* app)
 			if (i == 70)
 				index[i + 1] = 0;
 		}
-
-		alGSMeshInfo mi;
-		mi.m_meshPtr = mesh;
-		m_rotateScreen = m_app->m_gs->CreateMesh(&mi);
+		m_rotateScreen = m_app->m_gs->CreateMesh(mesh);
 	}
 }
 

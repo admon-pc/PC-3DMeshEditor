@@ -4,8 +4,9 @@
 
 class AppPluginInterfaceImpl : public AppPluginInterface
 {
+	Application* m_app = 0;
 public:
-	AppPluginInterfaceImpl();
+	AppPluginInterfaceImpl(Application*);
 	virtual ~AppPluginInterfaceImpl();
 
 	virtual void* MemAlloc(size_t) override;
@@ -16,7 +17,7 @@ public:
 	virtual uint32_t sprintf(char32_t* str, const char32_t* format, ...) override;
 	virtual uint32_t snprintf(char32_t* str, size_t n, const char32_t* format, ...) override;
 	
-	virtual AppGraphicsObject* CreateGraphicsObject(AppGraphicsObjectDesc* desc) override;
+	virtual AppGraphicsObject* CreateGraphicsObject(AppMesh* desc) override;
 	virtual void Destroy(AppGraphicsObject*) override;
 };
 
