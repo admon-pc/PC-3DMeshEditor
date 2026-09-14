@@ -6,6 +6,30 @@
 #include "Common/alGUID.h"
 
 #include "editor.lib.h"
+
+// Viewport can draw triangles or lines or all together
+enum class AppViewportDrawMode : uint32_t
+{
+	// draw filled triangles with material
+	Material,
+
+	// draw only line-model
+	Wireframe,
+
+	// draw all
+	MaterialWireframe
+};
+
+struct AppViewportData
+{
+	AppViewportDrawMode m_drawMode = AppViewportDrawMode::Material;
+	AppMat4 m_viewMatrix;
+	AppMat4 m_projectMatrix;
+
+	void* m_activeCamera = 0;
+};
+
+
 #include "AppGraphicsObject.h"
 
 #define APP_SDK_VERSION 1
@@ -32,18 +56,6 @@ APP_DEFINE_GUID(APP_CLASS_ID_OBJECT_PLANE,
 
 #define AppPluginClassID alGUID
 
-// Viewport can draw triangles or lines or all together
-enum class AppViewportDrawMode : uint32_t
-{
-	// draw filled triangles with material
-	Material,
-
-	// draw only line-model
-	Wireframe,
-
-	// draw all
-	MaterialWireframe
-};
 
 class AppPluginInterface
 {

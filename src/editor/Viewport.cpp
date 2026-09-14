@@ -154,7 +154,7 @@ void AppViewport::Copy(AppViewport* other)
 {
 	this->SetCameraType(other->m_cameraType);
 	this->SetDrawGrid(other->m_drawGrid);
-	this->SetDrawMode(other->m_drawMode);
+	this->SetDrawMode(other->m_viewportData.m_drawMode);
 	m_activeCamera->Copy(other->m_activeCamera);
 	m_activeCamera->Update();
 }
@@ -570,9 +570,9 @@ void AppViewport::Draw3D()
 	//m_gs->SetScissorRect(m_currentRect, g_app->m_mainWindow, 0);
 	//m_gs->SetViewport(m_currentRect.x, m_currentRect.y, m_currentRectSize.x, m_currentRectSize.y, g_app->m_mainWindow, 0);
 
-	//alLib::SetMatrix(alMatrixType::View, &m_activeCamera->m_viewMatrix);
-	//alLib::SetMatrix(alMatrixType::Projection, &m_activeCamera->m_projectionMatrix);
-	//alLib::SetMatrix(alMatrixType::ViewProjection, &m_activeCamera->m_viewProjectionMatrix);
+	alLib::SetMatrix(alMatrixType::View, &m_activeCamera->m_viewMatrix);
+	alLib::SetMatrix(alMatrixType::Projection, &m_activeCamera->m_projectionMatrix);
+	alLib::SetMatrix(alMatrixType::ViewProjection, &m_activeCamera->m_viewProjectionMatrix);
 
 	//// Прежде чем рисовать скорее всего лучше сделать сортировку и всё сохранить в массив
 	////g_app->m_currentViewportDrawCamera = m_activeCamera;
@@ -657,11 +657,18 @@ void AppViewport::_drawAabb(const AppAabb& aabb, const AppColor& _color, const A
 	gs->DrawLine3D(v4 + positionOffset, v7 + positionOffset, color);
 	gs->DrawLine3D(v5 + positionOffset, v6 + positionOffset, color);
 	gs->DrawLine3D(v1 + positionOffset, v3 + positionOffset, color);
+	
+	
+	gs->DrawLine3D(alVec4(), alVec4(0.f,10.f,0.f,0.f), ColorBlue);
 }
 
 void AppViewport::_drawScene() 
 {
-	auto dm = m_drawMode;
+	auto dm = m_viewportData.m_drawMode;
+	m_viewportData.m_projectMatrix = Application::AlMatToAppMat(m_activeCamera->m_projectionMatrix);
+	m_viewportData.m_viewMatrix = Application::AlMatToAppMat(m_activeCamera->m_viewMatrix);
+	m_viewportData.m_activeCamera = m_activeCamera;
+
 	//printf("%u\n", m_visibleObjects.m_size);
 
 	for (uint32_t i = 0; i < m_visibleObjects.m_size; ++i)
@@ -671,14 +678,13 @@ void AppViewport::_drawScene()
 		auto object_position_v4f = *object_position;
 
 		AppMat4 W = *object->GetWMatrix();
-		AppMat4 V = Application::AlMatToAppMat(m_activeCamera->m_viewMatrix);
-		AppMat4 P = Application::AlMatToAppMat(m_activeCamera->m_projectionMatrix);
-		*object->GetWVPMatrix() = P * V * W;
+		*object->GetWVPMatrix() = m_viewportData.m_projectMatrix * m_viewportData.m_viewMatrix * W;
 		//object->OnUpdate(g_app->m_dt);
 
 		m_gs->EnableDepth();
 
-		object->Draw(dm, g_app->m_pluginInterface);
+		object->Draw(&m_viewportData, g_app->m_pluginInterface);
+		_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor(), AppVec3f());
 
 		if (object->IsSelected())
 		{
@@ -703,7 +709,7 @@ void AppViewport::_drawScene()
 
 void AppViewport::SetDrawMode(AppViewportDrawMode dm) 
 {
-	m_drawMode = dm;
+	m_viewportData.m_drawMode = dm;
 }
 
 void AppViewport::SetDrawGrid(bool v) {
@@ -712,29 +718,29 @@ void AppViewport::SetDrawGrid(bool v) {
 
 void AppViewport::ToggleDrawModeMaterial() {
 	static bool is_materail_mode = false;
-	if (m_drawMode == AppViewportDrawMode::Wireframe)
+	if (m_viewportData.m_drawMode == AppViewportDrawMode::Wireframe)
 	{
 		if (is_materail_mode)
 		{
-			m_drawMode = AppViewportDrawMode::Material;
+			m_viewportData.m_drawMode = AppViewportDrawMode::Material;
 			is_materail_mode = false;
 		}
 		else
-			m_drawMode = AppViewportDrawMode::MaterialWireframe;
+			m_viewportData.m_drawMode = AppViewportDrawMode::MaterialWireframe;
 	}
-	else if (m_drawMode == AppViewportDrawMode::MaterialWireframe)
-		m_drawMode = AppViewportDrawMode::Wireframe;
-	else if (m_drawMode == AppViewportDrawMode::Material)
+	else if (m_viewportData.m_drawMode == AppViewportDrawMode::MaterialWireframe)
+		m_viewportData.m_drawMode = AppViewportDrawMode::Wireframe;
+	else if (m_viewportData.m_drawMode == AppViewportDrawMode::Material)
 	{
-		m_drawMode = AppViewportDrawMode::Wireframe;
+		m_viewportData.m_drawMode = AppViewportDrawMode::Wireframe;
 		is_materail_mode = true;
 	}
 }
 void AppViewport::ToggleDrawModeWireframe() {
-	if (m_drawMode == AppViewportDrawMode::Material)
-		m_drawMode = AppViewportDrawMode::MaterialWireframe;
-	else if (m_drawMode == AppViewportDrawMode::MaterialWireframe)
-		m_drawMode = AppViewportDrawMode::Material;
+	if (m_viewportData.m_drawMode == AppViewportDrawMode::Material)
+		m_viewportData.m_drawMode = AppViewportDrawMode::MaterialWireframe;
+	else if (m_viewportData.m_drawMode == AppViewportDrawMode::MaterialWireframe)
+		m_viewportData.m_drawMode = AppViewportDrawMode::Material;
 }
 
 alVec4 AppViewport::GetCursorRayHitPosition(const alVec2f& cursorPosition) 

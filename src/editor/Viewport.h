@@ -54,8 +54,8 @@ public:
 	AppViewportCamera* m_activeCamera = 0;
 
 	AppViewportType m_viewportType = AppViewportType::Scene;
-
 	AppViewportCameraType m_cameraType = AppViewportCameraType::Perspective;
+
 	void SetCameraType(AppViewportCameraType);
 	void SetViewportName(const char32_t*);
 
@@ -83,8 +83,8 @@ public:
 	alGSTexture* m_rtt = 0;
 
 	bool m_isCursorInRect = false;
-
-	AppViewportDrawMode m_drawMode = AppViewportDrawMode::MaterialWireframe;
+	
+	AppViewportData m_viewportData;
 	void SetDrawMode(AppViewportDrawMode);
 
 	bool m_drawGrid = true;

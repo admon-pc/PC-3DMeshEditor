@@ -92,6 +92,7 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 {
 	AppSceneObject_plane* o = new AppSceneObject_plane(this);
 	o->SetName(U"Plane");
+	o->SetEdgeColor(AppColor(0xFFFF00FF));
 
 	{
 		auto aabb = o->GetAABB();
@@ -99,13 +100,16 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 		AppMesh mesh;
 		mesh.Allocate(1, AppMeshVertexType::Triangle);
 		AppMeshVertexTriangle* triangle = (AppMeshVertexTriangle*)mesh.m_vertices;
-		triangle[0].Position.Set(0.f, 0.f, 0.f);
+		triangle[0].Position.Set(0.f, 3.f, 0.f);
+		triangle[0].Normal.Set(0.f, 1.f, 0.f);
 		aabb->Add(triangle[0].Position);
 		
 		triangle[1].Position.Set(1.f, 0.f, 0.f);
+		triangle[1].Normal.Set(0.f, 1.f, 0.f);
 		aabb->Add(triangle[1].Position);
 		
 		triangle[2].Position.Set(1.f, 0.f, 1.f);
+		triangle[2].Normal.Set(0.f, 1.f, 0.f);
 		aabb->Add(triangle[2].Position);
 		uint16_t* ind = (uint16_t*)mesh.m_indices;
 		ind[0] = 0;
@@ -146,6 +150,26 @@ AppSceneObject_plane::~AppSceneObject_plane()
 		GetPlugin()->GetPluginInterface()->Destroy(m_testGO_point);
 }
 
-void AppSceneObject_plane::Draw(AppViewportDrawMode , AppPluginInterface*)
+void AppSceneObject_plane::Draw(AppViewportData* viewportData, AppPluginInterface* )
 {
+	if (m_testGO_triangle)
+		m_testGO_triangle->Draw(viewportData, this);
+	if (m_testGO_line)
+		m_testGO_line->Draw(viewportData, this);
+	if (m_testGO_point)
+		m_testGO_point->Draw(viewportData, this);
+
+	/*if (dm == AppViewportDrawMode::Material
+		|| dm == AppViewportDrawMode::MaterialWireframe)
+	{
+		if (m_visualObject_polygon) m_visualObject_polygon->Draw(false);
+	}
+
+	if ((dm == AppViewportDrawMode::Wireframe || dm == AppViewportDrawMode::MaterialWireframe)
+		|| (m_isSelected && em == AppEditMode::Edge)
+		|| (m_isSelected && em == AppEditMode::Polygon)
+		)
+	{
+		if (m_visualObject_edge) m_visualObject_edge->Draw(false);
+	}*/
 }

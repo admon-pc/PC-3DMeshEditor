@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <commctrl.h>
 #include "SelectionFrustum.h"
+#include "Shaders.h"
 
 #define AppViewportLayout_Full 0
 #define AppViewportLayout_Standart 1
@@ -88,34 +89,6 @@ public:
 	virtual void OnMouseLeave() override;
 
 	virtual void OnButtonToggleOn() override;
-};
-
-class AppGSShaderCallback_LineModel3D : public alGSShaderCallback
-{
-public:
-	AppGSShaderCallback_LineModel3D();
-	virtual ~AppGSShaderCallback_LineModel3D();
-
-	virtual void OnSetShader() override;
-	virtual void OnSetConstants() override;
-
-	bool Create(alGS*);
-
-	alGSShader* m_shader = 0;
-	alGSShaderConstantBuffer* m_cbV = 0;
-	alGSShaderConstantBuffer* m_cbP = 0;
-
-	struct cbVertex
-	{
-		alMat4 WVP;
-	}
-	m_cbVertexData;
-
-	struct cbPixel
-	{
-		alColor BaseColor;
-	}
-	m_cbPixelData;
 };
 
 enum class AppCursorType : uint32_t
@@ -263,6 +236,8 @@ class Application
 	friend class AppGUIButton;
 	friend class AppGUIListBox;
 	friend class AppPluginInterfaceImpl;
+	friend class AppGraphicsObjectImpl;
+
 	AppPluginInterface* m_pluginInterface = 0;
 
 	HWND m_hwnd_About = 0;
@@ -394,6 +369,7 @@ class Application
 	alGUIFont* m_fontGUIIcons32 = 0;
 
 	AppGSShaderCallback_LineModel3D* m_shaderLineModel = 0;
+	AppGSShaderCallback_DefaultTriangle* m_shaderDefaultTriangle = 0;
 
 	alInput* m_input = 0;
 

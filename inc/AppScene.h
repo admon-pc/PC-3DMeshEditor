@@ -12,7 +12,7 @@ class AppScene
 	public:
 		_root_t();
 		virtual ~_root_t();
-		virtual void Draw(AppViewportDrawMode, AppPluginInterface*) override {}
+		virtual void Draw(AppViewportData*, AppPluginInterface*) override {}
 	};
 
 	AppSceneObject* m_rootObject = 0;

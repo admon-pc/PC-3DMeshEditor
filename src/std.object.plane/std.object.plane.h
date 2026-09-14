@@ -8,7 +8,7 @@ public:
 	AppSceneObject_plane(AppPluginObject* po);
 	virtual ~AppSceneObject_plane();
 	
-	virtual void Draw(AppViewportDrawMode, AppPluginInterface*) override;
+	virtual void Draw(AppViewportData*, AppPluginInterface*) override;
 
 	AppGraphicsObject* m_testGO_triangle = 0;
 	AppGraphicsObject* m_testGO_line = 0;

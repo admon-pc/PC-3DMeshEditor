@@ -131,7 +131,7 @@ public:
 
 	AppSceneObjectType GetSceneObjectType() { return m_sceneObjectType; }
 
-	virtual void Draw(AppViewportDrawMode, AppPluginInterface*) = 0;
+	virtual void Draw(AppViewportData*, AppPluginInterface*) = 0;
 };
 
 // Will be used only in .exe

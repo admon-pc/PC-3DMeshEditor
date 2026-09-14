@@ -2,6 +2,8 @@
 #ifndef _PCGO_H_
 #define _PCGO_H_
 
+class AppSceneObject;
+
 enum class AppMeshVertexType
 {
 	Point, Line, Triangle
@@ -85,14 +87,15 @@ struct AppMesh
 	char m_name[100];
 };
 
-// GPU mesh.
-// 
+
+// GPU mesh
 class AppGraphicsObject
 {
 public:
 	AppGraphicsObject() {}
 	virtual ~AppGraphicsObject() {}
 
+	virtual void Draw(AppViewportData*, AppSceneObject*) = 0;
 	//AppAabb m_aabb;
 };
 

@@ -86,7 +86,7 @@ AppGraphicsObject* AppPluginInterfaceImpl::CreateGraphicsObject(AppMesh* m)
 		alGSMesh* gsmesh = m_app->m_gs->CreateMesh(&mesh);
 		if (gsmesh)
 		{
-			result = new AppGraphicsObjectImpl();
+			result = new AppGraphicsObjectImpl(m_app->m_gs, mesh.m_vertexType);
 			result->m_GPUMesh = gsmesh;
 		//	result->m_aabb = m->m_aabb;
 		}
