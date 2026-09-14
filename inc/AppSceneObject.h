@@ -25,15 +25,30 @@ protected:
 	//char32_t m_name[100];
 	AppPluginClassID m_classID; // object type
 
-	PluginString m_name;
+	AppString m_name;
 	std::wstring m_nameW;
 
 	AppSceneObject* m_parent = 0;
-	PluginList<AppSceneObject*> m_children;
+	AppList<AppSceneObject*> m_children;
+	
+	AppAabb m_aabb;
+	AppAabb m_aabbTransformed;
+	
+	AppVec4 m_localPosition;
+	AppVec4 m_globalPosition;
+
+	// матрица хранит только ориентацию, без позиции.
+	AppMat4 m_rotationScaleMatrix;
+	
+	AppMat4 m_worldViewProjection;
+	AppMat4 m_worldMatrix;
+
+	AppColor m_edgeColor;
 
 	AppPluginObject* m_plugin = 0;
 
 	AppSceneObjectType m_sceneObjectType = AppSceneObjectType::Polygonal;
+	bool m_isSelected = false;
 public:
 	AppSceneObject(AppPluginObject* po) : m_plugin(po) {}
 	virtual ~AppSceneObject() {}
@@ -50,8 +65,57 @@ public:
 		if (parent)
 			parent->m_children.push_back(this);
 	}
-	virtual const PluginList<AppSceneObject*>& GetChildren() const { return m_children; }
+	virtual const AppList<AppSceneObject*>& GetChildren() const { return m_children; }
 	virtual void ClearChildrenList() { m_children.clear(); }
+	
+	virtual bool IsSelected() { return m_isSelected; }
+
+	// m_aabb хранит оригинальное значение. Он не изменяет своего значения если
+	// изменили масштаб объекта или покрутили его.
+	// Для того, чтобы получить Aabb в соответствии с масштабов и вращением
+	// нужно получить m_aabbTransformed. Это метод GetAABBTransformed().
+	virtual AppAabb* GetAABB() { return &m_aabb; }
+	virtual AppAabb* GetAABBTransformed() { return &m_aabbTransformed; }
+
+	virtual AppVec4* GetLocalPosition() { return &m_localPosition; }
+	virtual AppVec4* GetGlobalPosition() { return &m_globalPosition; }
+	virtual AppMat4* GetRotationScaleMatrix() { return &m_rotationScaleMatrix; }
+	virtual AppMat4* GetWVPMatrix() { return &m_worldViewProjection; }
+	virtual AppMat4* GetWMatrix() { return &m_worldMatrix; }
+
+	virtual void UpdateAabb() 
+	{
+		// В старой версии делал вот это.
+		// Думаю - нужно ли?
+		// m_aabb и есть тот AABB который устанавливался при создании объекта.
+		// имея базовое значение, делаем его модифицированную версию - m_aabbTransformed
+		// и дальше, используем m_aabbTransformed.
+		// Возможно, может потребоваться изменять m_aabb. В каких случаях? В моменте редактирования?
+		//  Тогда, просто нужно будет брать, и обновлять m_aabb вручную там где происходит редактирование.
+		// Здесь же, происходит обновление m_aabbTransformed в соответствии с матрицей 
+		// хранящей вращение и масштаб. Вся эта штука работает для корректного frustum cull.
+		// Так-же вероятно как я помню, выбор объекта мышкой так-же происходит с учётом
+		//  попал ли луч в m_aabbTransformed.
+		// Ну и получается что надо вызывать этот метод после вращения или масштабирования объекта.
+		//
+		/*m_aabb.reset();
+		for (int i = 0, sz = GetVisualObjectCount(); i < sz; ++i)
+		{
+			m_aabb.add(GetVisualObject(i)->GetAabb());
+		}*/
+
+		//m_aabb.m_min += m_globalPosition;//no
+		//m_aabb.m_max += m_globalPosition;//no
+		// m_aabb must be in space center
+
+		AppMat4 m = m_rotationScaleMatrix;
+
+		m_aabbTransformed = m_aabb;
+		m_aabbTransformed.Transform(&m_aabb, &m, &m_globalPosition);
+	}
+	
+	virtual AppColor* GetEdgeColor() { return &m_edgeColor; }
+	virtual void SetEdgeColor(const AppColor& c) { m_edgeColor = c; }
 
 	virtual AppSceneObject* GetParent() { return m_parent; }
 	virtual const char32_t* GetName() { return m_name.Data(); }
@@ -66,6 +130,8 @@ public:
 	virtual AppPluginObject* GetPlugin() { return m_plugin; }
 
 	AppSceneObjectType GetSceneObjectType() { return m_sceneObjectType; }
+
+	virtual void Draw(AppViewportDrawMode, AppPluginInterface*) = 0;
 };
 
 // Will be used only in .exe

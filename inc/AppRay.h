@@ -1,23 +1,23 @@
 ﻿#pragma once
-#ifndef _PLUGINRAY_H_
-#define _PLUGINRAY_H_
+#ifndef _APPRAY_H_
+#define _APPRAY_H_
 
 
-class PluginRay
+class AppRay
 {
-	int max_dim(const plVec4& v)
+	int max_dim(const AppVec4& v)
 	{
 		return (v.x > v.y) ? ((v.x > v.z)
 			? 0 : 2) : ((v.y > v.z) ? 1 : 2);
 	}
 public:
-	PluginRay() {}
-	~PluginRay() {}
+	AppRay() {}
+	~AppRay() {}
 
-	plVec4 m_origin;
-	plVec4 m_end;
-	plVec4 m_direction;
-	plVec4 m_invDir;
+	AppVec4 m_origin;
+	AppVec4 m_end;
+	AppVec4 m_direction;
+	AppVec4 m_invDir;
 
 	int32_t m_kz = 0;
 	int32_t m_kx = 0;
@@ -27,9 +27,9 @@ public:
 	float32_t m_Sy = 0.f;
 	float32_t m_Sz = 0.f;
 
-	void CreateFrom2DCoords(const plVec2i& coord, const plVec4i& rc, const plVec2i& rc_sz, const plMat4& VPinv)
+	void CreateFrom2DCoords(const AppVec2i& coord, const AppVec4i& rc, const AppVec2i& rc_sz, const AppMat4& VPinv)
 	{
-		plVec2i point;
+		AppVec2i point;
 		point.x = coord.x - rc.x;
 		point.y = coord.y - rc.y;
 
@@ -38,8 +38,8 @@ public:
 		float pt_y = -(point.y / rc_sz.y) * 2.f + 1.f;
 
 		//                                           0.f - for d3d
-		m_origin = PluginMath::Mul(plVec4(pt_x, pt_y, -1.f, 1.f), VPinv);
-		m_end = PluginMath::Mul(plVec4(pt_x, pt_y, 1.f, 1.f), VPinv);
+		m_origin = AppMath::Mul(AppVec4(pt_x, pt_y, -1.f, 1.f), VPinv);
+		m_end = AppMath::Mul(AppVec4(pt_x, pt_y, 1.f, 1.f), VPinv);
 
 		m_origin.w = 1.0f / m_origin.w;
 		m_origin.x *= m_origin.w;
@@ -54,11 +54,11 @@ public:
 		Update();
 	}
 
-	float32_t DistanceToLine(const plVec4& lineP0, const plVec4& lineP1)
+	float32_t DistanceToLine(const AppVec4& lineP0, const AppVec4& lineP1)
 	{
-		plVec4 u = m_end - m_origin;
-		plVec4 v = lineP1 - lineP0;
-		plVec4 w = m_origin - lineP0;
+		AppVec4 u = m_end - m_origin;
+		AppVec4 v = lineP1 - lineP0;
+		AppVec4 w = m_origin - lineP0;
 		u.w = 0.f;
 		v.w = 0.f;
 		w.w = 0.f;
@@ -70,7 +70,7 @@ public:
 		float32_t D = a * c - b * b;
 		float32_t sc, tc;
 
-		if (D < plEpsilon)
+		if (D < AppEpsilon)
 		{
 			sc = 0.f;
 			tc = (b > c ? d / b : e / c);
@@ -81,7 +81,7 @@ public:
 			tc = (a * e - b * d) / D;
 		}
 
-		plVec4 dP = w + (sc * u) - (tc * v);
+		AppVec4 dP = w + (sc * u) - (tc * v);
 		dP.w = 0.f;
 		return (float32_t)std::sqrt(dP.Dot());
 	}
@@ -101,7 +101,7 @@ public:
 
 		m_kz = max_dim
 		(
-			plVec4
+			AppVec4
 			(
 				std::abs(m_direction.x),
 				std::abs(m_direction.y),
@@ -126,26 +126,26 @@ public:
 		m_Sy = float32_t(dir_data[m_ky] / dir_data[m_kz]);
 		m_Sz = float32_t(1.0 / dir_data[m_kz]);
 	}
-	void GetIntersectionPoint(int32_t t, plVec4& ip)
+	void GetIntersectionPoint(int32_t t, AppVec4& ip)
 	{
 		ip = m_origin + (float32_t)t * m_direction;
 	}
-	void GetIntersectionPoint(float32_t t, plVec4& ip)
+	void GetIntersectionPoint(float32_t t, AppVec4& ip)
 	{
 		ip = m_origin + t * m_direction;
 	}
-	void GetIntersectionPoint(float64_t t, plVec4& ip)
+	void GetIntersectionPoint(float64_t t, AppVec4& ip)
 	{
 		ip = m_origin + t * m_direction;
 	}
-	bool PlaneIntersection(const plVec4& planePoint, const plVec4f& planeNormal, float64_t& T)
+	bool PlaneIntersection(const AppVec4& planePoint, const AppVec4f& planeNormal, float64_t& T)
 	{
 		float64_t det = (planeNormal.x * m_direction.x) + (planeNormal.y * m_direction.y) + (planeNormal.z * m_direction.z);
 
-		if (std::fabs(det) < plEpsilon)
+		if (std::fabs(det) < AppEpsilon)
 			return false;
 
-		plVec4 v;
+		AppVec4 v;
 		v.x = planePoint.x - m_origin.x;
 		v.y = planePoint.y - m_origin.y;
 		v.z = planePoint.z - m_origin.z;

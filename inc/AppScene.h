@@ -12,13 +12,14 @@ class AppScene
 	public:
 		_root_t();
 		virtual ~_root_t();
+		virtual void Draw(AppViewportDrawMode, AppPluginInterface*) override {}
 	};
 
 	AppSceneObject* m_rootObject = 0;
 	//AppSceneObjectInternal* m_rootObject = 0;
 
-	PluginArray<AppSceneObject*>* m_getAllObjectArrayPtr = 0;
-	PluginArray<AppSceneObject*> m_allObjectsOnScene;
+	AppArray<AppSceneObject*>* m_getAllObjectArrayPtr = 0;
+	AppArray<AppSceneObject*> m_allObjectsOnScene;
 	void _onGetAllObjectsIntoArray();
 	void _onGetAllObjects(AppSceneObject*);
 
@@ -32,13 +33,13 @@ public:
 	void ClearScene();
 
 	void AddObject(AppSceneObject*);
-	void GetAllObjects(PluginArray<AppSceneObject*>*);
+	void GetAllObjects(AppArray<AppSceneObject*>*);
 
 	bool IsNameFree(AppSceneObject* , alUnicodeString*);
 	void GetFreeName(alUnicodeString*);
 
-	void Update(float32_t dt);
-	void Draw(float32_t dt);
+	//void Update(float32_t dt);
+	//void Draw(float32_t dt);
 
 	AppSceneObject* GetRootObject() { return m_rootObject; }
 };

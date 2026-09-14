@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#pragma comment(lib, "Plugin.lib")
+#pragma comment(lib, "editor.lib.lib")
 
 Application* g_app = 0;
 alMat4 g_emptyMatrix;
@@ -609,14 +609,14 @@ bool Application::OnCreate(const char* videoDriver)
 
 	m_scene = new AppScene();
 	
-	PluginString pstr;
+	AppString pstr;
 
 	_initPlugins();
 	for (size_t i = 0; i < m_plugins.m_size; ++i)
 	{
 		auto plugin = m_plugins.m_data[i];
 		auto pluginType = plugin.m_plugin->PluginType();
-		if (alLib::GUIDIsEqual(pluginType, PLUGIN_CLASS_ID_PLUGIN_TYPE_OBJECT))
+		if (alLib::GUIDIsEqual(pluginType, APP_CLASS_ID_PLUGIN_TYPE_OBJECT))
 		{
 			AppPluginObject* po = dynamic_cast<AppPluginObject*>(plugin.m_plugin);
 			if (po)
@@ -1347,15 +1347,15 @@ void Application::_initPlugins()
 			continue;
 
 		alLog::PrintInfo("Load plugin: %s...\n", lib_str.data());
-		const char* funcName_load = "PluginLoad";
-		const char* funcName_unload = "PluginUnload";
-		PluginLoad_t PluginLoad = (PluginLoad_t)alLib::DLLGetProc(funcName_load, module);
+		const char* funcName_load = "AppPluginLoad";
+		const char* funcName_unload = "AppPluginUnload";
+		AppPluginLoad_t PluginLoad = (AppPluginLoad_t)alLib::DLLGetProc(funcName_load, module);
 		if (!PluginLoad)
 		{
 			alLog::PrintInfo("FAIL (function %s not found)\n", funcName_load);
 			continue;
 		}
-		PluginUnload_t PluginUnload = (PluginUnload_t)alLib::DLLGetProc(funcName_unload, module);
+		AppPluginUnload_t PluginUnload = (AppPluginUnload_t)alLib::DLLGetProc(funcName_unload, module);
 		if (!PluginUnload)
 		{
 			alLog::PrintInfo("FAIL (function %s not found)\n", funcName_load);
@@ -1366,7 +1366,7 @@ void Application::_initPlugins()
 		auto newPlugin = PluginLoad(m_pluginInterface);
 		if (newPlugin)
 		{
-			if (newPlugin->SDKVersion() != PLUGIN_SDK_VERSION)
+			if (newPlugin->SDKVersion() != APP_SDK_VERSION)
 			{
 				alDestroy(newPlugin);
 				alLog::PrintError("FAIL (bad version)\n");

@@ -7,6 +7,7 @@ AppGraphicsObjectImpl::AppGraphicsObjectImpl()
 
 AppGraphicsObjectImpl::~AppGraphicsObjectImpl()
 {
+	AL_DESTROY(m_GPUMesh);
 }
 
 

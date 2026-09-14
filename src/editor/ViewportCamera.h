@@ -66,7 +66,7 @@ public:
 	{
 		alVec4 m_planes[6u];
 
-		bool PointInFrustum(const alVec4& point)
+		bool PointInFrustum(const AppVec4& point)
 		{
 
 			if ((
@@ -114,7 +114,7 @@ public:
 			return true;
 		}
 
-		bool SphereInFrustum(float32_t radius, const alVec4& position)
+		bool SphereInFrustum(float32_t radius, const AppVec4& position)
 		{
 			for (uint32_t i = 0u; i < 6u; ++i)
 			{

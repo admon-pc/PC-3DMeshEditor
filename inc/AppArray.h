@@ -1,17 +1,17 @@
 ﻿#pragma once
-#ifndef _PLUGINARR_H_
-#define _PLUGINARR_H_
+#ifndef _APPARR_H_
+#define _APPARR_H_
 
 // `clear` must do m_size = 0;
 template<typename type>
-class PluginArray
+class AppArray
 {
 	size_t     m_allocated = 0;
 	void Reallocate(size_t new_capacity)
 	{
 		new_capacity += 4 * (m_allocated / 2);
 		auto tmp_size = new_capacity * sizeof(type);
-		type* new_data = static_cast<type*>(PluginMalloc(tmp_size));
+		type* new_data = static_cast<type*>(AppMalloc(tmp_size));
 		memset(new_data, 0, tmp_size);
 
 		if (m_data)
@@ -21,18 +21,18 @@ class PluginArray
 				new(&new_data[i]) type(m_data[i]);
 				(&m_data[i])->~type();
 			}
-			PluginFree(m_data);
+			AppFree(m_data);
 		}
 		m_data = new_data;
 		m_allocated = new_capacity;
 	}
 public:
-	PluginArray() :m_allocated(0), m_size(0), m_data(0) {}
-	PluginArray(const PluginArray<type>& other)
+	AppArray() :m_allocated(0), m_size(0), m_data(0) {}
+	AppArray(const AppArray<type>& other)
 	{
 		assign(other);
 	}
-	PluginArray(PluginArray<type>&& other)
+	AppArray(AppArray<type>&& other)
 	{
 		m_allocated = other.m_allocated;
 		m_data = other.m_data;
@@ -41,14 +41,14 @@ public:
 		other.m_data = 0;
 		other.m_size = 0;
 	}
-	~PluginArray() { FreeMemory(); }
+	~AppArray() { FreeMemory(); }
 
-	PluginArray<type>& operator=(const PluginArray<type>& other)
+	AppArray<type>& operator=(const AppArray<type>& other)
 	{
 		assign(other);
 		return *this;
 	}
-	PluginArray<type>& operator=(PluginArray<type>&& other)
+	AppArray<type>& operator=(AppArray<type>&& other)
 	{
 		m_allocated = other.m_allocated;
 		m_data = other.m_data;
@@ -59,7 +59,7 @@ public:
 		return *this;
 	}
 
-	void assign(const PluginArray<type>& other)
+	void assign(const AppArray<type>& other)
 	{
 		FreeMemory();
 		if (other.m_allocated)
@@ -92,7 +92,7 @@ public:
 	{
 		auto new_capacity = m_size;
 		auto tmp_size = new_capacity * sizeof(type);
-		type* new_data = static_cast<type*>(PluginMalloc(tmp_size));
+		type* new_data = static_cast<type*>(AppMalloc(tmp_size));
 		memset(new_data, 0, tmp_size);
 
 		if (m_data)
@@ -102,7 +102,7 @@ public:
 				new(&new_data[i]) type(m_data[i]);
 				(&m_data[i])->~type();
 			}
-			PluginFree(m_data);
+			AppFree(m_data);
 		}
 		m_data = new_data;
 		m_allocated = new_capacity;
@@ -159,7 +159,7 @@ public:
 			{
 				(&m_data[i])->~type();
 			}
-			PluginFree(m_data);
+			AppFree(m_data);
 
 			m_allocated = m_size = 0;
 			m_data = nullptr;

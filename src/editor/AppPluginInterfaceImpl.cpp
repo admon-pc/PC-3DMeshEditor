@@ -1,4 +1,5 @@
 ﻿#include "editor.h"
+#include "AppGraphicsObjectImpl.h"
 
 AppPluginInterfaceImpl::AppPluginInterfaceImpl(Application* app) : m_app(app)
 {
@@ -57,22 +58,25 @@ uint32_t AppPluginInterfaceImpl::snprintf(char32_t* str, size_t n, const char32_
 
 AppGraphicsObject* AppPluginInterfaceImpl::CreateGraphicsObject(AppMesh* m)
 {
+	AppGraphicsObjectImpl* result = 0;
 	if (m)
 	{
 		alMesh mesh;
 		mesh.m_iCount = m->m_iCount;
 		mesh.m_vCount = m->m_vCount;
-		mesh.m_stride = m->m_stride;
 		switch (m->m_vertexType)
 		{
 		case AppMeshVertexType::Triangle:
 			mesh.m_vertexType = alMeshVertexType::AnimatedTriangle;
+			mesh.m_stride = sizeof(alVertexAnimatedTriangle);
 			break;
 		case AppMeshVertexType::Line:
 			mesh.m_vertexType = alMeshVertexType::AnimatedLine;
+			mesh.m_stride = sizeof(alVertexAnimatedLine);
 			break;
 		case AppMeshVertexType::Point:
 			mesh.m_vertexType = alMeshVertexType::AnimatedPoint;
+			mesh.m_stride = sizeof(alVertexAnimatedPoint);
 			break;
 		}
 
@@ -80,12 +84,18 @@ AppGraphicsObject* AppPluginInterfaceImpl::CreateGraphicsObject(AppMesh* m)
 		mesh.m_indices = m->m_indices;
 
 		alGSMesh* gsmesh = m_app->m_gs->CreateMesh(&mesh);
+		if (gsmesh)
+		{
+			result = new AppGraphicsObjectImpl();
+			result->m_GPUMesh = gsmesh;
+		//	result->m_aabb = m->m_aabb;
+		}
 
 		mesh.m_vertices = 0;
 		mesh.m_indices = 0;
 	}
 
-	return 0;
+	return result;
 }
 
 void AppPluginInterfaceImpl::Destroy(AppGraphicsObject* go)

@@ -1,8 +1,8 @@
 ﻿#pragma once
-#ifndef _PLUGINSTR_H_
-#define _PLUGINSTR_H_
+#ifndef _APPSTR_H_
+#define _APPSTR_H_
 
-class PLUGIN_API PluginString
+class EDITORLIB_API AppString
 {
 	size_t m_size = 0;
 	size_t m_allocated = 0;
@@ -15,22 +15,22 @@ class PLUGIN_API PluginString
 	void _saveToFileUTF16(FILE*, bool addBOM = true);
 	void _saveToFileUTF32(FILE*, bool addBOM = true);
 public:
-	PluginString();
-	PluginString(const char*);
-	PluginString(const wchar_t*);
-	PluginString(const char8_t*);
-	PluginString(const char16_t*);
-	PluginString(const char32_t*);
-	PluginString(const PluginString&);
-	PluginString(PluginString&&) noexcept;
-	~PluginString();
+	AppString();
+	AppString(const char*);
+	AppString(const wchar_t*);
+	AppString(const char8_t*);
+	AppString(const char16_t*);
+	AppString(const char32_t*);
+	AppString(const AppString&);
+	AppString(AppString&&) noexcept;
+	~AppString();
 
 	void Assign(const char*);
 	void Assign(const wchar_t*);
 	void Assign(const char8_t*);
 	void Assign(const char16_t*);
 	void Assign(const char32_t*);
-	void Assign(const PluginString&);
+	void Assign(const AppString&);
 
 	size_t Size();
 	size_t Capacity();
@@ -50,7 +50,7 @@ public:
 	void Append(const char16_t*);
 	void Append(const char32_t*);
 	void Append(const char32_t*, size_t size);
-	void Append(const PluginString&);
+	void Append(const AppString&);
 	void Append(char32_t);
 	void Append(uint32_t);
 	void Append(uint64_t);
@@ -83,8 +83,8 @@ public:
 	void SaveToFileUTF16(const wchar_t*, bool addBOM = true);
 	void SaveToFileUTF32(const wchar_t*, bool addBOM = true);
 
-	PluginString& operator=(const PluginString&);
-	PluginString& operator=(PluginString&&) noexcept;
+	AppString& operator=(const AppString&);
+	AppString& operator=(AppString&&) noexcept;
 
 	void operator+=(const char* str) { Append(str); }
 	void operator+=(const char8_t* str) { Append(str); }

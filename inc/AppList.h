@@ -1,28 +1,28 @@
 ﻿#pragma once
-#ifndef _PLUGINLST_H_
-#define _PLUGINLST_H_
+#ifndef _APPLST_H_
+#define _APPLST_H_
 
 template<typename _type>
-struct PluginListNode
+struct AppListNode
 {
-	PluginListNode() :m_left(0), m_right(0) {}
-	~PluginListNode() {}
+	AppListNode() :m_left(0), m_right(0) {}
+	~AppListNode() {}
 	_type m_data;
-	PluginListNode* m_left;
-	PluginListNode* m_right;
+	AppListNode* m_left;
+	AppListNode* m_right;
 };
 
 // circular double linked list
 template<typename _type>
-class PluginList
+class AppList
 {
-	PluginList(const PluginList& other) {};
-	PluginList(PluginList&& other) {};
+	AppList(const AppList& other) {};
+	AppList(AppList&& other) {};
 
 	size_t m_size = 0;
 public:
-	PluginList() :m_head(0) {}
-	~PluginList() {
+	AppList() :m_head(0) {}
+	~AppList() {
 		clear();
 	}
 
@@ -37,7 +37,7 @@ public:
 
 	size_t size() { return m_size; }
 
-	PluginListNode<_type>* find(const _type& data)
+	AppListNode<_type>* find(const _type& data)
 	{
 		if (!m_head)
 			return 0;
@@ -64,8 +64,8 @@ public:
 		while (true)
 		{
 			auto next = m_head->m_right;
-			m_head->~PluginListNode();
-			PluginFree(m_head);
+			m_head->~AppListNode();
+			AppFree(m_head);
 
 			if (m_head == last)
 				break;
@@ -76,10 +76,10 @@ public:
 	}
 
 
-	PluginListNode<_type>* insert_after(const _type& after_this, const _type& data)
+	AppListNode<_type>* insert_after(const _type& after_this, const _type& data)
 	{
-		PluginListNode<_type>* node = (PluginListNode<_type>*)PluginMalloc(sizeof(PluginListNode<_type>));
-		new(node)PluginListNode<_type>();
+		AppListNode<_type>* node = (AppListNode<_type>*)AppMalloc(sizeof(AppListNode<_type>));
+		new(node)AppListNode<_type>();
 
 		node->m_data = data;
 		++m_size;
@@ -122,10 +122,10 @@ public:
 		return node;
 	}
 
-	PluginListNode<_type>* insert_before(const _type& after_this, const _type& data)
+	AppListNode<_type>* insert_before(const _type& after_this, const _type& data)
 	{
-		PluginListNode<_type>* node = (PluginListNode<_type>*)PluginMalloc(sizeof(PluginListNode<_type>));
-		new(node)PluginListNode<_type>();
+		AppListNode<_type>* node = (AppListNode<_type>*)AppMalloc(sizeof(AppListNode<_type>));
+		new(node)AppListNode<_type>();
 
 		node->m_data = data;
 		++m_size;
@@ -169,10 +169,10 @@ public:
 		return node;
 	}
 
-	PluginListNode<_type>* push_back(const _type& data)
+	AppListNode<_type>* push_back(const _type& data)
 	{
-		PluginListNode<_type>* node = (PluginListNode<_type>*)PluginMalloc(sizeof(PluginListNode<_type>));
-		new(node)PluginListNode<_type>();
+		AppListNode<_type>* node = (AppListNode<_type>*)AppMalloc(sizeof(AppListNode<_type>));
+		new(node)AppListNode<_type>();
 
 		node->m_data = data;
 		++m_size;
@@ -194,10 +194,10 @@ public:
 		return node;
 	}
 
-	PluginListNode<_type>* push_front(const _type& data)
+	AppListNode<_type>* push_front(const _type& data)
 	{
-		PluginListNode<_type>* node = (PluginListNode<_type>*)PluginMalloc(sizeof(PluginListNode<_type>));
-		new(node)PluginListNode<_type>();
+		AppListNode<_type>* node = (AppListNode<_type>*)AppMalloc(sizeof(AppListNode<_type>));
+		new(node)AppListNode<_type>();
 
 		node->m_data = data;
 		++m_size;
@@ -225,8 +225,8 @@ public:
 			return;
 		auto next = m_head->m_right;
 		auto last = m_head->m_left;
-		m_head->~PluginListNode();
-		PluginFree(m_head);
+		m_head->~AppListNode();
+		AppFree(m_head);
 		--m_size;
 
 		if (next == m_head)
@@ -250,8 +250,8 @@ public:
 		lastNode->m_left->m_right = m_head;
 		m_head->m_left = lastNode->m_left;
 
-		lastNode->~PluginListNode();
-		PluginFree(lastNode);
+		lastNode->~AppListNode();
+		AppFree(lastNode);
 
 		if (lastNode == m_head)
 		{
@@ -260,7 +260,7 @@ public:
 		}
 	}
 
-	void erase(PluginListNode<_type>* node)
+	void erase(AppListNode<_type>* node)
 	{
 		erase_by_node(node);
 	}
@@ -316,8 +316,8 @@ public:
 	{
 		if (!m_head)
 			return;
-		PluginListNode<_type>* tail = m_head->m_left;
-		PluginListNode<_type>* curr = m_head;
+		AppListNode<_type>* tail = m_head->m_left;
+		AppListNode<_type>* curr = m_head;
 		while (true)
 		{
 			auto l = curr->m_left;
@@ -333,7 +333,7 @@ public:
 		m_head = tail;
 	}
 
-	void erase_by_node(PluginListNode<_type>* object)
+	void erase_by_node(AppListNode<_type>* object)
 	{
 		if (!m_head)
 			return;
@@ -347,8 +347,8 @@ public:
 		if (object == m_head)
 			m_head = 0;
 
-		object->~PluginListNode();
-		PluginFree(object);
+		object->~AppListNode();
+		AppFree(object);
 		--m_size;
 	}
 
@@ -356,12 +356,12 @@ public:
 	{
 		//	friend class ConstIterator;
 
-		PluginListNode<_type>* m_node;
-		PluginListNode<_type>* m_nodeEnd;
+		AppListNode<_type>* m_node;
+		AppListNode<_type>* m_nodeEnd;
 		bool m_isEnd;
 	public:
 		Iterator() :m_node(0), m_isEnd(true) {}
-		Iterator(PluginListNode<_type>* head) :m_node(head), m_isEnd(false)
+		Iterator(AppListNode<_type>* head) :m_node(head), m_isEnd(false)
 		{
 			if (!head)
 			{
@@ -405,7 +405,7 @@ public:
 		return Iterator();
 	}
 
-	PluginListNode<_type>* m_head = 0;
+	AppListNode<_type>* m_head = 0;
 };
 
 

@@ -5,33 +5,45 @@
 #include "al.h"
 #include "Common/alGUID.h"
 
-#include "plugin/plugin.h"
+#include "editor.lib.h"
 #include "AppGraphicsObject.h"
 
-#define PLUGIN_SDK_VERSION 1
+#define APP_SDK_VERSION 1
 
-#define PLUGIN_DEFINE_GUID AL_DEFINE_GUID
+#define APP_DEFINE_GUID AL_DEFINE_GUID
 
 // Default Class IDs
 // 
 // Plugin Types
 // {D1B539F5-B468-4AB6-80C5-FF63291C1938}
-PLUGIN_DEFINE_GUID(PLUGIN_CLASS_ID_PLUGIN_TYPE_OBJECT,
+APP_DEFINE_GUID(APP_CLASS_ID_PLUGIN_TYPE_OBJECT,
 	0xd1b539f5, 0xb468, 0x4ab6, 0x80, 0xc5, 0xff, 0x63, 0x29, 0x1c, 0x19, 0x38);
 // {43B5A545-0B15-4223-A28F-96DB139525F2}
-PLUGIN_DEFINE_GUID(PLUGIN_CLASS_ID_PLUGIN_TYPE_IMPORT,
+APP_DEFINE_GUID(APP_CLASS_ID_PLUGIN_TYPE_IMPORT,
 	0x43b5a545, 0xb15, 0x4223, 0xa2, 0x8f, 0x96, 0xdb, 0x13, 0x95, 0x25, 0xf2);
 // {16DB0562-80CC-4810-8D6E-2545DD92CCE5}
-PLUGIN_DEFINE_GUID(PLUGIN_CLASS_ID_PLUGIN_TYPE_EXPORT,
+APP_DEFINE_GUID(APP_CLASS_ID_PLUGIN_TYPE_EXPORT,
 	0x16db0562, 0x80cc, 0x4810, 0x8d, 0x6e, 0x25, 0x45, 0xdd, 0x92, 0xcc, 0xe5);
 // 
 // Objects
 // {4FB9983C-D263-48B5-A149-8D15AB5AAD43}
-PLUGIN_DEFINE_GUID(PLUGIN_CLASS_ID_OBJECT_PLANE,
+APP_DEFINE_GUID(APP_CLASS_ID_OBJECT_PLANE,
 	0x4fb9983c, 0xd263, 0x48b5, 0xa1, 0x49, 0x8d, 0x15, 0xab, 0x5a, 0xad, 0x43);
 
 #define AppPluginClassID alGUID
 
+// Viewport can draw triangles or lines or all together
+enum class AppViewportDrawMode : uint32_t
+{
+	// draw filled triangles with material
+	Material,
+
+	// draw only line-model
+	Wireframe,
+
+	// draw all
+	MaterialWireframe
+};
 
 class AppPluginInterface
 {
@@ -123,8 +135,8 @@ public:
 
 
 
-typedef AppPlugin* (AL_CDECL* PluginLoad_t)(AppPluginInterface*);
-typedef void (AL_CDECL* PluginUnload_t)();
+typedef AppPlugin* (AL_CDECL* AppPluginLoad_t)(AppPluginInterface*);
+typedef void (AL_CDECL* AppPluginUnload_t)();
 
 #endif
 

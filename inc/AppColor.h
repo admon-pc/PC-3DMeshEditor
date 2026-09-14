@@ -1,19 +1,19 @@
 ﻿#pragma once
-#ifndef _PLUGINCLR_H_
-#define _PLUGINCLR_H_
+#ifndef _ELCLR_H_
+#define _ELCLR_H_
 
 
-class PluginColorBytes
+class AppColorBytes
 {
 public:
-	PluginColorBytes()
+	AppColorBytes()
 		:
 		r(0),
 		g(0),
 		b(0),
 		a(255)
 	{}
-	PluginColorBytes(uint8_t R, uint8_t G, uint8_t B, uint8_t A)
+	AppColorBytes(uint8_t R, uint8_t G, uint8_t B, uint8_t A)
 		:
 		r(R),
 		g(G),
@@ -21,7 +21,7 @@ public:
 		a(A)
 	{}
 
-	PluginColorBytes(uint32_t uint_data) // 0xFF112233 ARGB
+	AppColorBytes(uint32_t uint_data) // 0xFF112233 ARGB
 	{
 		r = static_cast<uint8_t>(uint_data >> 16u);
 		g = static_cast<uint8_t>(uint_data >> 8u);
@@ -31,7 +31,7 @@ public:
 
 	uint8_t r, g, b, a;
 
-	bool	operator==(const PluginColorBytes& v) const
+	bool	operator==(const AppColorBytes& v) const
 	{
 		if (r != v.r) return false;
 		if (g != v.g) return false;
@@ -40,7 +40,7 @@ public:
 		return true;
 	}
 
-	bool	operator!=(const PluginColorBytes& v) const
+	bool	operator!=(const AppColorBytes& v) const
 	{
 		if (r != v.r) return true;
 		if (g != v.g) return true;
@@ -50,25 +50,25 @@ public:
 	}
 };
 
-class PluginColor
+class AppColor
 {
 public:
 
 	float32_t	m_data[4u];
 
-	PluginColor()
+	AppColor()
 	{
 		m_data[0u] = m_data[1u] = m_data[2u] = 0.f;
 		m_data[3u] = 1.f;
 	}
 
-	PluginColor(float32_t v)
+	AppColor(float32_t v)
 	{
 		m_data[0u] = m_data[1u] = m_data[2u] = v;
 		m_data[3u] = 1.f;
 	}
 
-	PluginColor(float32_t r, float32_t g, float32_t b, float32_t a = 1.f)
+	AppColor(float32_t r, float32_t g, float32_t b, float32_t a = 1.f)
 	{
 		m_data[0u] = r;
 		m_data[1u] = g;
@@ -76,7 +76,7 @@ public:
 		m_data[3u] = a;
 	}
 
-	PluginColor(int32_t r, int32_t g, int32_t b, int32_t a = 255)
+	AppColor(int32_t r, int32_t g, int32_t b, int32_t a = 255)
 	{
 		this->SetAsByteAlpha(a);
 		this->SetAsByteRed(r);
@@ -84,7 +84,7 @@ public:
 		this->setAsByteBlue(b);
 	}
 
-	PluginColor(uint32_t uint_data) // 0xFF112233 ARGB
+	AppColor(uint32_t uint_data) // 0xFF112233 ARGB
 	{
 		SetAsInteger(uint_data);
 	}
@@ -106,7 +106,7 @@ public:
 	const uint8_t GetAsByteBlue() const { return static_cast<uint8_t>(m_data[2u] * 255.); }
 	const uint8_t GetAsByteAlpha() const { return static_cast<uint8_t>(m_data[3u] * 255.); }
 
-	bool	operator==(const PluginColor& v) const
+	bool	operator==(const AppColor& v) const
 	{
 		if (m_data[0] != v.m_data[0]) return false;
 		if (m_data[1] != v.m_data[1]) return false;
@@ -115,7 +115,7 @@ public:
 		return true;
 	}
 
-	bool	operator!=(const PluginColor& v) const
+	bool	operator!=(const AppColor& v) const
 	{
 		if (m_data[0] != v.m_data[0]) return true;
 		if (m_data[1] != v.m_data[1]) return true;
@@ -139,7 +139,7 @@ public:
 	// 0xff112233
 	uint32_t GetAsInteger()
 	{
-		return PLUGIN_MAKEFOURCC(
+		return APP_MAKEFOURCC(
 			this->GetAsByteBlue(),
 			this->GetAsByteGreen(),
 			this->GetAsByteRed(),
@@ -181,7 +181,7 @@ public:
 		SetBlue(v);
 	}
 
-	void Set(const PluginColor& other)
+	void Set(const AppColor& other)
 	{
 		*this = other;
 	}

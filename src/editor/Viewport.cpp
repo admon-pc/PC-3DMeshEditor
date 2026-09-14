@@ -294,11 +294,11 @@ void AppViewport::UpdateAspect() {
 
 void AppViewport::_frustum_cull(AppSceneObject* o)
 {
-	/*if (o != g_app->m_rootObject)
+	if (o != g_app->m_scene->GetRootObject())
 	{
-		alVec4f center;
-		o->GetAABBTransformed()->center(center);
-		auto r = o->GetAABBTransformed()->radius();
+		AppVec4 center;
+		o->GetAABBTransformed()->Center(center);
+		auto r = o->GetAABBTransformed()->Radius();
 		if (m_activeCamera->m_frust.PointInFrustum(*o->GetGlobalPosition()) || m_activeCamera->m_frust.PointInFrustum(center))
 		{
 			m_visibleObjects.push_back(o);
@@ -310,7 +310,7 @@ void AppViewport::_frustum_cull(AppSceneObject* o)
 	}
 
 
-	auto node = o->GetChildren()->m_head;
+	auto node = o->GetChildren().m_head;
 	if (node)
 	{
 		auto last = node->m_left;
@@ -322,7 +322,7 @@ void AppViewport::_frustum_cull(AppSceneObject* o)
 
 			node = node->m_right;
 		}
-	}*/
+	}
 }
 
 void AppViewport::OnDrawUV()
@@ -586,24 +586,25 @@ void AppViewport::Draw3D()
 	//{
 		if (m_drawGrid)
 			_drawGrid();
+		
 
 	//	g_app->m_gs->UseDepth(true);
 
-	//	m_visibleObjects.clear();
-	//	_frustum_cull(g_app->m_rootObject);
+	m_visibleObjects.clear();
+	_frustum_cull(g_app->m_scene->GetRootObject());
 
 	//	//printf("%i\n", (int32_t)m_visibleObjects.m_size);
 
 	//	g_app->m_gs->UseDepth(true);
 
 
-	//	if (m_visibleObjects.m_size)
-	//	{
-	//		_drawSelectedObjectFrame();
-	//		_drawScene();
-	//		/*if (m_isDrawAabbs)
-	//			g_app->DrawAabb(g_app->m_sceneAabb, alVec4f(1.f), v3f());*/
-	//	}
+	if (m_visibleObjects.m_size)
+	{
+		_drawSelectedObjectFrame();
+		_drawScene();
+		/*if (m_isDrawAabbs)
+			g_app->DrawAabb(g_app->m_sceneAabb, alVec4f(1.f), v3f());*/
+	}
 
 	//	if (g_app->m_isClickAndDrag)
 	//	{
@@ -621,29 +622,69 @@ void AppViewport::ToggleDrawAABB()
 	m_isDrawAabbs = m_isDrawAabbs ? false : true;
 }
 
+void AppViewport::_drawAabb(const AppAabb& aabb, const AppColor& _color, const AppVec3f& _positionOffset)
+{
+	auto gs = g_app->m_gs;
+	auto& p1 = aabb.m_min;
+	auto& p2 = aabb.m_max;
+
+	alColor color;
+	color.m_data[0] = _color.m_data[0];
+	color.m_data[1] = _color.m_data[1];
+	color.m_data[2] = _color.m_data[2];
+	color.m_data[3] = 1.f;
+
+	alVec4f positionOffset = Application::AppVecToAlVec(_positionOffset);
+	alVec4 v1 = Application::AppVecToAlVec(p1);
+	alVec4 v2 = Application::AppVecToAlVec(p2);
+
+	alVec4 v3(p1.x, p1.y, p2.z, 1.f);
+	alVec4 v4(p2.x, p1.y, p1.z, 1.f);
+	alVec4 v5(p1.x, p2.y, p1.z, 1.f);
+	alVec4 v6(p1.x, p2.y, p2.z, 1.f);
+	alVec4 v7(p2.x, p1.y, p2.z, 1.f);
+	alVec4 v8(p2.x, p2.y, p1.z, 1.f);
+
+	gs->DrawLine3D(v1 + positionOffset, v4 + positionOffset, color);
+	gs->DrawLine3D(v5 + positionOffset, v8 + positionOffset, color);
+	gs->DrawLine3D(v1 + positionOffset, v5 + positionOffset, color);
+	gs->DrawLine3D(v4 + positionOffset, v8 + positionOffset, color);
+	gs->DrawLine3D(v3 + positionOffset, v7 + positionOffset, color);
+	gs->DrawLine3D(v6 + positionOffset, v2 + positionOffset, color);
+	gs->DrawLine3D(v3 + positionOffset, v6 + positionOffset, color);
+	gs->DrawLine3D(v7 + positionOffset, v2 + positionOffset, color);
+	gs->DrawLine3D(v2 + positionOffset, v8 + positionOffset, color);
+	gs->DrawLine3D(v4 + positionOffset, v7 + positionOffset, color);
+	gs->DrawLine3D(v5 + positionOffset, v6 + positionOffset, color);
+	gs->DrawLine3D(v1 + positionOffset, v3 + positionOffset, color);
+}
+
 void AppViewport::_drawScene() 
 {
 	auto dm = m_drawMode;
+	//printf("%u\n", m_visibleObjects.m_size);
 
 	for (uint32_t i = 0; i < m_visibleObjects.m_size; ++i)
 	{
-		/*auto object = m_visibleObjects.m_data[i];
+		auto object = m_visibleObjects.m_data[i];
 		auto object_position = object->GetGlobalPosition();
 		auto object_position_v4f = *object_position;
 
-		object->m_worldViewProjection = m_activeCamera->m_projectionMatrix * m_activeCamera->m_viewMatrix * object->m_worldMatrix;
-		object->OnUpdate(g_app->m_dt);
+		AppMat4 W = *object->GetWMatrix();
+		AppMat4 V = Application::AlMatToAppMat(m_activeCamera->m_viewMatrix);
+		AppMat4 P = Application::AlMatToAppMat(m_activeCamera->m_projectionMatrix);
+		*object->GetWVPMatrix() = P * V * W;
+		//object->OnUpdate(g_app->m_dt);
 
-		m_gs->UseDepth(true);
+		m_gs->EnableDepth();
 
-
-		object->OnDraw(dm, g_app->m_editMode, g_app->m_dt);
+		object->Draw(dm, g_app->m_pluginInterface);
 
 		if (object->IsSelected())
 		{
 			if (m_isDrawAabbs)
-				g_app->DrawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor(), v3f());
-		}*/
+				_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor(), AppVec3f());
+		}
 	}
 
 	switch (g_app->m_editMode)

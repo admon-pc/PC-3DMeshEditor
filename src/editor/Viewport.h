@@ -17,18 +17,6 @@ enum class AppViewportType : uint32_t
 	UV
 };
 
-// Viewport can draw triangles or lines or all together
-enum class AppViewportDrawMode : uint32_t
-{
-	// draw filled triangles with material
-	Material,
-
-	// draw only line-model
-	Wireframe,
-
-	// draw all
-	MaterialWireframe
-};
 
 class AppViewport
 {
@@ -82,7 +70,7 @@ public:
 	void ShowGUI();
 	void ResetCamera();
 
-	bool m_isDrawAabbs;
+	bool m_isDrawAabbs = true;
 
 	int32_t m_index = 0;
 	
@@ -103,6 +91,8 @@ public:
 	void SetDrawGrid(bool);
 	void _drawGrid();
 	void _drawScene();
+	void _drawAabb(const AppAabb& aabb, const AppColor& _color, const AppVec3f& positionOffset);
+
 	void _drawSelectedObjectFrame();
 
 	void ToggleDrawModeMaterial();

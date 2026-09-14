@@ -1,6 +1,6 @@
 ﻿#pragma once
-#ifndef _PLUGINAABB_H_
-#define _PLUGINAABB_H_
+#ifndef _APPAABB_H_
+#define _APPAABB_H_
 
 
 #ifdef min
@@ -12,18 +12,18 @@
 #endif
 
 // Axis-Aligned Bounding Box
-class PluginAabb
+class AppAabb
 {
 public:
 
-	PluginAabb()
+	AppAabb()
 		:
-		m_min(plVec4FltMax),
-		m_max(plVec4FltMaxNeg)
+		m_min(AppVec4FltMax),
+		m_max(AppVec4FltMaxNeg)
 	{}
 
-	PluginAabb(const plVec4& min, const plVec4& max) : m_min(min), m_max(max) { }
-	PluginAabb(const plVec4f& min, const plVec4f& max)
+	AppAabb(const AppVec4& min, const AppVec4& max) : m_min(min), m_max(max) { }
+	AppAabb(const AppVec4f& min, const AppVec4f& max)
 	{
 		m_min.x = min.x;
 		m_min.y = min.y;
@@ -35,7 +35,7 @@ public:
 	by Jim Arvo
 	from "Graphics Gems", Academic Press, 1990
 	*/
-	void Transform(PluginAabb* original, plMat4* matrix, plVec4* position)
+	void Transform(AppAabb* original, AppMat4* matrix, AppVec4* position)
 	{
 		float64_t  a, b;
 		float64_t  Amin[3], Amax[3];
@@ -79,7 +79,7 @@ public:
 		m_min.z = Bmin[2];  m_max.z = Bmax[2];
 	}
 
-	void Add(const plVec4& point)
+	void Add(const AppVec4& point)
 	{
 		if (point.x < m_min.x) m_min.x = point.x;
 		if (point.y < m_min.y) m_min.y = point.y;
@@ -89,7 +89,7 @@ public:
 		if (point.y > m_max.y) m_max.y = point.y;
 		if (point.z > m_max.z) m_max.z = point.z;
 	}
-	void Add(const plVec4f& point)
+	void Add(const AppVec4f& point)
 	{
 		if (point.x < m_min.x) m_min.x = point.x;
 		if (point.y < m_min.y) m_min.y = point.y;
@@ -99,7 +99,7 @@ public:
 		if (point.y > m_max.y) m_max.y = point.y;
 		if (point.z > m_max.z) m_max.z = point.z;
 	}
-	void Add(const plVec3f& point)
+	void Add(const AppVec3f& point)
 	{
 		if (point.x < m_min.x) m_min.x = point.x;
 		if (point.y < m_min.y) m_min.y = point.y;
@@ -110,7 +110,7 @@ public:
 		if (point.z > m_max.z) m_max.z = point.z;
 	}
 
-	void Add(const PluginAabb& box)
+	void Add(const AppAabb& box)
 	{
 		if (box.m_min.x < m_min.x) m_min.x = box.m_min.x;
 		if (box.m_min.y < m_min.y) m_min.y = box.m_min.y;
@@ -121,7 +121,7 @@ public:
 		if (box.m_max.z > m_max.z) m_max.z = box.m_max.z;
 	}
 
-	bool RayTest(const PluginRay& r)
+	bool RayTest(const AppRay& r)
 	{
 		float64_t t1 = (m_min.x - r.m_origin.x) * r.m_invDir.x;
 		float64_t t2 = (m_max.x - r.m_origin.x) * r.m_invDir.x;
@@ -138,9 +138,9 @@ public:
 		return true;
 	}
 
-	void Center(plVec4& v) const
+	void Center(AppVec4& v) const
 	{
-		v = plVec4(m_min + m_max);
+		v = AppVec4(m_min + m_max);
 		v *= 0.5f;
 	}
 
@@ -149,27 +149,27 @@ public:
 		return m_min.Distance(m_max) * 0.5f;
 	}
 
-	void Extent(plVec4& v)
+	void Extent(AppVec4& v)
 	{
-		v = plVec4(m_max - m_min);
+		v = AppVec4(m_max - m_min);
 	}
 
 	bool IsEmpty() const
 	{
-		return ((m_min == plVec4FltMax) && (m_max == plVec4FltMaxNeg))
+		return ((m_min == AppVec4FltMax) && (m_max == AppVec4FltMaxNeg))
 			|| (m_min == m_max);
 	}
 
 	void Reset()
 	{
-		m_min = plVec4FltMax;
-		m_max = plVec4FltMaxNeg;
+		m_min = AppVec4FltMax;
+		m_max = AppVec4FltMaxNeg;
 	}
 
 
 
-	plVec4 m_min;
-	plVec4 m_max;
+	AppVec4 m_min;
+	AppVec4 m_max;
 };
 
 #endif

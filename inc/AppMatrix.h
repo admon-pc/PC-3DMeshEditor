@@ -1,40 +1,40 @@
 ﻿#pragma once
-#ifndef _PLUGINMATRIX_H_
-#define _PLUGINMATRIX_H_
+#ifndef _ELMATRIX_H_
+#define _ELMATRIX_H_
 
 
 template<typename Type>
-class PluginMatrix_t
+class AppMatrix_t
 {
 public:
-	PluginVec4_t<Type> m_data[4u]; //< components
+	AppVec4_t<Type> m_data[4u]; //< components
 
-	PluginMatrix_t<Type>()
+	AppMatrix_t<Type>()
 	{
 		Identity();
 	}
 
-	PluginMatrix_t<Type>(const PluginMatrix_t<Type>& m)
+	AppMatrix_t<Type>(const AppMatrix_t<Type>& m)
 	{
 		*this = m;
 	}
 
-	PluginMatrix_t<Type>(const plQuaternion& q)
+	AppMatrix_t<Type>(const AppQuaternion& q)
 	{
 		Identity();
 		SetRotation(q);
 	}
 
-	PluginMatrix_t<Type>(Type v)
+	AppMatrix_t<Type>(Type v)
 	{
 		Fill(v);
 	}
 
-	PluginMatrix_t<Type>(
-		const PluginVec4_t<Type>& x,
-		const PluginVec4_t<Type>& y,
-		const PluginVec4_t<Type>& z,
-		const PluginVec4_t<Type>& w)
+	AppMatrix_t<Type>(
+		const AppVec4_t<Type>& x,
+		const AppVec4_t<Type>& y,
+		const AppVec4_t<Type>& z,
+		const AppVec4_t<Type>& w)
 	{
 		m_data[0] = x;
 		m_data[1] = y;
@@ -90,7 +90,7 @@ public:
 		m_data[2].Set(zx, zy, zz, 0.f);
 	}
 
-	void SetRotation(const plQuaternion& q)
+	void SetRotation(const AppQuaternion& q)
 	{
 		Type d = q.Length2();
 		Type s = 2.0f / d;
@@ -104,12 +104,12 @@ public:
 			xz - wy, yz + wx, 1.0f - (xx + yy));
 	}
 
-	void SetRotation(const plVec3f& dir, const plVec3f& up = plVec3f(0.f, 1.f, 0.f))
+	void SetRotation(const AppVec3f& dir, const AppVec3f& up = AppVec3f(0.f, 1.f, 0.f))
 	{
-		plVec3f xaxis = up.Cross(dir);
+		AppVec3f xaxis = up.Cross(dir);
 		xaxis.Normalize2();
 
-		plVec3f yaxis = dir.Cross(xaxis);
+		AppVec3f yaxis = dir.Cross(xaxis);
 		yaxis.Normalize2();
 
 		m_data[0].x = xaxis.x;
@@ -128,15 +128,15 @@ public:
 	Type* GetPtr() { return reinterpret_cast<Type*>(&m_data); }
 	Type* GetPtrConst()const { return (Type*)&m_data; }
 
-	PluginVec4_t<Type>& operator[](uint32_t i) {  return m_data[i]; }
-	const PluginVec4_t<Type>& operator[](uint32_t i) const {  return m_data[i]; }
+	AppVec4_t<Type>& operator[](uint32_t i) {  return m_data[i]; }
+	const AppVec4_t<Type>& operator[](uint32_t i) const {  return m_data[i]; }
 
 	//	add
 	// \param m: other matrix
 	// \return new matrix
-	PluginMatrix_t<Type> operator+(const PluginMatrix_t<Type>& m) const
+	AppMatrix_t<Type> operator+(const AppMatrix_t<Type>& m) const
 	{
-		PluginMatrix_t<Type> out = *this;
+		AppMatrix_t<Type> out = *this;
 
 		out[0] += m[0];
 		out[1] += m[1];
@@ -149,9 +149,9 @@ public:
 	//	substract
 	// \param m: other matrix
 	// \return new matrix
-	PluginMatrix_t<Type> operator-(const PluginMatrix_t<Type>& m) const
+	AppMatrix_t<Type> operator-(const AppMatrix_t<Type>& m) const
 	{
-		PluginMatrix_t<Type> out = *this;
+		AppMatrix_t<Type> out = *this;
 
 		out[0] -= m[0];
 		out[1] -= m[1];
@@ -164,9 +164,19 @@ public:
 	//	multiplication
 	// \param m: other matrix
 	// \return new matrix
-	PluginMatrix_t<Type> operator*(const PluginMatrix_t<Type>& m) const
+	AppMatrix_t<Type> operator*(const AppMatrix_t<Type>& m) const
 	{
-		return PluginMatrix_t<Type>(
+		return AppMatrix_t<Type>(
+			m_data[0] * m[0].x + m_data[1] * m[0].y + m_data[2] * m[0].z + m_data[3] * m[0].w,
+			m_data[0] * m[1].x + m_data[1] * m[1].y + m_data[2] * m[1].z + m_data[3] * m[1].w,
+			m_data[0] * m[2].x + m_data[1] * m[2].y + m_data[2] * m[2].z + m_data[3] * m[2].w,
+			m_data[0] * m[3].x + m_data[1] * m[3].y + m_data[2] * m[3].z + m_data[3] * m[3].w
+			);
+	}
+
+	AppMatrix_t<Type> operator*(AppMatrix_t<Type>* m) const
+	{
+		return AppMatrix_t<Type>(
 			m_data[0] * m[0].x + m_data[1] * m[0].y + m_data[2] * m[0].z + m_data[3] * m[0].w,
 			m_data[0] * m[1].x + m_data[1] * m[1].y + m_data[2] * m[1].z + m_data[3] * m[1].w,
 			m_data[0] * m[2].x + m_data[1] * m[2].y + m_data[2] * m[2].z + m_data[3] * m[2].w,
@@ -175,8 +185,8 @@ public:
 	}
 
 	// возможно тут нужно по другому.
-	plVec4f operator*(const plVec4f& v) const {
-		return plVec4f
+	AppVec4f operator*(const AppVec4f& v) const {
+		return AppVec4f
 		(
 			v.x * m_data[0].x + v.y * m_data[1].x + v.z * m_data[2].x + v.w * m_data[2].x,
 			v.x * m_data[0].y + v.y * m_data[1].y + v.z * m_data[2].y + v.w * m_data[2].y,
@@ -188,9 +198,9 @@ public:
 	//	divide
 	// \param m: other matrix
 	// \return new matrix
-	PluginMatrix_t<Type> operator/(const PluginMatrix_t<Type>& m) const
+	AppMatrix_t<Type> operator/(const AppMatrix_t<Type>& m) const
 	{
-		PluginMatrix_t<Type> out = *this;
+		AppMatrix_t<Type> out = *this;
 
 		out[0] /= m[0];
 		out[1] /= m[1];
@@ -203,7 +213,7 @@ public:
 	//	add
 	// \param m: other matrix
 	// \return this matrix
-	PluginMatrix_t<Type>& operator+=(const PluginMatrix_t<Type>& m)
+	AppMatrix_t<Type>& operator+=(const AppMatrix_t<Type>& m)
 	{
 		m_data[0] += m[0];
 		m_data[1] += m[1];
@@ -215,7 +225,7 @@ public:
 	//	substract
 	// \param m: other matrix
 	// \return this matrix
-	PluginMatrix_t<Type>& operator-=(const PluginMatrix_t<Type>& m)
+	AppMatrix_t<Type>& operator-=(const AppMatrix_t<Type>& m)
 	{
 		m_data[0] -= m[0];
 		m_data[1] -= m[1];
@@ -227,7 +237,7 @@ public:
 	//	multiplication
 	// \param m: other matrix
 	// \return this matrix
-	PluginMatrix_t<Type>& operator*=(const PluginMatrix_t<Type>& m)
+	AppMatrix_t<Type>& operator*=(const AppMatrix_t<Type>& m)
 	{
 		(*this) = (*this) * m;
 		return *this;
@@ -236,7 +246,7 @@ public:
 	//	divide
 	// \param m: other matrix
 	// \return this matrix
-	PluginMatrix_t<Type>& operator/=(const PluginMatrix_t<Type>& m)
+	AppMatrix_t<Type>& operator/=(const AppMatrix_t<Type>& m)
 	{
 		m_data[0] /= m[0];
 		m_data[1] /= m[1];
@@ -248,7 +258,7 @@ public:
 	//	transpose
 	void Transpose()
 	{
-		PluginMatrix_t<Type> tmp;
+		AppMatrix_t<Type> tmp;
 		tmp[0].x = this->m_data[0].x; //0
 		tmp[0].y = this->m_data[1].x; //1
 		tmp[0].z = this->m_data[2].x; //2
@@ -277,7 +287,7 @@ public:
 	//https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/matrix-inverse
 	bool Invert()
 	{
-		PluginMatrix_t<Type> mat;
+		AppMatrix_t<Type> mat;
 		auto ptr = this->GetPtr();
 		for (unsigned column = 0; column < 4; ++column)
 		{
@@ -349,7 +359,7 @@ public:
 
 	bool Invert2()
 	{
-		PluginMatrix_t<Type> r0, r1, r2, r3;
+		AppMatrix_t<Type> r0, r1, r2, r3;
 		Type a, det, invDet;
 		Type* mat = reinterpret_cast<Type*>(this);
 
@@ -412,23 +422,23 @@ public:
 		return true;
 	}
 
-	void SetTranslation(const plVec3f& v) { m_data[3].Set(v.x, v.y, v.z, 1.f); }
-	void SetTranslation(const plVec4f& v) { m_data[3].Set(v.x, v.y, v.z, 1.f); }
-	void SetScale(const plVec3f& v)
+	void SetTranslation(const AppVec3f& v) { m_data[3].Set(v.x, v.y, v.z, 1.f); }
+	void SetTranslation(const AppVec4f& v) { m_data[3].Set(v.x, v.y, v.z, 1.f); }
+	void SetScale(const AppVec3f& v)
 	{
 		m_data[0].x = v.x;
 		m_data[1].y = v.y;
 		m_data[2].z = v.z;
 	}
 
-	void SetScale(const plVec4f& v)
+	void SetScale(const AppVec4f& v)
 	{
 		m_data[0].x = v.x;
 		m_data[1].y = v.y;
 		m_data[2].z = v.z;
 	}
 
-	void SetBasis(const PluginMatrix_t<Type>& other)
+	void SetBasis(const AppMatrix_t<Type>& other)
 	{
 		m_data[0].x = other.m_data[0].x;
 		m_data[0].y = other.m_data[0].y;
@@ -441,9 +451,9 @@ public:
 		m_data[2].z = other.m_data[2].z;
 	}
 
-	PluginMatrix_t<Type> GetBasis()
+	AppMatrix_t<Type> GetBasis()
 	{
-		PluginMatrix_t<Type> other;
+		AppMatrix_t<Type> other;
 		other.m_data[0].x = m_data[0].x;
 		other.m_data[0].y = m_data[0].y;
 		other.m_data[0].z = m_data[0].z;
@@ -457,32 +467,32 @@ public:
 	}
 };
 
-class plMat3
+class AppMat3
 {
 public:
-	plVec3f m_data[3];
+	AppVec3f m_data[3];
 
-	plMat3()
+	AppMat3()
 	{
 		Identity();
 	}
 
-	plMat3(const plMat3& m)
+	AppMat3(const AppMat3& m)
 	{
 		*this = m;
 	}
 
-	plMat3(const plQuaternion& q)
+	AppMat3(const AppQuaternion& q)
 	{
 		SetRotation(q);
 	}
 
-	plMat3(float32_t v)
+	AppMat3(float32_t v)
 	{
 		Fill(v);
 	}
 
-	plMat3(const plVec3f& x, const plVec3f& y, const plVec3f& z)
+	AppMat3(const AppVec3f& x, const AppVec3f& y, const AppVec3f& z)
 	{
 		m_data[0] = x;
 		m_data[1] = y;
@@ -527,21 +537,21 @@ public:
 		m_data[2].Set(zx, zy, zz);
 	}
 
-	void SetScale(const plVec3f& v)
+	void SetScale(const AppVec3f& v)
 	{
 		m_data[0].x = v.x;
 		m_data[1].y = v.y;
 		m_data[2].z = v.z;
 	}
 
-	void SetScale(const plVec4& v)
+	void SetScale(const AppVec4& v)
 	{
 		m_data[0].x = (float32_t)v.x;
 		m_data[1].y = (float32_t)v.y;
 		m_data[2].z = (float32_t)v.z;
 	}
 
-	void SetRotation(const plQuaternion& q)
+	void SetRotation(const AppQuaternion& q)
 	{
 		float32_t d = q.Length2();
 		float32_t s = 2.0f / d;
@@ -558,10 +568,10 @@ public:
 	float32_t* GetPtr() { return reinterpret_cast<float32_t*>(&m_data); }
 	float32_t* GetPtrConst()const { return (float32_t*)&m_data; }
 
-	plVec3f& operator[](uint32_t i) { return m_data[i]; }
-	const plVec3f& operator[](uint32_t i) const {  return m_data[i]; }
+	AppVec3f& operator[](uint32_t i) { return m_data[i]; }
+	const AppVec3f& operator[](uint32_t i) const {  return m_data[i]; }
 };
 
-using plMat4 = PluginMatrix_t<float64_t>;
+using AppMat4 = AppMatrix_t<float64_t>;
 
 #endif

@@ -29,7 +29,7 @@ void AppScene::DeleteObject(AppSceneObject* o)
 
 void AppScene::ClearScene()
 {
-	PluginArray<AppSceneObject*> arr;
+	AppArray<AppSceneObject*> arr;
 	GetAllObjects(&arr);
 	for (size_t i = 0; i < arr.m_size; ++i)
 	{
@@ -53,6 +53,7 @@ void AppScene::AddObject(AppSceneObject* object)
 
 		object->SetParent(m_rootObject);
 		object->m_flags |= AppSceneObject::flag_addedToScene;
+		object->UpdateAabb();
 		g_app->UpdateObjectList();
 	}
 }
@@ -83,7 +84,7 @@ void AppScene::_onGetAllObjectsIntoArray()
 	GetAllObjects(&m_allObjectsOnScene);
 }
 
-void AppScene::GetAllObjects(PluginArray<AppSceneObject*>* out)
+void AppScene::GetAllObjects(AppArray<AppSceneObject*>* out)
 {
 	m_getAllObjectArrayPtr = out;
 	m_getAllObjectArrayPtr->clear();
@@ -151,11 +152,11 @@ bool AppScene::IsNameFree(AppSceneObject* o, alUnicodeString* name)
 	return true;
 }
 
-void AppScene::Update(float32_t dt)
-{
-}
-
-void AppScene::Draw(float32_t dt)
-{
-}
+//void AppScene::Update(float32_t dt)
+//{
+//}
+//
+//void AppScene::Draw(float32_t dt)
+//{
+//}
 

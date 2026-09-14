@@ -464,7 +464,7 @@ class Application
 	struct plugin_info {
 		AppPlugin* m_plugin = 0;
 		alStringA m_path;
-		PluginUnload_t m_unloadFunc = 0;
+		AppPluginUnload_t m_unloadFunc = 0;
 	};
 	alArray<plugin_info> m_plugins;
 	void _initPlugins();
@@ -531,6 +531,11 @@ public:
 	void SetPanelCreateObjectType(AppPluginObject::EObjectType);
 	//void OnCombo_Create_Category(uint32_t);
 
+	static alVec4f AppVecToAlVec(const AppVec4f&);
+	static alVec3f AppVecToAlVec(const AppVec3f&);
+	static alVec4 AppVecToAlVec(const AppVec4&);
+	static alMat4 AppMatToAlMat(const AppMat4&);
+	static AppMat4 AlMatToAppMat(const alMat4&);
 };
 
 #endif

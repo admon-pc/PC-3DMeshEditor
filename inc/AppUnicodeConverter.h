@@ -1,15 +1,15 @@
 ﻿#pragma once
-#ifndef _PLUGINUC_H_
-#define _PLUGINUC_H_
+#ifndef _APPUC_H_
+#define _APPUC_H_
 
-class PLUGIN_API PluginUnicodeConverter
+class EDITORLIB_API AppUnicodeConverter
 {
 	void _find16From32();
 	void _find8From32();
 
 public:
-	PluginUnicodeConverter();
-	~PluginUnicodeConverter();
+	AppUnicodeConverter();
+	~AppUnicodeConverter();
 
 	void Set(char32_t c);
 	void Set(char16_t c);
@@ -17,7 +17,7 @@ public:
 	void Set(char c);
 	void Set(wchar_t c);
 
-	uint32_t Set(const plVec4u& c);
+	uint32_t Set(const AppVec4u& c);
 	uint32_t Set(char16_t c1, char16_t c2);
 
 	void wchar_to_char(const wchar_t* str, size_t sz, std::string* out);

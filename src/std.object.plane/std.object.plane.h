@@ -7,6 +7,12 @@ class AppSceneObject_plane : public AppSceneObject
 public:
 	AppSceneObject_plane(AppPluginObject* po);
 	virtual ~AppSceneObject_plane();
+	
+	virtual void Draw(AppViewportDrawMode, AppPluginInterface*) override;
+
+	AppGraphicsObject* m_testGO_triangle = 0;
+	AppGraphicsObject* m_testGO_line = 0;
+	AppGraphicsObject* m_testGO_point = 0;
 };
 
 class AppPluginObject_plane : public AppPluginObject

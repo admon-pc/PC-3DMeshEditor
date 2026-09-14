@@ -582,7 +582,11 @@ void Application::DrawViewports()
 		auto viewport = m_activeViewportLayout->m_viewports[i];
 		if (viewport == m_activeViewportLayout->m_activeViewport)
 		{
-			alVec4f rect = viewport->m_rect;
+			alVec4f rect; ;
+			rect.x = viewport->m_rect.x;
+			rect.y = viewport->m_rect.y;
+			rect.z = viewport->m_rect.z;
+			rect.w = viewport->m_rect.w;
 			rect.x -= AppViewportBorderSize;
 			rect.y -= AppViewportBorderSize;
 			rect.z += AppViewportBorderSize;
@@ -666,3 +670,61 @@ AppViewportCamera* Application::GetActiveCamera()
 	return m_activeViewportLayout->m_activeViewport->m_activeCamera;
 }
 
+alVec3f Application::AppVecToAlVec(const AppVec3f& in)
+{
+	return alVec3f(in.x, in.y, in.z);
+}
+
+alVec4f Application::AppVecToAlVec(const AppVec4f& in)
+{
+	return alVec4f(in.x,in.y,in.z,in.w);
+}
+
+alVec4 Application::AppVecToAlVec(const AppVec4& in)
+{
+	return alVec4(in.x, in.y, in.z, in.w);
+}
+
+alMat4 Application::AppMatToAlMat(const AppMat4& in)
+{
+	alMat4 m;
+	m.m_data[0].x = in.m_data[0].x;
+	m.m_data[0].y = in.m_data[0].y;
+	m.m_data[0].z = in.m_data[0].z;
+	m.m_data[0].w = in.m_data[0].w;
+	m.m_data[1].x = in.m_data[1].x;
+	m.m_data[1].y = in.m_data[1].y;
+	m.m_data[1].z = in.m_data[1].z;
+	m.m_data[1].w = in.m_data[1].w;
+	m.m_data[2].x = in.m_data[2].x;
+	m.m_data[2].y = in.m_data[2].y;
+	m.m_data[2].z = in.m_data[2].z;
+	m.m_data[2].w = in.m_data[2].w;
+	m.m_data[3].x = in.m_data[3].x;
+	m.m_data[3].y = in.m_data[3].y;
+	m.m_data[3].z = in.m_data[3].z;
+	m.m_data[3].w = in.m_data[3].w;
+	return m;
+}
+
+AppMat4 Application::AlMatToAppMat(const alMat4& in)
+{
+	AppMat4 m;
+	m.m_data[0].x = in.m_data[0].x;
+	m.m_data[0].y = in.m_data[0].y;
+	m.m_data[0].z = in.m_data[0].z;
+	m.m_data[0].w = in.m_data[0].w;
+	m.m_data[1].x = in.m_data[1].x;
+	m.m_data[1].y = in.m_data[1].y;
+	m.m_data[1].z = in.m_data[1].z;
+	m.m_data[1].w = in.m_data[1].w;
+	m.m_data[2].x = in.m_data[2].x;
+	m.m_data[2].y = in.m_data[2].y;
+	m.m_data[2].z = in.m_data[2].z;
+	m.m_data[2].w = in.m_data[2].w;
+	m.m_data[3].x = in.m_data[3].x;
+	m.m_data[3].y = in.m_data[3].y;
+	m.m_data[3].z = in.m_data[3].z;
+	m.m_data[3].w = in.m_data[3].w;
+	return m;
+}

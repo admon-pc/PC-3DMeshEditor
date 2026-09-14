@@ -9,44 +9,78 @@ enum class AppMeshVertexType
 
 struct AppMeshVertexPoint
 {
-	plVec3f Position;
-	plVec4f Color;
-	plVec4f Weights;
-	plVec4i Bones;
+	AppVec3f Position;
+	AppVec4f Color;
+	AppVec4f Weights;
+	AppVec4i Bones;
 };
 
 struct AppMeshVertexTriangle
 {
-	plVec3f Position;
-	plVec2f UV1;
-	plVec2f UV2;
-	plVec3f Normal;
-	plVec3f Binormal;
-	plVec3f Tangent;
-	plVec4f Color;
-	plVec4f Weights;
-	plVec4i Bones;
+	AppVec3f Position;
+	AppVec2f UV1;
+	AppVec2f UV2;
+	AppVec3f Normal;
+	AppVec3f Binormal;
+	AppVec3f Tangent;
+	AppVec4f Color;
+	AppVec4f Weights;
+	AppVec4i Bones;
 };
 
 struct AppMeshVertexLine
 {
-	plVec3f Position;
-	plVec4f Color;
-	plVec4f Weights;
-	plVec4i Bones;
+	AppVec3f Position;
+	AppVec4f Color;
+	AppVec4f Weights;
+	AppVec4i Bones;
 };
 
 struct AppMesh
 {
+	AppMesh() {}
+	~AppMesh() 
+	{
+		if (m_vertices)
+			AppFree(m_vertices);
+		if (m_indices)
+			AppFree(m_indices);
+	}
+
 	AppMeshVertexType m_vertexType = AppMeshVertexType::Triangle;
 	uint8_t* m_vertices = 0;
 	uint8_t* m_indices = 0;
 
-	PluginAabb m_aabb;
+	AppAabb m_aabb;
 
 	uint32_t m_vCount = 0;
 	uint32_t m_iCount = 0;
-	uint32_t m_stride = 0;
+
+
+	// triNum must be < 21845
+	// because I use uint16_t for m_indices
+	void Allocate(uint32_t triNum, AppMeshVertexType vt)
+	{
+		m_vertexType = vt;
+
+		m_vCount = triNum * 3;
+		m_iCount = m_vCount;
+
+		switch (vt)
+		{
+		case AppMeshVertexType::Point:
+			m_vertices = (uint8_t*)AppMalloc(sizeof(AppMeshVertexPoint) * m_vCount);
+			break;
+		case AppMeshVertexType::Line:
+			m_vertices = (uint8_t*)AppMalloc(sizeof(AppMeshVertexLine) * m_vCount);
+			break;
+		case AppMeshVertexType::Triangle:
+			m_vertices = (uint8_t*)AppMalloc(sizeof(AppMeshVertexTriangle) * m_vCount);
+			break;
+		}
+
+		m_indices = (uint8_t*)AppMalloc(sizeof(uint16_t) * m_iCount);
+	}
 
 	char m_name[100];
 };
@@ -59,7 +93,7 @@ public:
 	AppGraphicsObject() {}
 	virtual ~AppGraphicsObject() {}
 
-
+	//AppAabb m_aabb;
 };
 
 #endif
