@@ -61,22 +61,32 @@ struct AppMesh
 
 	// triNum must be < 21845
 	// because I use uint16_t for m_indices
-	void Allocate(uint32_t triNum, AppMeshVertexType vt)
+	void Allocate(uint32_t num, AppMeshVertexType vt)
 	{
 		m_vertexType = vt;
 
-		m_vCount = triNum * 3;
-		m_iCount = m_vCount;
 
 		switch (vt)
 		{
 		case AppMeshVertexType::Point:
+			m_vCount = num;
+			m_iCount = m_vCount;
 			m_vertices = (uint8_t*)AppMalloc(sizeof(AppMeshVertexPoint) * m_vCount);
 			break;
 		case AppMeshVertexType::Line:
+			m_vCount = num;
+			/* m_iCount
+			2 points -> 0,1
+			3 points -> 0,1 1,2
+			4 points -> 0,1 1,2 2,3
+			5 points -> 0,1 1,2 2,3 3,4
+			*/
+			m_iCount = (m_vCount - 1) * 2;
 			m_vertices = (uint8_t*)AppMalloc(sizeof(AppMeshVertexLine) * m_vCount);
 			break;
 		case AppMeshVertexType::Triangle:
+			m_vCount = num * 3;
+			m_iCount = m_vCount;
 			m_vertices = (uint8_t*)AppMalloc(sizeof(AppMeshVertexTriangle) * m_vCount);
 			break;
 		}

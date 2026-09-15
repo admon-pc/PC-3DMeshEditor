@@ -17,6 +17,8 @@ struct VSIn
 	float3 binormal : BINORMAL;
 	float3 tangent : TANGENT;
 	float4 color : COLOR;
+	float4 Weights : WEIGHTS;
+	uint4  Bones : BONES;
 }; 
 
 struct VSOut

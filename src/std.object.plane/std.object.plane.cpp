@@ -158,11 +158,65 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 		ind[0] = 0;
 		ind[1] = 1;
 		ind[2] = 2;
-	//	mesh.m_stride = sizeof(AppMeshVertexTriangle);
-	//	mesh.m_vertices = malloc();
-
 		
 		o->m_testGO_triangle = m_plugin->GetPluginInterface()->CreateGraphicsObject(&mesh);
+	}
+
+	{
+		auto aabb = o->GetAABB();
+
+		AppMesh mesh;
+		mesh.Allocate(4, AppMeshVertexType::Line);
+		AppMeshVertexLine* line = (AppMeshVertexLine*)mesh.m_vertices;
+		line[0].Position.Set(-1.f, 0.f, -1.f);
+		line[0].Color.Set(1.f, 0.f, -0.f, 1.f);
+		aabb->Add(line[0].Position);
+
+		line[1].Position.Set(2.f, 0.f, 1.f);
+		line[1].Color.Set(1.f, 1.f, -0.f, 1.f);
+		aabb->Add(line[1].Position);
+
+		line[2].Position.Set(2.f, -1.f, 2.f);
+		line[2].Color.Set(1.f, 0.f, 1.f, 1.f);
+		aabb->Add(line[2].Position);
+
+		line[3] = line[0];
+
+		uint16_t* ind = (uint16_t*)mesh.m_indices;
+		ind[0] = 0;
+		ind[1] = 1;
+		ind[2] = 1;
+		ind[3] = 2;
+		ind[4] = 2;
+		ind[5] = 0;
+
+		o->m_testGO_line = m_plugin->GetPluginInterface()->CreateGraphicsObject(&mesh);
+	}
+
+	{
+		auto aabb = o->GetAABB();
+
+		AppMesh mesh;
+		mesh.Allocate(3, AppMeshVertexType::Point);
+		AppMeshVertexPoint* point = (AppMeshVertexPoint*)mesh.m_vertices;
+		point[0].Position.Set(-1.f, 2.f, -1.f);
+		point[0].Color.Set(1.f, 1.f, 1.f, 1.f);
+		aabb->Add(point[0].Position);
+
+		point[1].Position.Set(2.f, 3.f, 1.f);
+		point[1].Color.Set(1.f, 1.f, 1.f, 1.f);
+		aabb->Add(point[1].Position);
+
+		point[2].Position.Set(2.f, 1.f, 2.f);
+		point[2].Color.Set(1.f, 1.f, 1.f, 1.f);
+		aabb->Add(point[2].Position);
+
+		uint16_t* ind = (uint16_t*)mesh.m_indices;
+		ind[0] = 0;
+		ind[1] = 1;
+		ind[2] = 2;
+
+		o->m_testGO_point = m_plugin->GetPluginInterface()->CreateGraphicsObject(&mesh);
 	}
 
 	//GetPluginInterface()->MemAlloc

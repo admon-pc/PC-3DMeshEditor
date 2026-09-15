@@ -41,15 +41,34 @@ void AppGraphicsObjectImpl::Draw(AppViewportData* viewport, AppSceneObject* obje
 	alVec3 cameraDir = cameraTarget - cameraPos;
 	cameraDir.Normalize2();
 
-	g_app->m_shaderDefaultTriangle->m_cbVertexData.W = W;
-	g_app->m_shaderDefaultTriangle->m_cbVertexData.WVP = P * V * W;
-	g_app->m_shaderDefaultTriangle->m_cbVertexData.ViewDir.x = (float32_t)cameraDir.x;
-	g_app->m_shaderDefaultTriangle->m_cbVertexData.ViewDir.y = (float32_t)cameraDir.y;
-	g_app->m_shaderDefaultTriangle->m_cbVertexData.ViewDir.z = (float32_t)cameraDir.z;
-	m_gs->SetShader(g_app->m_shaderDefaultTriangle->m_shader);
+	switch (m_primitiveType)
+	{
+	case alGSPrimitiveType::Triangle:
+		g_app->m_shaderDefaultTriangle->m_cbVertexData.W = W;
+		g_app->m_shaderDefaultTriangle->m_cbVertexData.WVP = P * V * W;
+		g_app->m_shaderDefaultTriangle->m_cbVertexData.ViewDir.x = (float32_t)cameraDir.x;
+		g_app->m_shaderDefaultTriangle->m_cbVertexData.ViewDir.y = (float32_t)cameraDir.y;
+		g_app->m_shaderDefaultTriangle->m_cbVertexData.ViewDir.z = (float32_t)cameraDir.z;
+		m_gs->SetShader(g_app->m_shaderDefaultTriangle->m_shader);
 	
-	g_app->m_shaderDefaultTriangle->OnSetConstants();
-	g_app->m_shaderDefaultTriangle->m_texture1 = m_gs->GetWhiteTexture();
+		g_app->m_shaderDefaultTriangle->OnSetConstants();
+		g_app->m_shaderDefaultTriangle->m_texture1 = m_gs->GetWhiteTexture();
+		break;
+	case alGSPrimitiveType::Line:
+		g_app->m_shaderLineModel->m_cbVertexData.WVP = P * V * W;
+		g_app->m_shaderLineModel->m_cbPixelData.BaseColor = ColorWhite;
+		m_gs->SetShader(g_app->m_shaderLineModel->m_shader);
+		g_app->m_shaderLineModel->OnSetConstants();
+		break;
+	case alGSPrimitiveType::Point:
+		g_app->m_shaderPointModel->m_cbVertexData.WVP = P * V * W;
+		g_app->m_shaderPointModel->m_cbVertexData.Eye.Set(cameraPos.x, cameraPos.y, cameraPos.z, 0.f);
+		g_app->m_shaderPointModel->m_cbVertexData.Viewport.Set(800.f, 600.f, 0.f, 0.f);
+		m_gs->SetShader(g_app->m_shaderPointModel->m_shader);
+		g_app->m_shaderPointModel->OnSetConstants();
+		break;
+	}
+
 
 	m_gs->SetRasterizationType(alGSRasterizationType::Solid);
 	m_gs->SetPrimitiveType(m_primitiveType);

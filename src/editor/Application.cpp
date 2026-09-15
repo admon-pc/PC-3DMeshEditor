@@ -359,6 +359,7 @@ Application::~Application()
 	AL_DESTROY(m_blackTexture);
 	AL_DESTROY(m_transparentTexture);
 	AL_DESTROY(m_shaderLineModel);
+	AL_DESTROY(m_shaderPointModel);
 	AL_DESTROY(m_shaderDefaultTriangle);
 	AL_DESTROY(m_gs);
 	AL_DESTROY(m_windowCallback);
@@ -514,6 +515,11 @@ bool Application::OnCreate(const char* videoDriver)
 	{
 		m_shaderLineModel = alCreate<AppGSShaderCallback_LineModel3D>();
 		if (!m_shaderLineModel->Create(m_gs))
+			return false;
+	}
+	{
+		m_shaderPointModel = alCreate<AppGSShaderCallback_PointModel>();
+		if (!m_shaderPointModel->Create(m_gs))
 			return false;
 	}
 	{

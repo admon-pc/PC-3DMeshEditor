@@ -2,6 +2,29 @@
 #ifndef _PCAPPSHDERS_H_
 #define _PCAPPSHDERS_H_
 
+class AppGSShaderCallback_PointModel : public alGSShaderCallback
+{
+public:
+	AppGSShaderCallback_PointModel();
+	virtual ~AppGSShaderCallback_PointModel();
+
+	virtual void OnSetShader() override;
+	virtual void OnSetConstants() override;
+
+	bool Create(alGS*);
+
+	alGSShader* m_shader = 0;
+	alGSShaderConstantBuffer* m_cbV = 0;
+
+	struct cbVertex
+	{
+		alMat4 WVP;
+		alVec4f Eye;
+		alVec4f Viewport;
+	}
+	m_cbVertexData;
+};
+
 class AppGSShaderCallback_LineModel3D : public alGSShaderCallback
 {
 public:

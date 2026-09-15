@@ -370,6 +370,7 @@ class Application
 
 	AppGSShaderCallback_LineModel3D* m_shaderLineModel = 0;
 	AppGSShaderCallback_DefaultTriangle* m_shaderDefaultTriangle = 0;
+	AppGSShaderCallback_PointModel* m_shaderPointModel = 0;
 
 	alInput* m_input = 0;
 

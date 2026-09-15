@@ -1,5 +1,43 @@
 ﻿#include "editor.h"
 
+AppGSShaderCallback_PointModel::AppGSShaderCallback_PointModel() {}
+AppGSShaderCallback_PointModel::~AppGSShaderCallback_PointModel() {
+	AL_DESTROY(m_shader);
+}
+void AppGSShaderCallback_PointModel::OnSetShader() {}
+void AppGSShaderCallback_PointModel::OnSetConstants() 
+{
+	m_cbV->MapData(&m_cbVertexData, sizeof(m_cbVertexData));
+	m_cbV->VSSetConstantBuffers(0);
+	m_cbV->GSSetConstantBuffers(0);
+}
+bool AppGSShaderCallback_PointModel::Create(alGS* gs)
+{
+	alGSShaderCreationInfo inf;
+	inf.m_callback = this;
+	inf.m_vertexType = alMeshVertexType::AnimatedPoint;
+	//inf.m_saveShaderToFile_VS = "../data/shaders/d3d11/ScreenQuad.vs";
+	//inf.m_saveShaderToFile_PS = "../data/shaders/d3d11/ScreenQuad.ps";
+	//inf.m_saveShaderToFile_GS = "../data/shaders/d3d11/ScreenQuad.gs";
+	inf.m_shaderEntry_VS = "VSMain";
+	inf.m_shaderEntry_PS = "PSMain";
+	inf.m_shaderEntry_GS = "GSMain";
+	inf.m_shaderFile_VS = "../data/shaders/d3d11/PointModel.hlsl";
+	inf.m_shaderFile_PS = "../data/shaders/d3d11/PointModel.hlsl";
+	inf.m_shaderFile_GS = "../data/shaders/d3d11/PointModel.hlsl";
+	inf.m_shaderModel_VS = "vs_5_0";
+	inf.m_shaderModel_PS = "ps_5_0";
+	inf.m_shaderModel_GS = "gs_5_0";
+
+	m_shader = gs->CreateShader(inf);
+	if (!m_shader)
+		return false;
+
+	m_cbV = m_shader->CreateConstantBuffer(sizeof(m_cbVertexData));
+
+	return true;
+}
+
 AppGSShaderCallback_LineModel3D::AppGSShaderCallback_LineModel3D(){}
 AppGSShaderCallback_LineModel3D::~AppGSShaderCallback_LineModel3D()
 {
@@ -19,7 +57,7 @@ bool AppGSShaderCallback_LineModel3D::Create(alGS* gs)
 {
 	alGSShaderCreationInfo inf;
 	inf.m_callback = this;
-	inf.m_vertexType = alMeshVertexType::Line;
+	inf.m_vertexType = alMeshVertexType::AnimatedLine;
 	//inf.m_vertexType = alMeshVertexType::Point;
 	//inf.m_saveShaderToFile_VS = "../data/shaders/d3d11/ScreenQuad.vs";
 	//inf.m_saveShaderToFile_PS = "../data/shaders/d3d11/ScreenQuad.ps";
@@ -61,7 +99,7 @@ bool AppGSShaderCallback_DefaultTriangle::Create(alGS* gs)
 {
 	alGSShaderCreationInfo inf;
 	inf.m_callback = this;
-	inf.m_vertexType = alMeshVertexType::Triangle;
+	inf.m_vertexType = alMeshVertexType::AnimatedTriangle;
 	//inf.m_vertexType = alMeshVertexType::Point;
 	//inf.m_saveShaderToFile_VS = "../data/shaders/d3d11/ScreenQuad.vs";
 	//inf.m_saveShaderToFile_PS = "../data/shaders/d3d11/ScreenQuad.ps";

@@ -10,6 +10,8 @@ struct VSIn
 {
 	float3 position : POSITION;
 	float4 color : COLOR;
+	float4 Weights : WEIGHTS;
+	uint4  Bones : BONES;
 }; 
 
 struct VSOut
