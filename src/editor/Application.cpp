@@ -575,52 +575,71 @@ bool Application::OnCreate(const char* videoDriver)
 	for (size_t i = 0; i < m_plugins.m_size; ++i)
 	{
 		auto plugin = m_plugins.m_data[i];
-		auto pluginType = plugin.m_plugin->PluginType();
-		if (alLib::GUIDIsEqual(pluginType, APP_CLASS_ID_PLUGIN_TYPE_OBJECT))
+		auto objectNum = plugin.m_plugin->GetObjectPluginNum();
+		for (uint32_t o = 0; o < objectNum; ++o)
 		{
-			AppPluginObject* po = dynamic_cast<AppPluginObject*>(plugin.m_plugin);
-			if (po)
+			auto po = plugin.m_plugin->GetObjectPlugin(o);
+			const char32_t* cat = po->Category();
+			const char32_t* title = po->TitleName();
+			auto objType = po->ObjectType();
+			if (cat && objType != AppPluginObject::EObjectType::EObjectType__end)
 			{
-				const char32_t* cat = po->Category();
-				const char32_t* title = po->TitleName();
-				auto objType = po->ObjectType();
-				if (cat && objType != AppPluginObject::EObjectType::EObjectType__end)
-				{
-					auto* otData = &m_new_object_basic_data.m_data[objType];
-					
-					// ПОКА БУДЕТ НЕ ТАК
-					/*Application::new_object_basic_data::_object* category = 0;
-					for (size_t ci = 0; ci < otData->m_objs.m_size; ++ci)
-					{
-						category = &otData->m_objs.m_data[ci];
-						if (alLib::strcmp(category->m_name, cat) == 0)
-							break;
-						category = 0;
-					}
-
-					if (!category)
-					{
-						Application::new_object_basic_data::_object newCategory;
-						alLib::snprintf(
-							newCategory.m_name, 
-							Application::new_object_basic_data::NAME_SIZE,
-							U"%s", cat);
-						otData->m_objs.push_back(newCategory);
-						category = &otData->m_objs
-							.m_data[otData->m_objs.m_size - 1];
-					}*/
-
-					// ПОКА БУДЕТ ПРОСТОЙ СПИСОК
-					Application::new_object_basic_data::_object obj;
-					alLib::snprintf(
-						obj.m_name,
-						Application::new_object_basic_data::NAME_SIZE,
-						U"%s:%s", cat, title);
-					obj.m_pluginObject = po;
-					otData->m_objs.push_back(obj);
-				}
+				auto* otData = &m_new_object_basic_data.m_data[objType];
+				Application::new_object_basic_data::_object obj;
+				alLib::snprintf(
+					obj.m_name,
+					Application::new_object_basic_data::NAME_SIZE,
+					U"%s:%s", cat, title);
+				obj.m_pluginObject = po;
+				otData->m_objs.push_back(obj);
 			}
 		}
+		//auto pluginType = plugin.m_plugin->PluginType();
+		//if (alLib::GUIDIsEqual(pluginType, APP_CLASS_ID_PLUGIN_TYPE_OBJECT))
+		//{
+		//	AppPluginObject* po = dynamic_cast<AppPluginObject*>(plugin.m_plugin);
+		//	if (po)
+		//	{
+		//		const char32_t* cat = po->Category();
+		//		const char32_t* title = po->TitleName();
+		//		auto objType = po->ObjectType();
+		//		if (cat && objType != AppPluginObject::EObjectType::EObjectType__end)
+		//		{
+		//			auto* otData = &m_new_object_basic_data.m_data[objType];
+		//			
+		//			// ПОКА БУДЕТ НЕ ТАК
+		//			/*Application::new_object_basic_data::_object* category = 0;
+		//			for (size_t ci = 0; ci < otData->m_objs.m_size; ++ci)
+		//			{
+		//				category = &otData->m_objs.m_data[ci];
+		//				if (alLib::strcmp(category->m_name, cat) == 0)
+		//					break;
+		//				category = 0;
+		//			}
+
+		//			if (!category)
+		//			{
+		//				Application::new_object_basic_data::_object newCategory;
+		//				alLib::snprintf(
+		//					newCategory.m_name, 
+		//					Application::new_object_basic_data::NAME_SIZE,
+		//					U"%s", cat);
+		//				otData->m_objs.push_back(newCategory);
+		//				category = &otData->m_objs
+		//					.m_data[otData->m_objs.m_size - 1];
+		//			}*/
+
+		//			// ПОКА БУДЕТ ПРОСТОЙ СПИСОК
+		//			Application::new_object_basic_data::_object obj;
+		//			alLib::snprintf(
+		//				obj.m_name,
+		//				Application::new_object_basic_data::NAME_SIZE,
+		//				U"%s:%s", cat, title);
+		//			obj.m_pluginObject = po;
+		//			otData->m_objs.push_back(obj);
+		//		}
+		//	}
+		//}
 	}
 	SetRightTabMode(Application::RightTabMode::Create);
 	SetPanelCreateObjectType(AppPluginObject::EObjectType::EObjectType_Polygonal);
@@ -1335,7 +1354,6 @@ void Application::_initPlugins()
 
 			alLog::PrintInfo("\t(%s)\n", alUnicodeString(newPlugin->Name()).GetStringA().c_str());
 			alLog::PrintInfo("\t(%s)\n", alUnicodeString(newPlugin->Desc()).GetStringA().c_str());
-			alLog::PrintInfo("\t\t(%s)\n", alUnicodeString(newPlugin->Author()).GetStringA().c_str());
 			alLog::PrintInfo("\t\t((c) %s)\n", alUnicodeString(newPlugin->Copyright()).GetStringA().c_str());
 
 			plugin_info pi;

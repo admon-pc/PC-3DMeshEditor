@@ -24,7 +24,7 @@ void AppScene::DeleteObject(AppSceneObject* o)
 		return;
 
 	o->SetParent(0);
-	o->GetPlugin()->DestroyObject(o);
+	o->GetPluginObject()->DestroyObject(o);
 }
 
 void AppScene::ClearScene()

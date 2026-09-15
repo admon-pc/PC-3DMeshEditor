@@ -45,12 +45,12 @@ protected:
 
 	AppColor m_edgeColor;
 
-	AppPluginObject* m_plugin = 0;
+	AppPluginObject* m_pluginObject = 0;
 
 	AppSceneObjectType m_sceneObjectType = AppSceneObjectType::Polygonal;
 	bool m_isSelected = false;
 public:
-	AppSceneObject(AppPluginObject* po) : m_plugin(po) {}
+	AppSceneObject(AppPluginObject* po) : m_pluginObject(po) {}
 	virtual ~AppSceneObject() {}
 
 	virtual void SetParent(AppSceneObject* parent)
@@ -127,7 +127,7 @@ public:
 	}*/
 
 	virtual const AppPluginClassID& GetClassID() { return m_classID; }
-	virtual AppPluginObject* GetPlugin() { return m_plugin; }
+	virtual AppPluginObject* GetPluginObject() { return m_pluginObject; }
 
 	AppSceneObjectType GetSceneObjectType() { return m_sceneObjectType; }
 

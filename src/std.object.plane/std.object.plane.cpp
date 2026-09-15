@@ -2,14 +2,15 @@
 #include "std.object.plane.h"
 #pragma comment(lib, "editor.lib.lib")
 
-AppPluginObject_plane* g_plugin = 0;
+//AppPluginObject_plane* g_plugin = 0;
+AppPlugin_STD* g_plugin = 0;
 
 extern "C"
 {
 	_declspec(dllexport) AppPlugin* AL_CDECL AppPluginLoad(AppPluginInterface* ei)
 	{
 		if(!g_plugin)
-			g_plugin = new AppPluginObject_plane(ei);
+			g_plugin = new AppPlugin_STD(ei);
 		return g_plugin;
 	}
 
@@ -23,49 +24,91 @@ extern "C"
 	}
 }
 
-AppPluginObject_plane::AppPluginObject_plane(AppPluginInterface* i)
+AppPlugin_STD::AppPlugin_STD(AppPluginInterface* i)
 	:
-	AppPluginObject(i)
+	AppPlugin(i)
+{
+	m_objects[0] = new AppPluginObject_plane(this);
+}
+
+AppPlugin_STD::~AppPlugin_STD()
+{
+	delete m_objects[0];
+}
+
+const char32_t* AppPlugin_STD::Name()
+{
+	return U"Standart";
+}
+
+const char32_t* AppPlugin_STD::Desc()
+{
+	return U"Plugin with all basic functuionality";
+}
+
+const char32_t* AppPlugin_STD::Copyright()
+{
+	return U"Artemy Basov";
+}
+
+uint32_t AppPlugin_STD::Version()
+{
+	return 1;
+}
+
+uint32_t AppPlugin_STD::SDKVersion()
+{
+	return APP_SDK_VERSION;
+}
+
+AppPluginClassID AppPlugin_STD::PluginID()
+{
+	return APP_CLASS_ID_PLUGIN_STD;
+}
+
+uint32_t AppPlugin_STD::GetObjectPluginNum()
+{
+	return m_objectsNum;
+}
+
+uint32_t AppPlugin_STD::GetImportPluginNum()
+{
+	return 0;
+}
+
+uint32_t AppPlugin_STD::GetExportPluginNum()
+{
+	return 0;
+}
+
+AppPluginObject* AppPlugin_STD::GetObjectPlugin(uint32_t i)
+{
+	if (i >= m_objectsNum)
+		return 0;
+
+	return m_objects[i];
+}
+
+AppPluginImport* AppPlugin_STD::GetImportPlugin(uint32_t)
+{
+	return 0;
+}
+
+AppPluginExport* AppPlugin_STD::GetExportPlugin(uint32_t)
+{
+	return 0;
+}
+
+
+
+AppPluginObject_plane::AppPluginObject_plane(AppPlugin* plugin)
+	:
+	AppPluginObject(plugin)
 {
 }
 
 AppPluginObject_plane::~AppPluginObject_plane()
 {
-}
-
-const char32_t* AppPluginObject_plane::Name()
-{
-	return U"Plane plugin";
-}
-
-const char32_t* AppPluginObject_plane::Desc()
-{
-	return U"Basic 2D plane mesh";
-}
-
-const char32_t* AppPluginObject_plane::Author()
-{
-	return U"Artemy Basov";
-}
-
-const char32_t* AppPluginObject_plane::Copyright()
-{
-	return U"Artemy Basov";
-}
-
-uint32_t AppPluginObject_plane::Version()
-{
-	return 1;
-}
-
-uint32_t AppPluginObject_plane::SDKVersion()
-{
-	return APP_SDK_VERSION;
-}
-
-AppPluginClassID AppPluginObject_plane::PluginType()
-{
-	return APP_CLASS_ID_PLUGIN_TYPE_OBJECT;
 }
 
 AppPluginObject::EObjectType AppPluginObject_plane::ObjectType()
@@ -119,7 +162,7 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 	//	mesh.m_vertices = malloc();
 
 		
-		o->m_testGO_triangle = this->m_interface->CreateGraphicsObject(&mesh);
+		o->m_testGO_triangle = m_plugin->GetPluginInterface()->CreateGraphicsObject(&mesh);
 	}
 
 	//GetPluginInterface()->MemAlloc
@@ -142,12 +185,13 @@ AppSceneObject_plane::AppSceneObject_plane(AppPluginObject* po)
 
 AppSceneObject_plane::~AppSceneObject_plane()
 {
+	auto pi = GetPluginObject()->GetPlugin()->GetPluginInterface();
 	if(m_testGO_triangle)
-		GetPlugin()->GetPluginInterface()->Destroy(m_testGO_triangle);
+		pi->Destroy(m_testGO_triangle);
 	if (m_testGO_line)
-		GetPlugin()->GetPluginInterface()->Destroy(m_testGO_line);
+		pi->Destroy(m_testGO_line);
 	if (m_testGO_point)
-		GetPlugin()->GetPluginInterface()->Destroy(m_testGO_point);
+		pi->Destroy(m_testGO_point);
 }
 
 void AppSceneObject_plane::Draw(AppViewportData* viewportData, AppPluginInterface* )
