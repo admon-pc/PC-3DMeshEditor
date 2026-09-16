@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\std.object.plane\std.object.plane.cpp" />
+    <ClCompile Include="..\..\src\std.object.plane\std.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -27,7 +27,7 @@
     <ProjectGuid>{40ca879b-5c4d-40f2-9a75-deae295be6c5}</ProjectGuid>
     <RootNamespace>PluginSTD</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>std.object.plane</ProjectName>
+    <ProjectName>std</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

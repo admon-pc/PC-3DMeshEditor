@@ -712,7 +712,6 @@ void Application::MainLoop()
 	while (m_run)
 	{
 	//	SendMessage(m_hwndTT, TTM_UPDATE, (WPARAM)TRUE, (LPARAM)&g_toolTipInfo);
-
 		alLib::Update();
 		m_currentCursor = AppCursorType::Arrow;
 
@@ -720,6 +719,16 @@ void Application::MainLoop()
 		m_isCursorMove = (input->m_mouseDelta.x != 0.f) || (input->m_mouseDelta.y != 0.f);
 
 		WaitForSingleObject(currThread, 10);
+
+		// if cursor not in veiwport, then in GUI
+		m_isCursorInGUI = true;
+
+		m_isCursorInWindow = false;
+		if (alMath::PointInRect(m_input->m_cursorCoords.x, m_input->m_cursorCoords.y,
+			alVec4f(0.f, 0.f, m_mainWindow->m_clientSize.x, m_mainWindow->m_clientSize.y)))
+		{
+			m_isCursorInWindow = true;
+		}
 		
 		// for `in place tooltip`
 		// default delay is not working
@@ -747,7 +756,7 @@ void Application::MainLoop()
 		DrawViewports3D();
 
 		m_gs->BeginDrawGUI();
-		DrawViewports();
+		DrawViewportsGUI();
 		//m_gs->BeginDrawGUI(false);
 		m_gui->m_context->Draw(m_dt);
 

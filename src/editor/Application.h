@@ -281,6 +281,8 @@ class Application
 	bool m_isCursorInViewport = false;
 	bool m_isCursorInUVEditor = false;
 	bool m_isCursorInGUI = false;
+	bool m_isCursorInWindow = false;
+
 
 	AppMouseMode m_mouseMode = AppMouseMode::CommonMode;
 	void SetMouseMode(AppMouseMode mm);
@@ -339,12 +341,14 @@ class Application
 	void UpdateViewports();
 	//miPopup* _getPopupInViewport();
 	void DrawViewports3D();
-	void DrawViewports();
+	void DrawViewportsGUI();
 	void _callViewportOnWindowSize();
 	// надо определить первый клик в зоне вьюпорта. если был то true. потом двигать камеру и объекты
 	// только если m_isViewportInFocus == true;
 	bool m_isViewportInFocus = false;
 	AppViewportCamera* GetActiveCamera();
+
+	bool m_isSelectByRectangle = false;
 
 	alGSTexture* m_UVPlaneTexture = 0;
 	alGSMesh* m_UVPlaneModel = 0;

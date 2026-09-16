@@ -170,67 +170,67 @@ void Application::UpdateViewports()
 //			UVTransform();
 //		}
 //	}
-//
-//	if (m_isCursorInViewport)
-//	{
-//		if (input->m_isRMBUp && m_gizmoMode == AppGizmoMode::NoTransform
-//			&& !m_isCursorInUVEditor)
-//		{
-////			miPopup* p = _getPopupInViewport();
-////			ShowPopupAtCursor(p);
-////			delete p;
-//		}
-//		if (m_gizmoMode == AppGizmoMode::NoTransform)
-//		{
-//			if (m_isCursorMove)
-//			{
-//				const float32_t _size = 6.f;
-//				m_selectionFrust->CreateWithFrame(
-//					alVec4f(
-//						input->m_cursorCoords.x - _size,
-//						input->m_cursorCoords.y - _size,
-//						input->m_cursorCoords.x + _size,
-//						input->m_cursorCoords.y + _size),
-//					m_viewportUnderCursor->m_currentRect,
-//					m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix);
-//				if (m_isCursorInViewport && !m_isCursorInUVEditor)
-//				{
-//					if (m_editMode == AppEditMode::Vertex)
-//					{
-//						_isObjectMouseHover();
-//						if (m_mouseMode != AppMouseMode::SelectVertex)
-//						{
-//							if (m_mouseHoverVertex)
-//							{
-//		//						miSetCursor(miCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
-//		//						m_cursors[(u32)miCursorType::Cross]->Activate();
-//							}
-//							else
-//							{
-//		//						miSetCursor(miCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
-//		//						m_cursors[(u32)miCursorType::Arrow]->Activate();
-//							}
-//						}
-//					}
-//					else if (m_editMode == AppEditMode::Edge)
-//					{
-//						_isObjectMouseHover();
-//						if (m_mouseHoverEdge)
-//						{
-//	//						miSetCursor(miCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
-//	//						m_cursors[(u32)miCursorType::Cross]->Activate();
-//						}
-//						else
-//						{
-//	//						miSetCursor(miCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
-//	//						m_cursors[(u32)miCursorType::Arrow]->Activate();
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
-//
+
+	if (m_isCursorInViewport)
+	{
+		if (input->m_isRMBUp && m_gizmoMode == AppGizmoMode::NoTransform
+			&& !m_isCursorInUVEditor)
+		{
+//			miPopup* p = _getPopupInViewport();
+//			ShowPopupAtCursor(p);
+//			delete p;
+		}
+		if (m_gizmoMode == AppGizmoMode::NoTransform)
+		{
+			if (m_isCursorMove)
+			{
+				const float32_t _size = 6.f;
+				m_selectionFrust.CreateWithFrame(
+					alVec4f(
+						input->m_cursorCoords.x - _size,
+						input->m_cursorCoords.y - _size,
+						input->m_cursorCoords.x + _size,
+						input->m_cursorCoords.y + _size),
+					m_viewportUnderCursor->m_rect,
+					m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix);
+				if (m_isCursorInViewport && !m_isCursorInUVEditor)
+				{
+					if (m_editMode == AppEditMode::Vertex)
+					{
+					//	_isObjectMouseHover();
+						if (m_mouseMode != AppMouseMode::SelectVertex)
+						{
+							if (m_mouseHoverVertex)
+							{
+		//						miSetCursor(miCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
+		//						m_cursors[(u32)miCursorType::Cross]->Activate();
+							}
+							else
+							{
+		//						miSetCursor(miCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+		//						m_cursors[(u32)miCursorType::Arrow]->Activate();
+							}
+						}
+					}
+					else if (m_editMode == AppEditMode::Edge)
+					{
+					//	_isObjectMouseHover();
+						if (m_mouseHoverEdge)
+						{
+	//						miSetCursor(miCursorType::Arrow, m_cursors[(u32)miCursorType::Cross]);
+	//						m_cursors[(u32)miCursorType::Cross]->Activate();
+						}
+						else
+						{
+	//						miSetCursor(miCursorType::Arrow, m_cursors[(u32)miCursorType::Arrow]);
+	//						m_cursors[(u32)miCursorType::Arrow]->Activate();
+						}
+					}
+				}
+			}
+		}
+	}
+
 //	if (m_isViewportInFocus && (_isDoNotSelect() == false))
 //	{
 //		if (input->m_isLMBUp)
@@ -292,23 +292,23 @@ void Application::UpdateViewports()
 //			CallPluginGUIOnCancel();
 //		}
 //	}
-//
-//
-//	if (m_isSelectByRectangle)
-//	{
-//		if (input->m_isLMBUp
-//			|| input->m_isRMBUp
-//			|| input->m_isRMBDown
-//			|| input->m_isMMBDown
-//			|| input->m_isX1MBDown
-//			|| input->m_isX2MBDown
-//			|| input->IsKeyHit(miKey::K_ESCAPE))
-//		{
-//			m_isSelectByRectangle = false;
-//			m_isViewportInFocus = false;
-//		}
-//	}
-//
+
+
+	if (m_isSelectByRectangle)
+	{
+		if (input->m_isLMBUp
+			|| input->m_isRMBUp
+			|| input->m_isRMBDown
+			|| input->m_isMMBDown
+			|| input->m_isX1MBDown
+			|| input->m_isX2MBDown
+			|| input->IsKeyHit(alInputKey::K_ESCAPE))
+		{
+			m_isSelectByRectangle = false;
+			m_isViewportInFocus = false;
+		}
+	}
+
 //	if (m_isClickAndDrag)
 //	{
 //		if (input->m_isLMBUp
@@ -335,6 +335,20 @@ void Application::UpdateViewports()
 	}
 
 	m_isCursorInViewport = false;
+	for (size_t i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
+	{
+		auto viewport = m_activeViewportLayout->m_viewports[i];
+		viewport->m_isCursorInRect =
+			alMath::PointInRect(input->m_cursorCoords.x, input->m_cursorCoords.y,
+				viewport->m_rect);
+		if (viewport->m_isCursorInRect)
+		{
+			m_isCursorInViewport = true;
+			m_viewportUnderCursor = viewport;
+			m_isCursorInGUI = false;
+		}
+	}
+
 	if (!m_isCursorInGUI)
 	{
 		if (input->m_isLMBDown)
@@ -377,12 +391,12 @@ void Application::UpdateViewports()
 
 				if (viewport->m_isCursorInRect)
 				{
+				
+
 					GetRayFromScreen(&m_screenRayCurrent, input->m_cursorCoordsForGUI,
 						m_activeViewportLayout->m_activeViewport->m_rect,
 						m_activeViewportLayout->m_activeViewport->m_activeCamera->m_viewProjectionInvertMatrix);
 
-					m_isCursorInViewport = true;
-					m_viewportUnderCursor = viewport;
 
 					m_isCursorInUVEditor = false;
 					if (viewport->m_viewportType == AppViewportType::UV)
@@ -407,6 +421,7 @@ void Application::UpdateViewports()
 			}
 		}
 	}
+
 
 //	if (input->m_isLMBDown && !m_isCursorInGUI)
 //	{
@@ -454,7 +469,7 @@ void Application::UpdateViewports()
 //			this->SetMouseMode(AppMouseMode::CommonMode);
 //	}
 
-	//if (m_isViewportInFocus)
+	if (m_isViewportInFocus)
 	{
 		if (m_isCursorMove)
 		{
@@ -465,8 +480,8 @@ void Application::UpdateViewports()
 				if ((m_mouseMode == AppMouseMode::CommonMode) ||
 					(m_mouseMode == AppMouseMode::Other))
 				{
-					//if (input->m_isLMBHold)
-					//	m_isSelectByRectangle = true;
+					if (input->m_isLMBHold)
+						m_isSelectByRectangle = true;
 				}
 
 				if (
@@ -508,33 +523,39 @@ void Application::UpdateViewports()
 		}
 	}
 
-//	if (input->IsKeyHit(miKey::K_NUM_4))
-//		m_activeViewportLayout->m_activeViewport->Rotate(-5.f, 0.f);
-//	if (input->IsKeyHit(miKey::K_NUM_6))
-//		m_activeViewportLayout->m_activeViewport->Rotate(5.f, 0.f);
-//	if (input->IsKeyHit(miKey::K_NUM_2))
-//		m_activeViewportLayout->m_activeViewport->Rotate(0.f, -5.f);
-//	if (input->IsKeyHit(miKey::K_NUM_8))
-//		m_activeViewportLayout->m_activeViewport->Rotate(0.f, 5.f);
-//	if (input->IsKeyHit(miKey::K_NUM_5))
-//		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho =
-//		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho ? false : true;
-
-	//if (m_isCursorInWindow && !m_isCursorInGUI)
+	if (input->IsKeyHit(alInputKey::K_NUM_4))
+		m_activeViewportLayout->m_activeViewport->Rotate(-5.f, 0.f);
+	if (input->IsKeyHit(alInputKey::K_NUM_6))
+		m_activeViewportLayout->m_activeViewport->Rotate(5.f, 0.f);
+	if (input->IsKeyHit(alInputKey::K_NUM_2))
+		m_activeViewportLayout->m_activeViewport->Rotate(0.f, -5.f);
+	if (input->IsKeyHit(alInputKey::K_NUM_8))
+		m_activeViewportLayout->m_activeViewport->Rotate(0.f, 5.f);
+	if (input->IsKeyHit(alInputKey::K_NUM_5))
 	{
-		if (input->m_isRMBDown)
+		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho =
+		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho ? false : true;
+		m_activeViewportLayout->m_activeViewport->Rotate(0.f, 0.f);
+	}
+
+	if (m_isCursorInWindow && !m_isCursorInGUI)
+	{
+		if (input->m_isMMBDown || input->m_isLMBDown || input->m_isRMBDown)
 		{
-			m_isViewportInFocus = true;
-			m_viewportInMouseFocus = m_viewportUnderCursor;
+			if (!m_isViewportInFocus)
+			{
+				m_isViewportInFocus = true;
+				m_viewportInMouseFocus = m_viewportUnderCursor;
+			}
 		}
 	}
 
-//	if (input->m_isLMBUp || input->m_isMMBUp)
-//	{
-//		m_isViewportInFocus = false;
-//		m_viewportInMouseFocus = 0;
-//	}
-//
+	if (input->m_isLMBUp || input->m_isMMBUp || input->m_isRMBUp)
+	{
+		m_isViewportInFocus = false;
+		m_viewportInMouseFocus = 0;
+	}
+
 //	switch (m_gizmoMode)
 //	{
 //	case AppGizmoMode::RotateX:
@@ -572,7 +593,7 @@ void Application::DrawViewports3D()
 		viewport->Draw3D();
 	}
 }
-void Application::DrawViewports()
+void Application::DrawViewportsGUI()
 {
 	for (size_t i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
 	{
@@ -620,19 +641,36 @@ void Application::DrawViewports()
 		}
 
 		//viewport->OnDraw();
+		m_gs->DisableDepth();
+
+		
+		m_gs->ActivateGUIShader();
+		m_gs->DrawRectangle(viewport->m_rect, m_colorThemeCurr->m_viewportColor, 0, 0);
+		m_gs->DrawRectangle(viewport->m_rect, ColorWhite, viewport->m_rtt, 0);
 
 		if (viewport == m_activeViewportLayout->m_activeViewport)
 		{
-			//if (m_isSelectByRectangle)
-			//{
-			//	m_gpu->SetViewport(0.f, 0.f, (float32_t)m_mainWindow->m_currentSize.x, (float32_t)m_mainWindow->m_currentSize.y, m_mainWindow, 0);
-			//	DrawSelectionBox(m_cursorLMBClickPosition, input->m_cursorCoords);
-			//}
+			if (m_isSelectByRectangle)
+			{
+
+				m_gs->SetScissorRect(viewport->m_rect);
+
+				auto p1 = m_cursorLMBClickPosition;
+				auto p2 = m_input->m_cursorCoords;
+				alAabb aabb;
+				aabb.Add(alVec3f(p1.x + 1.f, p1.y + 1.f, 0.f));
+				aabb.Add(alVec3f(p2.x - 1.f, p2.y - 1.f, 0.f));
+				m_gs->BeginDrawLine2D();
+				m_gs->DrawLine2D(alVec2f(p1.x, p1.y), alVec2f(p2.x, p1.y), ColorWhite);
+				m_gs->DrawLine2D(alVec2f(p1.x, p1.y), alVec2f(p1.x, p2.y), ColorWhite);
+				m_gs->DrawLine2D(alVec2f(p1.x, p2.y), alVec2f(p2.x, p2.y), ColorWhite);
+				m_gs->DrawLine2D(alVec2f(p2.x, p1.y), alVec2f(p2.x, p2.y), ColorWhite);
+				m_gs->SetViewport(0, 0, m_mainWindow->m_clientSize.x, m_mainWindow->m_clientSize.y);
+				m_gs->ActivateGUIShader();
+			}
 		}
 
-		m_gs->DisableDepth();
-		m_gs->DrawRectangle(viewport->m_rect, m_colorThemeCurr->m_viewportColor, 0, 0);
-		m_gs->DrawRectangle(viewport->m_rect, ColorWhite, viewport->m_rtt, 0);
+
 		/*for (size_t k = 0; k < m_activeViewportLayout->m_resizers.m_size; ++k)
 		{
 			m_gs->DrawRectangle(m_activeViewportLayout->m_resizers.m_data[k]->m_rect, ColorRed);

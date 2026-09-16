@@ -584,9 +584,31 @@ void AppViewport::Draw3D()
 	//}
 	//else
 	//{
-		if (m_drawGrid)
-			_drawGrid();
-		
+	if (m_drawGrid)
+		_drawGrid();
+
+	bool drawSelectionFrust = true;
+	if (drawSelectionFrust)
+	{
+		m_gs->BeginDrawLine3D();
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_left[0], g_app->m_selectionFrust.m_data.m_left[1], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_left[1], g_app->m_selectionFrust.m_data.m_left[2], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_left[2], g_app->m_selectionFrust.m_data.m_left[3], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_left[3], g_app->m_selectionFrust.m_data.m_left[0], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_right[0], g_app->m_selectionFrust.m_data.m_right[1], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_right[1], g_app->m_selectionFrust.m_data.m_right[2], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_right[2], g_app->m_selectionFrust.m_data.m_right[3], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_right[3], g_app->m_selectionFrust.m_data.m_right[0], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_top[0], g_app->m_selectionFrust.m_data.m_top[1], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_top[1], g_app->m_selectionFrust.m_data.m_top[2], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_top[2], g_app->m_selectionFrust.m_data.m_top[3], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_top[3], g_app->m_selectionFrust.m_data.m_top[0], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_bottom[0], g_app->m_selectionFrust.m_data.m_bottom[1], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_bottom[1], g_app->m_selectionFrust.m_data.m_bottom[2], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_bottom[2], g_app->m_selectionFrust.m_data.m_bottom[3], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_bottom[3], g_app->m_selectionFrust.m_data.m_bottom[0], ColorWhite);
+		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_BackC, g_app->m_selectionFrust.m_data.m_FrontC, ColorWhite);
+	}
 
 	//	g_app->m_gs->UseDepth(true);
 
@@ -684,7 +706,7 @@ void AppViewport::_drawScene()
 		m_gs->EnableDepth();
 
 		object->Draw(&m_viewportData, g_app->m_pluginInterface);
-		_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor(), AppVec3f());
+	//	_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor(), AppVec3f());
 
 		if (object->IsSelected())
 		{
