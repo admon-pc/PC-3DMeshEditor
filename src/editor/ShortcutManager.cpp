@@ -32,6 +32,7 @@ AppShortcutManager::AppShortcutManager()
 	SetCommand(AppShortcutCommandType::editMode_Polygon, U"editMode_Polygon", alKeyboardModifier::None, alInputKey::K_3);
 	SetCommand(AppShortcutCommandType::UV_selectAll, U"UV_selectAll", alKeyboardModifier::Ctrl, alInputKey::K_A);
 	SetCommand(AppShortcutCommandType::edit_duplicate, U"edit_duplicate", alKeyboardModifier::None, alInputKey::END);
+	SetCommand(AppShortcutCommandType::viewport_toggleOrtho, U"viewport_toggleOrtho", alKeyboardModifier::None, alInputKey::K_NUM_5);
 }
 
 AppShortcutManager::~AppShortcutManager()
@@ -97,7 +98,7 @@ void AppShortcutManager::SetCommand(AppShortcutCommandType type,
 		case alInputKey::K_I:m_commands[(uint32_t)type].m_text += U"I"; break;
 		case alInputKey::K_J:m_commands[(uint32_t)type].m_text += U"J"; break;
 		case alInputKey::K_K:m_commands[(uint32_t)type].m_text += U"K"; break;
-		case alInputKey::K_L:m_commands[(uint32_t)type].m_text += U"U"; break;
+		case alInputKey::K_L:m_commands[(uint32_t)type].m_text += U"L"; break;
 		case alInputKey::K_M:m_commands[(uint32_t)type].m_text += U"M"; break;
 		case alInputKey::K_N:m_commands[(uint32_t)type].m_text += U"N"; break;
 		case alInputKey::K_O:m_commands[(uint32_t)type].m_text += U"O"; break;

@@ -13,6 +13,7 @@ enum class AppShortcutCommandType : uint32_t
 	viewport_viewRight,
 	viewport_viewFront,
 	viewport_viewBack,
+	viewport_toggleOrtho,
 	viewport_toggleGrid,
 	viewport_toggleFullView,
 	viewport_dmMaterial,

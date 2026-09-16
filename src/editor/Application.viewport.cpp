@@ -356,15 +356,18 @@ void Application::UpdateViewports()
 			m_viewportUnderCursor->m_textNameColor = ColorYellow;
 			// наверное лучше вызывать popup меню нажатием ПКМ
 			//m_isCursorInGUI = true;
-			if(input->m_isRMBDown)
+			if (input->m_isRMBDown)
+			{
+				SetActiveViewport(m_viewportUnderCursor);
 				ShowViewportPopup();
+			}
 		}
 	}
 
 	if (!m_isCursorInGUI)
 	{
 		if (input->m_isLMBDown)
-			m_cursorLMBClickPosition = input->m_cursorCoords;
+			m_cursorLMBClickPosition = input->m_cursorCoordsForGUI;
 		bool cursorInResizer = false;
 
 		/*AppViewportResizer* rszr = 0;
@@ -426,8 +429,9 @@ void Application::UpdateViewports()
 						|| input->m_isX1MBDown
 						|| input->m_isX2MBDown)
 					{
-						if (m_activeViewportLayout->m_activeViewport != viewport)
-							m_activeViewportLayout->m_activeViewport = viewport;
+						SetActiveViewport(viewport);
+						/*if (m_activeViewportLayout->m_activeViewport != viewport)
+							m_activeViewportLayout->m_activeViewport = viewport;*/
 					}
 				}
 			}
@@ -543,12 +547,13 @@ void Application::UpdateViewports()
 		m_activeViewportLayout->m_activeViewport->Rotate(0.f, -5.f);
 	if (input->IsKeyHit(alInputKey::K_NUM_8))
 		m_activeViewportLayout->m_activeViewport->Rotate(0.f, 5.f);
-	if (input->IsKeyHit(alInputKey::K_NUM_5))
+	// this now in shortcut manager
+	/*if (input->IsKeyHit(alInputKey::K_NUM_5))
 	{
 		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho =
 		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho ? false : true;
 		m_activeViewportLayout->m_activeViewport->Rotate(0.f, 0.f);
-	}
+	}*/
 
 	if (m_isCursorInWindow && !m_isCursorInGUI)
 	{
@@ -668,7 +673,7 @@ void Application::DrawViewportsGUI()
 				m_gs->SetScissorRect(viewport->m_rect);
 
 				auto p1 = m_cursorLMBClickPosition;
-				auto p2 = m_input->m_cursorCoords;
+				alVec2f p2 = m_input->m_cursorCoordsForGUI;
 				alAabb aabb;
 				aabb.Add(alVec3f(p1.x + 1.f, p1.y + 1.f, 0.f));
 				aabb.Add(alVec3f(p2.x - 1.f, p2.y - 1.f, 0.f));

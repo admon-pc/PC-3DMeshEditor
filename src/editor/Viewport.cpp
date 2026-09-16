@@ -12,7 +12,7 @@ void AppViewport_onClick_viewport(alGUIElement* elem)
 AppViewport::AppViewport(AppViewportType vt, AppViewportCameraType vct, const alVec4f& rect1_0) {
 	m_viewportType = vt;
 	m_rect1_0 = rect1_0;
-	m_isDrawAabbs = false;
+	m_drawAabbs = false;
 	m_isOnLeftBorder = false;
 	m_isOnRightBorder = false;
 	m_isOnTopBorder = false;
@@ -293,7 +293,7 @@ void AppViewport::OnWindowSize()
 
 void AppViewport::UpdateAspect() {
 	if (m_activeCamera)
-		m_activeCamera->m_aspect = m_rectSz.x / m_rectSz.y;
+		m_activeCamera->UpdateAspect(this);
 }
 
 void AppViewport::_frustum_cull(AppSceneObject* o)
@@ -644,7 +644,7 @@ void AppViewport::Draw3D()
 
 void AppViewport::ToggleDrawAABB() 
 {
-	m_isDrawAabbs = m_isDrawAabbs ? false : true;
+	m_drawAabbs = m_drawAabbs ? false : true;
 }
 
 void AppViewport::_drawAabb(const AppAabb& aabb, const AppColor& _color, const AppVec3f& _positionOffset)
@@ -713,7 +713,7 @@ void AppViewport::_drawScene()
 
 		if (object->IsSelected())
 		{
-			if (m_isDrawAabbs)
+			if (m_drawAabbs)
 				_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor(), AppVec3f());
 		}
 	}

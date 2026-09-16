@@ -46,6 +46,7 @@ public:
 	float32_t m_far;
 	float32_t m_fov;
 	float32_t m_aspect;
+	void UpdateAspect(AppViewport*);
 
 	alVec3 m_rotationPlatform;
 	alVec4 m_positionPlatform; // w = height, zoom, mouse wheel value
@@ -114,7 +115,7 @@ public:
 			return true;
 		}
 
-		bool SphereInFrustum(float32_t radius, const AppVec4& position)
+		bool SphereInFrustum(float64_t radius, const AppVec4& position)
 		{
 			for (uint32_t i = 0u; i < 6u; ++i)
 			{

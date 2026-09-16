@@ -36,6 +36,7 @@
 #define AppMenuID_VIEW_TOGGLEAABB 24
 #define AppMenuID_VIEW_CAMERARESET 25
 #define AppMenuID_VIEW_CAMERAMOVETOSELECTION 26
+#define AppMenuID_VIEW_TOGGLEORTHO 27
 
 //#define AppGUIID_Combo_Create_Category 1
 //#define AppGUIID_BTN_Create_Type_Poly 2
@@ -338,7 +339,7 @@ class Application
 	alRay m_screenRayCurrent;
 
 	alVec4 m_cursorPosition3D;         // intersection point
-	alVec2i m_cursorLMBClickPosition;
+	alVec2f m_cursorLMBClickPosition;
 
 	bool m_viewportResizeMode = false;
 	AppViewportResizer* m_viewportResizer = 0;
@@ -489,6 +490,11 @@ class Application
 	};
 	new_object_basic_data m_new_object_basic_data;
 
+	struct WinAPI_menu
+	{
+		HMENU m_menu_view;
+	}m_winMenu;
+
 public:
 	Application();
 	~Application();
@@ -517,7 +523,16 @@ public:
 	void OnButtonCreateNewObject();
 
 	void ViewportToggleFullView();
-	
+	void ViewportToggleGrid();
+	void ViewportCameraReset();
+	void ViewportCameraMoveToSelection();
+	void ViewportChangeView(AppViewportCameraType);
+	void ViewportToggleOrtho();
+	void ViewportSetDrawMode(AppViewportDrawMode);
+	void ViewportToggleAABB();
+
+	void SetActiveViewport(AppViewport*);
+
 	void SetTransformMode(AppTransformMode);
 	
 	enum class RightTabMode

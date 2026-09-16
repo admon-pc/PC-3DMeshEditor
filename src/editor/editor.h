@@ -25,6 +25,7 @@ class AppViewportLayout;
 #include "AppPluginInterface.h"
 #include "AppPluginInterfaceImpl.h"
 
+#include "ViewportCamera.h"
 #include "Application.h"
 #include "Viewport.h"
 #include "Gizmo.h"

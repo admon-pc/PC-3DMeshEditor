@@ -134,6 +134,13 @@ void AppViewportCamera::MoveToSelection()
 	{
 		Reset();
 	}
+
+	this->Update();
+}
+
+void AppViewportCamera::UpdateAspect(AppViewport* v)
+{
+	m_aspect = v->m_rectSz.x / v->m_rectSz.y;
 }
 
 void AppViewportCamera::Reset()
@@ -172,8 +179,7 @@ void AppViewportCamera::Reset()
 
 	m_viewport->SetCameraType(m_viewport->m_cameraType);
 	m_viewport->UpdateAspect();
-	//m_viewport->OnWindowSize();
-
+	Update();
 }
 
 void AppViewportCamera::PanMove()

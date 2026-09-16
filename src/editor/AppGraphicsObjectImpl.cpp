@@ -62,7 +62,7 @@ void AppGraphicsObjectImpl::Draw(AppViewportData* viewport, AppSceneObject* obje
 		break;
 	case alGSPrimitiveType::Point:
 		g_app->m_shaderPointModel->m_cbVertexData.WVP = P * V * W;
-		g_app->m_shaderPointModel->m_cbVertexData.Eye.Set(cameraPos.x, cameraPos.y, cameraPos.z, 0.f);
+		g_app->m_shaderPointModel->m_cbVertexData.Eye.Set((float32_t)cameraPos.x, (float32_t)cameraPos.y, (float32_t)cameraPos.z, 0.f);
 		g_app->m_shaderPointModel->m_cbVertexData.Viewport.Set(800.f, 600.f, 0.f, 0.f);
 		m_gs->SetShader(g_app->m_shaderPointModel->m_shader);
 		g_app->m_shaderPointModel->OnSetConstants();

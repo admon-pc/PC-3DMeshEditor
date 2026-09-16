@@ -2,7 +2,6 @@
 #ifndef _PCViewport_H_
 #define _PCViewport_H_
 
-#include "ViewportCamera.h"
 
 constexpr float32_t AppViewportBorderSize = 1.f;
 constexpr float32_t g_leftPanelWidth = 24.f;
@@ -70,7 +69,7 @@ public:
 	void ShowGUI();
 	void ResetCamera();
 
-	bool m_isDrawAabbs = true;
+	bool m_drawAabbs = true;
 
 	alUnicodeString m_name;
 	float32_t m_nameLen = 0.f;

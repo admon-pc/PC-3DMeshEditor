@@ -470,8 +470,8 @@ bool Application::OnCreate(const char* videoDriver)
 		AppendMenu(menu_edit, MF_SEPARATOR, 0, 0);
 		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_OBJECTLISTWINDOW, L"Open Objects List");
 
-		HMENU menu_view = CreateMenu();
-		AppendMenu(menu_view, MF_STRING, AppMenuID_VIEW_TOGGLEFULLVIEW, L"Toggle Full View");
+		m_winMenu.m_menu_view = CreateMenu();
+		AppendMenu(m_winMenu.m_menu_view, MF_STRING, AppMenuID_VIEW_TOGGLEFULLVIEW, L"Toggle Full View");
 	
 
 		HMENU menu_create = CreateMenu();
@@ -486,7 +486,7 @@ bool Application::OnCreate(const char* videoDriver)
 		HMENU mMainMenu = CreateMenu();
 		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_file, L"&File");
 		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_edit, L"&Edit");
-		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_view, L"View");
+		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)m_winMenu.m_menu_view, L"View");
 		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_create, L"Create");
 		AppendMenu(mMainMenu, MF_STRING | MF_POPUP, (UINT)menu_help, L"Help");
 		alSystemWindowOSDataWin32* w32 = (alSystemWindowOSDataWin32*)m_mainWindow->GetOSData();
@@ -726,7 +726,7 @@ void Application::MainLoop()
 
 		m_isCursorInWindow = false;
 		if (alMath::PointInRect(m_input->m_cursorCoords.x, m_input->m_cursorCoords.y,
-			alVec4f(0.f, 0.f, m_mainWindow->m_clientSize.x, m_mainWindow->m_clientSize.y)))
+			alVec4f(0.f, 0.f, (float32_t)m_mainWindow->m_clientSize.x, (float32_t)m_mainWindow->m_clientSize.y)))
 		{
 			m_isCursorInWindow = true;
 		}
@@ -1084,6 +1084,18 @@ void Application::OnWindowSizeChanged()
 
 }
 
+void Application::ViewportCameraReset()
+{
+	m_activeViewportLayout->m_activeViewport->m_activeCamera->Reset();
+	m_activeViewportLayout->m_activeViewport->UpdateAspect();
+}
+
+void Application::ViewportToggleGrid()
+{
+	auto old = m_activeViewportLayout->m_activeViewport->m_drawGrid;
+	m_activeViewportLayout->m_activeViewport->m_drawGrid = old ? false : true;
+}
+
 void Application::ViewportToggleFullView()
 {
 	/*if (m_editorType != miEditorType::_3D)
@@ -1095,6 +1107,7 @@ void Application::ViewportToggleFullView()
 		m_activeViewportLayout = m_previousViewportLayout;
 		m_activeViewportLayout->m_activeViewport->Copy(m_viewportLayouts[AppViewportLayout_Full]->m_activeViewport);
 		m_activeViewportLayout->ShowGUI();
+		CheckMenuItem(m_winMenu.m_menu_view, AppMenuID_VIEW_TOGGLEFULLVIEW, MF_BYCOMMAND | MF_UNCHECKED);
 	}
 	else
 	{
@@ -1103,27 +1116,60 @@ void Application::ViewportToggleFullView()
 		m_activeViewportLayout = m_viewportLayouts[AppViewportLayout_Full];
 		m_activeViewportLayout->m_activeViewport->Copy(m_previousViewportLayout->m_activeViewport);
 		m_activeViewportLayout->ShowGUI();
+
+		CheckMenuItem(m_winMenu.m_menu_view, AppMenuID_VIEW_TOGGLEFULLVIEW, MF_BYCOMMAND | MF_CHECKED);
 	}
 //	m_GUI->m_context->NeedRebuild();
 	m_activeViewportLayout->m_activeViewport->UpdateAspect();
 }
 
+void Application::ViewportCameraMoveToSelection()
+{
+	m_activeViewportLayout->m_activeViewport->m_activeCamera->MoveToSelection();
+	m_activeViewportLayout->m_activeViewport->UpdateAspect();
+}
+
+void Application::ViewportChangeView(AppViewportCameraType ct)
+{
+	m_activeViewportLayout->m_activeViewport->SetCameraType(ct);
+	m_activeViewportLayout->m_activeViewport->m_activeCamera->Reset();
+}
+
+void Application::ViewportToggleOrtho()
+{
+	m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho =
+		m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho ? false : true;
+	m_activeViewportLayout->m_activeViewport->Rotate(0.f, 0.f);
+}
+
+void Application::ViewportSetDrawMode(AppViewportDrawMode dm)
+{
+	m_activeViewportLayout->m_activeViewport->SetDrawMode(dm);
+}
+
+void Application::ViewportToggleAABB()
+{
+	m_activeViewportLayout->m_activeViewport->ToggleDrawAABB();
+}
+
 void Application::ProcessShortcuts3D()
 {
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_cameraReset)) this->CameraReset();
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_cameraMoveToSelection)) this->CameraMoveToSelection();
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewPerspective)) this->ViewportChangeView(miViewportCameraType::Perspective);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewTop)) this->ViewportChangeView(miViewportCameraType::Top);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewBottom)) this->ViewportChangeView(miViewportCameraType::Bottom);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewLeft)) this->ViewportChangeView(miViewportCameraType::Left);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewRight)) this->ViewportChangeView(miViewportCameraType::Right);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewFront)) this->ViewportChangeView(miViewportCameraType::Front);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewBack)) this->ViewportChangeView(miViewportCameraType::Back);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleGrid)) this->ViewportToggleGrid();
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_cameraReset)) this->ViewportCameraReset();
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_cameraMoveToSelection)) this->ViewportCameraMoveToSelection();
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewPerspective)) this->ViewportChangeView(AppViewportCameraType::Perspective);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewTop)) this->ViewportChangeView(AppViewportCameraType::Top);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewBottom)) this->ViewportChangeView(AppViewportCameraType::Bottom);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewLeft)) this->ViewportChangeView(AppViewportCameraType::Left);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewRight)) this->ViewportChangeView(AppViewportCameraType::Right);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewFront)) this->ViewportChangeView(AppViewportCameraType::Front);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_viewBack)) this->ViewportChangeView(AppViewportCameraType::Back);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleGrid)) this->ViewportToggleGrid();
 	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleFullView)) this->ViewportToggleFullView();
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_dmMaterial)) this->ViewportSetDrawMode(miViewportDrawMode::Material);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_dmMaterialWireframe)) this->ViewportSetDrawMode(miViewportDrawMode::MaterialWireframe);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_dmWireframe)) this->ViewportSetDrawMode(miViewportDrawMode::Wireframe);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleOrtho)) this->ViewportToggleOrtho();
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_dmMaterial)) this->ViewportSetDrawMode(AppViewportDrawMode::Material);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_dmMaterialWireframe)) this->ViewportSetDrawMode(AppViewportDrawMode::MaterialWireframe);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_dmWireframe)) this->ViewportSetDrawMode(AppViewportDrawMode::Wireframe);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleDrawAABB)) this->ViewportToggleAABB();
 	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleDMMaterial)) this->ViewportToggleDrawMaterial();
 	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleDMWireframe)) this->ViewportToggleDrawWireframe();
 	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_NoTransform)) this->SetTransformMode(miTransformMode::NoTransform);
@@ -1155,14 +1201,80 @@ void Application::OnPopupCommand(uint32_t cmd)
 	case AppMenuID_FILE_EXIT:
 		CloseProgramm();
 		break;
+	case AppMenuID_FILE_EXPORT:
+		break;
+	case AppMenuID_FILE_IMPORT:
+		break;
+	case AppMenuID_FILE_NEW_SCENE:
+		break;
+	case AppMenuID_FILE_OPEN_SCENE:
+		break;
+	case AppMenuID_FILE_SAVEAS_SCENE:
+		break;
+	case AppMenuID_FILE_SAVE_SCENE:
+		break;
 	case AppMenuID_HELP_ABOUT:
 		ShowAbout();
 		break;
 	case AppMenuID_EDIT_OBJECTLISTWINDOW:
 		ShowObjectListWindow();
 		break;
+	case AppMenuID_EDIT_INVERTSELECT:
+		break;
+	case AppMenuID_EDIT_SELECTALL:
+		break;
+	case AppMenuID_VIEW_TOGGLEFULLVIEW:
+		ViewportToggleFullView();
+		break;
+	case AppMenuID_VIEW_TOGGLEGRID:
+		ViewportToggleGrid();
+		break;
+	case AppMenuID_VIEW_CAMERARESET:
+		ViewportCameraReset();
+		break;
+	case AppMenuID_VIEW_CAMERAMOVETOSELECTION:
+		ViewportCameraMoveToSelection();
+		break;
+	case AppMenuID_VIEW_SETCAMERAVIEW_BACK:
+		ViewportChangeView(AppViewportCameraType::Back);
+		break;
+	case AppMenuID_VIEW_SETCAMERAVIEW_FRONT:
+		ViewportChangeView(AppViewportCameraType::Front);
+		break;
+	case AppMenuID_VIEW_SETCAMERAVIEW_TOP:
+		ViewportChangeView(AppViewportCameraType::Top);
+		break;
+	case AppMenuID_VIEW_SETCAMERAVIEW_BOTTOM:
+		ViewportChangeView(AppViewportCameraType::Bottom);
+		break;
+	case AppMenuID_VIEW_SETCAMERAVIEW_LEFT:
+		ViewportChangeView(AppViewportCameraType::Left);
+		break;
+	case AppMenuID_VIEW_SETCAMERAVIEW_RIGHT:
+		ViewportChangeView(AppViewportCameraType::Right);
+		break;
+	case AppMenuID_VIEW_SETCAMERAVIEW_PERSPECTIVE:
+		ViewportChangeView(AppViewportCameraType::Perspective);
+		break;
+	case AppMenuID_VIEW_TOGGLEORTHO:
+		ViewportToggleOrtho();
+		break;
+	case AppMenuID_VIEW_CAMERADRAWMATERIAL:
+		ViewportSetDrawMode(AppViewportDrawMode::Material);
+		break;
+	case AppMenuID_VIEW_CAMERADRAWMATERIALWIREFRAME:
+		ViewportSetDrawMode(AppViewportDrawMode::MaterialWireframe);
+		break;
+	case AppMenuID_VIEW_CAMERADRAWWIREFRAME:
+		ViewportSetDrawMode(AppViewportDrawMode::Wireframe);
+		break;
+	case AppMenuID_VIEW_TOGGLEAABB:
+		ViewportToggleAABB();
+		break;
 	}
 }
+
+
 
 void Application::CloseProgramm()
 {
@@ -1483,22 +1595,87 @@ void Application::ShowViewportPopup()
 	alSystemPopup* popup = alLib::CreateSystemPopup();
 	if (popup)
 	{
-		popup->AddItem(U"Perspective", AppMenuID_VIEW_SETCAMERAVIEW_PERSPECTIVE, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewPerspective));
-		popup->AddItem(U"Top", AppMenuID_VIEW_SETCAMERAVIEW_TOP, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewTop));
-		popup->AddItem(U"Bottom", AppMenuID_VIEW_SETCAMERAVIEW_BOTTOM, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewBottom));
-		popup->AddItem(U"Left", AppMenuID_VIEW_SETCAMERAVIEW_LEFT, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewLeft));
-		popup->AddItem(U"Right", AppMenuID_VIEW_SETCAMERAVIEW_RIGHT, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewRight));
-		popup->AddItem(U"Front", AppMenuID_VIEW_SETCAMERAVIEW_FRONT, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewFront));
-		popup->AddItem(U"Back", AppMenuID_VIEW_SETCAMERAVIEW_BACK, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewBack));
+		bool checked = false;
+		{
+			bool chP = false;
+			bool chT = false;
+			bool chBt = false;
+			bool chL = false;
+			bool chR = false;
+			bool chB = false;
+			bool chF = false;
+			switch (m_activeViewportLayout->m_activeViewport->m_activeCamera->m_type)
+			{
+			case AppViewportCameraType::Perspective:
+				chP = true;
+				break;
+			case AppViewportCameraType::Top:
+				chT = true;
+				break;
+			case AppViewportCameraType::Bottom:
+				chBt = true;
+				break;
+			case AppViewportCameraType::Left:
+				chL = true;
+				break;
+			case AppViewportCameraType::Right:
+				chR = true;
+				break;
+			case AppViewportCameraType::Front:
+				chF = true;
+				break;
+			case AppViewportCameraType::Back:
+				chB = true;
+				break;
+			}
+
+			popup->AddItem(U"Perspective", AppMenuID_VIEW_SETCAMERAVIEW_PERSPECTIVE, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewPerspective), chP);
+			popup->AddItem(U"Top", AppMenuID_VIEW_SETCAMERAVIEW_TOP, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewTop), chT);
+			popup->AddItem(U"Bottom", AppMenuID_VIEW_SETCAMERAVIEW_BOTTOM, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewBottom), chBt);
+			popup->AddItem(U"Left", AppMenuID_VIEW_SETCAMERAVIEW_LEFT, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewLeft), chL);
+			popup->AddItem(U"Right", AppMenuID_VIEW_SETCAMERAVIEW_RIGHT, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewRight), chR);
+			popup->AddItem(U"Front", AppMenuID_VIEW_SETCAMERAVIEW_FRONT, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewFront), chF);
+			popup->AddItem(U"Back", AppMenuID_VIEW_SETCAMERAVIEW_BACK, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewBack), chB);
+			popup->AddSeparator();
+		}
+
+		checked = m_activeViewportLayout->m_activeViewport->m_activeCamera->m_forceOrtho;
+		popup->AddItem(U"Force Ortho", AppMenuID_VIEW_TOGGLEORTHO, m_shortcutManager->GetText(AppShortcutCommandType::viewport_toggleOrtho), checked);
 		popup->AddSeparator();
-		popup->AddItem(U"Toggle full view", AppMenuID_VIEW_TOGGLEFULLVIEW, m_shortcutManager->GetText(AppShortcutCommandType::viewport_toggleFullView));
-		popup->AddItem(U"Toggle grid", AppMenuID_VIEW_TOGGLEGRID, m_shortcutManager->GetText(AppShortcutCommandType::viewport_toggleGrid));
+
+		if (m_activeViewportLayout == m_viewportLayouts[AppViewportLayout_Full])
+			checked = true;
+		else
+			checked = false;
+		popup->AddItem(U"Toggle full view", AppMenuID_VIEW_TOGGLEFULLVIEW, m_shortcutManager->GetText(AppShortcutCommandType::viewport_toggleFullView), checked);
+
+		checked = m_activeViewportLayout->m_activeViewport->m_drawGrid;		
+		popup->AddItem(U"Toggle grid", AppMenuID_VIEW_TOGGLEGRID, m_shortcutManager->GetText(AppShortcutCommandType::viewport_toggleGrid), checked);
+
 		popup->AddSeparator();
-		popup->AddItem(U"Material", AppMenuID_VIEW_CAMERADRAWMATERIAL, m_shortcutManager->GetText(AppShortcutCommandType::viewport_dmMaterial));
-		popup->AddItem(U"Material+Wireframe", AppMenuID_VIEW_CAMERADRAWMATERIALWIREFRAME, m_shortcutManager->GetText(AppShortcutCommandType::viewport_dmMaterialWireframe));
-		popup->AddItem(U"Wireframe", AppMenuID_VIEW_CAMERADRAWWIREFRAME, m_shortcutManager->GetText(AppShortcutCommandType::viewport_dmWireframe));
+		bool chM = false;
+		bool chMW = false;
+		bool chW = false;
+		switch (m_activeViewportLayout->m_activeViewport->m_viewportData.m_drawMode)
+		{
+		case AppViewportDrawMode::Material:
+			chM = true;
+			break;
+		case AppViewportDrawMode::MaterialWireframe:
+			chMW = true;
+			break;
+		case AppViewportDrawMode::Wireframe:
+			chW = true;
+			break;
+		}
+		popup->AddItem(U"Material", AppMenuID_VIEW_CAMERADRAWMATERIAL, m_shortcutManager->GetText(AppShortcutCommandType::viewport_dmMaterial), chM);
+		popup->AddItem(U"Material+Wireframe", AppMenuID_VIEW_CAMERADRAWMATERIALWIREFRAME, m_shortcutManager->GetText(AppShortcutCommandType::viewport_dmMaterialWireframe), chMW);
+		popup->AddItem(U"Wireframe", AppMenuID_VIEW_CAMERADRAWWIREFRAME, m_shortcutManager->GetText(AppShortcutCommandType::viewport_dmWireframe), chW);
+
 		popup->AddSeparator();
-		popup->AddItem(U"Toggle draw AABB", AppMenuID_VIEW_TOGGLEAABB, m_shortcutManager->GetText(AppShortcutCommandType::viewport_toggleDrawAABB));
+		checked = m_activeViewportLayout->m_activeViewport->m_drawAabbs;
+		popup->AddItem(U"Toggle draw AABB", AppMenuID_VIEW_TOGGLEAABB, m_shortcutManager->GetText(AppShortcutCommandType::viewport_toggleDrawAABB), checked);
+
 		popup->AddSeparator();
 		popup->AddItem(U"Camera Reset", AppMenuID_VIEW_CAMERARESET, m_shortcutManager->GetText(AppShortcutCommandType::viewport_cameraReset));
 		popup->AddItem(U"Camera Move to selection", AppMenuID_VIEW_CAMERAMOVETOSELECTION, m_shortcutManager->GetText(AppShortcutCommandType::viewport_cameraMoveToSelection));
@@ -1506,5 +1683,20 @@ void Application::ShowViewportPopup()
 		popup->Show(m_mainWindow, m_input->m_cursorCoords.x, m_input->m_cursorCoords.y);
 
 		AL_DESTROY(popup);
+	}
+}
+
+void Application::SetActiveViewport(AppViewport* vp)
+{
+	if (vp)
+	{
+		for (size_t i = 0; i < m_activeViewportLayout->m_viewports.m_size; ++i)
+		{
+			if (m_activeViewportLayout->m_viewports.m_data[i] == vp)
+			{
+				if (m_activeViewportLayout->m_activeViewport != vp)
+					m_activeViewportLayout->m_activeViewport = vp;
+			}
+		}
 	}
 }
