@@ -1,4 +1,5 @@
 ﻿#include "editor.h"
+#include "System/alSystemPopup.h"
 
 #include <filesystem>
 
@@ -1474,5 +1475,36 @@ void Application::OnButtonCreateNewObject()
 		{
 			m_scene->AddObject(o);
 		}
+	}
+}
+
+void Application::ShowViewportPopup()
+{
+	alSystemPopup* popup = alLib::CreateSystemPopup();
+	if (popup)
+	{
+		popup->AddItem(U"Perspective", AppMenuID_VIEW_SETCAMERAVIEW_PERSPECTIVE, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewPerspective));
+		popup->AddItem(U"Top", AppMenuID_VIEW_SETCAMERAVIEW_TOP, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewTop));
+		popup->AddItem(U"Bottom", AppMenuID_VIEW_SETCAMERAVIEW_BOTTOM, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewBottom));
+		popup->AddItem(U"Left", AppMenuID_VIEW_SETCAMERAVIEW_LEFT, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewLeft));
+		popup->AddItem(U"Right", AppMenuID_VIEW_SETCAMERAVIEW_RIGHT, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewRight));
+		popup->AddItem(U"Front", AppMenuID_VIEW_SETCAMERAVIEW_FRONT, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewFront));
+		popup->AddItem(U"Back", AppMenuID_VIEW_SETCAMERAVIEW_BACK, m_shortcutManager->GetText(AppShortcutCommandType::viewport_viewBack));
+		popup->AddSeparator();
+		popup->AddItem(U"Toggle full view", AppMenuID_VIEW_TOGGLEFULLVIEW, m_shortcutManager->GetText(AppShortcutCommandType::viewport_toggleFullView));
+		popup->AddItem(U"Toggle grid", AppMenuID_VIEW_TOGGLEGRID, m_shortcutManager->GetText(AppShortcutCommandType::viewport_toggleGrid));
+		popup->AddSeparator();
+		popup->AddItem(U"Material", AppMenuID_VIEW_CAMERADRAWMATERIAL, m_shortcutManager->GetText(AppShortcutCommandType::viewport_dmMaterial));
+		popup->AddItem(U"Material+Wireframe", AppMenuID_VIEW_CAMERADRAWMATERIALWIREFRAME, m_shortcutManager->GetText(AppShortcutCommandType::viewport_dmMaterialWireframe));
+		popup->AddItem(U"Wireframe", AppMenuID_VIEW_CAMERADRAWWIREFRAME, m_shortcutManager->GetText(AppShortcutCommandType::viewport_dmWireframe));
+		popup->AddSeparator();
+		popup->AddItem(U"Toggle draw AABB", AppMenuID_VIEW_TOGGLEAABB, m_shortcutManager->GetText(AppShortcutCommandType::viewport_toggleDrawAABB));
+		popup->AddSeparator();
+		popup->AddItem(U"Camera Reset", AppMenuID_VIEW_CAMERARESET, m_shortcutManager->GetText(AppShortcutCommandType::viewport_cameraReset));
+		popup->AddItem(U"Camera Move to selection", AppMenuID_VIEW_CAMERAMOVETOSELECTION, m_shortcutManager->GetText(AppShortcutCommandType::viewport_cameraMoveToSelection));
+
+		popup->Show(m_mainWindow, m_input->m_cursorCoords.x, m_input->m_cursorCoords.y);
+
+		AL_DESTROY(popup);
 	}
 }

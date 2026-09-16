@@ -22,6 +22,20 @@
 #define AppMenuID_VIEW_TOGGLEFULLVIEW 10
 #define AppMenuID_HELP_ABOUT 11
 #define AppMenuID_EDIT_OBJECTLISTWINDOW 12
+#define AppMenuID_VIEW_SETCAMERAVIEW_PERSPECTIVE 13
+#define AppMenuID_VIEW_SETCAMERAVIEW_TOP 14
+#define AppMenuID_VIEW_SETCAMERAVIEW_BOTTOM 15
+#define AppMenuID_VIEW_SETCAMERAVIEW_LEFT 16
+#define AppMenuID_VIEW_SETCAMERAVIEW_RIGHT 17
+#define AppMenuID_VIEW_SETCAMERAVIEW_FRONT 18
+#define AppMenuID_VIEW_SETCAMERAVIEW_BACK 19
+#define AppMenuID_VIEW_TOGGLEGRID 20
+#define AppMenuID_VIEW_CAMERADRAWMATERIAL 21
+#define AppMenuID_VIEW_CAMERADRAWMATERIALWIREFRAME 22
+#define AppMenuID_VIEW_CAMERADRAWWIREFRAME 23
+#define AppMenuID_VIEW_TOGGLEAABB 24
+#define AppMenuID_VIEW_CAMERARESET 25
+#define AppMenuID_VIEW_CAMERAMOVETOSELECTION 26
 
 //#define AppGUIID_Combo_Create_Category 1
 //#define AppGUIID_BTN_Create_Type_Poly 2
@@ -282,6 +296,8 @@ class Application
 	bool m_isCursorInUVEditor = false;
 	bool m_isCursorInGUI = false;
 	bool m_isCursorInWindow = false;
+
+	void ShowViewportPopup();
 
 
 	AppMouseMode m_mouseMode = AppMouseMode::CommonMode;

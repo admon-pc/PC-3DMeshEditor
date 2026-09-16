@@ -338,14 +338,26 @@ void Application::UpdateViewports()
 	for (size_t i = 0, sz = m_activeViewportLayout->m_viewports.size(); i < sz; ++i)
 	{
 		auto viewport = m_activeViewportLayout->m_viewports[i];
+		viewport->m_textNameColor = ColorWhite;
 		viewport->m_isCursorInRect =
-			alMath::PointInRect(input->m_cursorCoords.x, input->m_cursorCoords.y,
-				viewport->m_rect);
+			alMath::PointInRect(input->m_cursorCoords,viewport->m_rect);
 		if (viewport->m_isCursorInRect)
 		{
 			m_isCursorInViewport = true;
 			m_viewportUnderCursor = viewport;
 			m_isCursorInGUI = false;
+		}
+	}
+
+	if (m_isCursorInViewport)
+	{
+		if (alMath::PointInRect(m_input->m_cursorCoordsForGUI, m_viewportUnderCursor->m_textNameRect))
+		{
+			m_viewportUnderCursor->m_textNameColor = ColorYellow;
+			// наверное лучше вызывать popup меню нажатием ПКМ
+			//m_isCursorInGUI = true;
+			if(input->m_isRMBDown)
+				ShowViewportPopup();
 		}
 	}
 
@@ -669,7 +681,14 @@ void Application::DrawViewportsGUI()
 				m_gs->ActivateGUIShader();
 			}
 		}
-
+		
+		{
+			
+			m_gs->ActivateGUIShader();
+			m_gs->DrawText(viewport->m_name.c_str(), 
+				viewport->m_name.size(),
+				m_fontGUI, viewport->m_textNamePos, viewport->m_textNameColor);
+		}
 
 		/*for (size_t k = 0; k < m_activeViewportLayout->m_resizers.m_size; ++k)
 		{

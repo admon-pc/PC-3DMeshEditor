@@ -64,13 +64,16 @@ public:
 	void _frustum_cull(AppSceneObject*);
 	alArray<AppSceneObject*> m_visibleObjects;
 
-	alGUIText* m_gui_text_vpName = 0;
+	//alGUIText* m_gui_text_vpName = 0;
 	//alGUIPanel* m_GUI_panel = 0;
 	void HideGUI();
 	void ShowGUI();
 	void ResetCamera();
 
 	bool m_isDrawAabbs = true;
+
+	alUnicodeString m_name;
+	float32_t m_nameLen = 0.f;
 
 	int32_t m_index = 0;
 	
@@ -81,6 +84,10 @@ public:
 	alVec2f m_rectSz;
 	alVec4f m_rect1_0;
 	alGSTexture* m_rtt = 0;
+	
+	alVec4f m_textNameRect;
+	alVec2f m_textNamePos;
+	alColor m_textNameColor = ColorWhite;
 
 	bool m_isCursorInRect = false;
 	

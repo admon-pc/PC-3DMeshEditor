@@ -167,10 +167,10 @@ void AppViewport::Init()
 
 void AppViewport::SetViewportName(const char32_t* name)
 {
-	static alUnicodeString n;
-	n = name;
-	if (m_gui_text_vpName)
-		m_gui_text_vpName->SetText(name);
+	m_name = name;
+	m_nameLen = g_app->m_fontGUI->GetTextLength(
+		m_name.c_str(),
+		m_name.size());;
 }
 
 void AppViewport::SetCameraType(AppViewportCameraType ct) {
@@ -264,6 +264,10 @@ void AppViewport::OnWindowSize()
 
 	m_rectSz.x = m_rect.z - m_rect.x;
 	m_rectSz.y = m_rect.w - m_rect.y;
+
+	m_textNamePos.Set(m_rect.x, m_rect.y);
+	m_textNameRect.Set(m_textNamePos.x, m_textNamePos.y, m_textNamePos.x + m_nameLen, m_textNamePos.y + g_app->m_fontGUI->m_maxHeight);
+
 
 	AL_DESTROY(m_rtt);
 	alGSTextureInfo ti;
@@ -609,7 +613,6 @@ void AppViewport::Draw3D()
 		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_bottom[3], g_app->m_selectionFrust.m_data.m_bottom[0], ColorWhite);
 		m_gs->DrawLine3D(g_app->m_selectionFrust.m_data.m_BackC, g_app->m_selectionFrust.m_data.m_FrontC, ColorWhite);
 	}
-
 	//	g_app->m_gs->UseDepth(true);
 
 	m_visibleObjects.clear();
