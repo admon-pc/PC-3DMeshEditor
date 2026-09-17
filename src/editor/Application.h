@@ -37,6 +37,10 @@
 #define AppMenuID_VIEW_CAMERARESET 25
 #define AppMenuID_VIEW_CAMERAMOVETOSELECTION 26
 #define AppMenuID_VIEW_TOGGLEORTHO 27
+#define AppMenuID_EDIT_SETTRANSMODE_SELECT 28
+#define AppMenuID_EDIT_SETTRANSMODE_MOVE 29
+#define AppMenuID_EDIT_SETTRANSMODE_ROTATE 30
+#define AppMenuID_EDIT_SETTRANSMODE_SCALE 31
 
 //#define AppGUIID_Combo_Create_Category 1
 //#define AppGUIID_BTN_Create_Type_Poly 2
@@ -531,6 +535,8 @@ public:
 	void ViewportSetDrawMode(AppViewportDrawMode);
 	void ViewportToggleAABB();
 
+	void _trySelect();
+
 	void SetActiveViewport(AppViewport*);
 
 	void SetTransformMode(AppTransformMode);
@@ -548,6 +554,10 @@ public:
 	static alVec4 AppVecToAlVec(const AppVec4&);
 	static alMat4 AppMatToAlMat(const AppMat4&);
 	static AppMat4 AlMatToAppMat(const alMat4&);
+	static AppVec4f AlVecToAppVec(const alVec4f&);
+	static AppVec3f AlVecToAppVec(const alVec3f&);
+	static AppVec4 AlVecToAppVec(const alVec4&);
+	static AppVec3 AlVecToAppVec(const alVec3&);
 };
 
 #endif

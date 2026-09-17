@@ -31,6 +31,9 @@ public:
 	
 	virtual void Draw(AppViewportData*, AppPluginInterface*) override;
 
+	virtual bool OnSelect(AppSelectionFrust&, AppRay&, bool selectByRectangle, AppEditMode) override;
+	virtual bool IsCanSelect(AppSelectionFrust&, AppRay&) override;
+
 	AppGraphicsObject* m_testGO_triangle = 0;
 	AppGraphicsObject* m_testGO_line = 0;
 	AppGraphicsObject* m_testGO_point = 0;

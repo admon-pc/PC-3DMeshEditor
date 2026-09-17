@@ -231,49 +231,49 @@ void Application::UpdateViewports()
 		}
 	}
 
-//	if (m_isViewportInFocus && (_isDoNotSelect() == false))
-//	{
-//		if (input->m_isLMBUp)
-//		{
-//			if (m_gizmoMode == AppGizmoMode::NoTransform)
-//			{
-//				_select();
-//			}
-//			else
-//			{
-//				m_gizmo->OnRelease();
-//				_transformObjectsApply();
-//				UpdateSceneAabb();
-//				UpdateSelectionAabb();
-//			}
-//		}
-//
-//		if (m_gizmoMode != AppGizmoMode::NoTransform && m_activeViewportLayout->m_activeViewport->m_viewportType == AppViewportType::Scene)
-//		{
-//			bool _transform = m_isCursorMove;
-//			if (input->m_isRMBUp || input->IsKeyHit(miKey::K_ESCAPE))
-//			{
-//				m_isViewportInFocus = false;
-//				m_gizmo->OnEscape();
-//				_transformObjectsReset();
-//			}
-//			else
-//			{
-//				static alKeyboardModifier prevKbm = alKeyboardModifier::None;
-//				if (input->m_kbm == alKeyboardModifier::Shift && prevKbm != alKeyboardModifier::Shift)
-//				{
-//					_transform = true;
-//					//	m_gizmo->m_var_rotation_add = -m_gizmo->m_var_rotate_snap;
-//						//m_gizmo->m_var_rotate_snap = 0.f;
-//				}
-//				prevKbm = input->m_kbm;
-//
-//				if (_transform)
-//					_transformObjects();
-//			}
-//		}
-//	}
-//
+	if (m_isViewportInFocus/* && (_isDoNotSelect() == false)*/)
+	{
+		if (input->m_isLMBUp)
+		{
+			if (m_gizmoMode == AppGizmoMode::NoTransform)
+			{
+				_trySelect();
+			}
+			else
+			{
+		//		m_gizmo->OnRelease();
+		//		_transformObjectsApply();
+		//		UpdateSceneAabb();
+		//		UpdateSelectionAabb();
+			}
+		}
+
+		//if (m_gizmoMode != AppGizmoMode::NoTransform && m_activeViewportLayout->m_activeViewport->m_viewportType == AppViewportType::Scene)
+		//{
+		//	bool _transform = m_isCursorMove;
+		//	if (input->m_isRMBUp || input->IsKeyHit(miKey::K_ESCAPE))
+		//	{
+		//		m_isViewportInFocus = false;
+		//		m_gizmo->OnEscape();
+		//		_transformObjectsReset();
+		//	}
+		//	else
+		//	{
+		//		static alKeyboardModifier prevKbm = alKeyboardModifier::None;
+		//		if (input->m_kbm == alKeyboardModifier::Shift && prevKbm != alKeyboardModifier::Shift)
+		//		{
+		//			_transform = true;
+		//			//	m_gizmo->m_var_rotation_add = -m_gizmo->m_var_rotate_snap;
+		//				//m_gizmo->m_var_rotate_snap = 0.f;
+		//		}
+		//		prevKbm = input->m_kbm;
+
+		//		if (_transform)
+		//			_transformObjects();
+		//	}
+		//}
+	}
+
 //	if (m_gizmoMode == AppGizmoMode::NoTransform && m_mouseMode == AppMouseMode::CommonMode)
 //	{
 //		if (input->IsKeyHit(miKey::K_ESCAPE))
@@ -732,61 +732,17 @@ AppViewportCamera* Application::GetActiveCamera()
 	return m_activeViewportLayout->m_activeViewport->m_activeCamera;
 }
 
-alVec3f Application::AppVecToAlVec(const AppVec3f& in)
+void Application::SetActiveViewport(AppViewport* vp)
 {
-	return alVec3f(in.x, in.y, in.z);
-}
-
-alVec4f Application::AppVecToAlVec(const AppVec4f& in)
-{
-	return alVec4f(in.x,in.y,in.z,in.w);
-}
-
-alVec4 Application::AppVecToAlVec(const AppVec4& in)
-{
-	return alVec4(in.x, in.y, in.z, in.w);
-}
-
-alMat4 Application::AppMatToAlMat(const AppMat4& in)
-{
-	alMat4 m;
-	m.m_data[0].x = in.m_data[0].x;
-	m.m_data[0].y = in.m_data[0].y;
-	m.m_data[0].z = in.m_data[0].z;
-	m.m_data[0].w = in.m_data[0].w;
-	m.m_data[1].x = in.m_data[1].x;
-	m.m_data[1].y = in.m_data[1].y;
-	m.m_data[1].z = in.m_data[1].z;
-	m.m_data[1].w = in.m_data[1].w;
-	m.m_data[2].x = in.m_data[2].x;
-	m.m_data[2].y = in.m_data[2].y;
-	m.m_data[2].z = in.m_data[2].z;
-	m.m_data[2].w = in.m_data[2].w;
-	m.m_data[3].x = in.m_data[3].x;
-	m.m_data[3].y = in.m_data[3].y;
-	m.m_data[3].z = in.m_data[3].z;
-	m.m_data[3].w = in.m_data[3].w;
-	return m;
-}
-
-AppMat4 Application::AlMatToAppMat(const alMat4& in)
-{
-	AppMat4 m;
-	m.m_data[0].x = in.m_data[0].x;
-	m.m_data[0].y = in.m_data[0].y;
-	m.m_data[0].z = in.m_data[0].z;
-	m.m_data[0].w = in.m_data[0].w;
-	m.m_data[1].x = in.m_data[1].x;
-	m.m_data[1].y = in.m_data[1].y;
-	m.m_data[1].z = in.m_data[1].z;
-	m.m_data[1].w = in.m_data[1].w;
-	m.m_data[2].x = in.m_data[2].x;
-	m.m_data[2].y = in.m_data[2].y;
-	m.m_data[2].z = in.m_data[2].z;
-	m.m_data[2].w = in.m_data[2].w;
-	m.m_data[3].x = in.m_data[3].x;
-	m.m_data[3].y = in.m_data[3].y;
-	m.m_data[3].z = in.m_data[3].z;
-	m.m_data[3].w = in.m_data[3].w;
-	return m;
+	if (vp)
+	{
+		for (size_t i = 0; i < m_activeViewportLayout->m_viewports.m_size; ++i)
+		{
+			if (m_activeViewportLayout->m_viewports.m_data[i] == vp)
+			{
+				if (m_activeViewportLayout->m_activeViewport != vp)
+					m_activeViewportLayout->m_activeViewport = vp;
+			}
+		}
+	}
 }

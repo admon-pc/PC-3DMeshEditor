@@ -464,7 +464,15 @@ bool Application::OnCreate(const char* videoDriver)
 		AppendMenu(menu_file, MF_SEPARATOR, 0, 0);
 		AppendMenu(menu_file, MF_STRING, AppMenuID_FILE_EXIT, L"E&xit");
 
+		HMENU menu_edit_transformation_mode = CreateMenu();
+		AppendMenu(menu_edit_transformation_mode, MF_STRING, AppMenuID_EDIT_SETTRANSMODE_SELECT, L"Selection Mode");
+		AppendMenu(menu_edit_transformation_mode, MF_STRING, AppMenuID_EDIT_SETTRANSMODE_MOVE, L"Move");
+		AppendMenu(menu_edit_transformation_mode, MF_STRING, AppMenuID_EDIT_SETTRANSMODE_ROTATE, L"Rotate");
+		AppendMenu(menu_edit_transformation_mode, MF_STRING, AppMenuID_EDIT_SETTRANSMODE_SCALE, L"Scale");
+
 		HMENU menu_edit = CreateMenu();
+		AppendMenu(menu_edit, MF_STRING | MF_POPUP, (UINT)menu_edit_transformation_mode, L"Transform Mode");
+		AppendMenu(menu_edit, MF_SEPARATOR, 0, 0);
 		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_SELECTALL, L"Select All");
 		AppendMenu(menu_edit, MF_STRING, AppMenuID_EDIT_INVERTSELECT, L"Invert Selection");
 		AppendMenu(menu_edit, MF_SEPARATOR, 0, 0);
@@ -1172,10 +1180,10 @@ void Application::ProcessShortcuts3D()
 	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleDrawAABB)) this->ViewportToggleAABB();
 	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleDMMaterial)) this->ViewportToggleDrawMaterial();
 	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::viewport_toggleDMWireframe)) this->ViewportToggleDrawWireframe();
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_NoTransform)) this->SetTransformMode(miTransformMode::NoTransform);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_Move)) this->SetTransformMode(miTransformMode::Move);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_Scale)) this->SetTransformMode(miTransformMode::Scale);
-	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_Rotate)) this->SetTransformMode(miTransformMode::Rotate);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_NoTransform)) this->SetTransformMode(AppTransformMode::NoTransform);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_Move)) this->SetTransformMode(AppTransformMode::Move);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_Scale)) this->SetTransformMode(AppTransformMode::Scale);
+	if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::transfromMode_Rotate)) this->SetTransformMode(AppTransformMode::Rotate);
 	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::select_selectAll)) this->SelectAll();
 	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::select_deselectAll)) this->DeselectAll();
 	//if (m_shortcutManager->IsShortcutActive(AppShortcutCommandType::select_invertSelection)) this->InvertSelection();
@@ -1686,17 +1694,82 @@ void Application::ShowViewportPopup()
 	}
 }
 
-void Application::SetActiveViewport(AppViewport* vp)
+alVec3f Application::AppVecToAlVec(const AppVec3f& in)
 {
-	if (vp)
-	{
-		for (size_t i = 0; i < m_activeViewportLayout->m_viewports.m_size; ++i)
-		{
-			if (m_activeViewportLayout->m_viewports.m_data[i] == vp)
-			{
-				if (m_activeViewportLayout->m_activeViewport != vp)
-					m_activeViewportLayout->m_activeViewport = vp;
-			}
-		}
-	}
+	return alVec3f(in.x, in.y, in.z);
 }
+
+alVec4f Application::AppVecToAlVec(const AppVec4f& in)
+{
+	return alVec4f(in.x, in.y, in.z, in.w);
+}
+
+alVec4 Application::AppVecToAlVec(const AppVec4& in)
+{
+	return alVec4(in.x, in.y, in.z, in.w);
+}
+
+alMat4 Application::AppMatToAlMat(const AppMat4& in)
+{
+	alMat4 m;
+	m.m_data[0].x = in.m_data[0].x;
+	m.m_data[0].y = in.m_data[0].y;
+	m.m_data[0].z = in.m_data[0].z;
+	m.m_data[0].w = in.m_data[0].w;
+	m.m_data[1].x = in.m_data[1].x;
+	m.m_data[1].y = in.m_data[1].y;
+	m.m_data[1].z = in.m_data[1].z;
+	m.m_data[1].w = in.m_data[1].w;
+	m.m_data[2].x = in.m_data[2].x;
+	m.m_data[2].y = in.m_data[2].y;
+	m.m_data[2].z = in.m_data[2].z;
+	m.m_data[2].w = in.m_data[2].w;
+	m.m_data[3].x = in.m_data[3].x;
+	m.m_data[3].y = in.m_data[3].y;
+	m.m_data[3].z = in.m_data[3].z;
+	m.m_data[3].w = in.m_data[3].w;
+	return m;
+}
+
+AppMat4 Application::AlMatToAppMat(const alMat4& in)
+{
+	AppMat4 m;
+	m.m_data[0].x = in.m_data[0].x;
+	m.m_data[0].y = in.m_data[0].y;
+	m.m_data[0].z = in.m_data[0].z;
+	m.m_data[0].w = in.m_data[0].w;
+	m.m_data[1].x = in.m_data[1].x;
+	m.m_data[1].y = in.m_data[1].y;
+	m.m_data[1].z = in.m_data[1].z;
+	m.m_data[1].w = in.m_data[1].w;
+	m.m_data[2].x = in.m_data[2].x;
+	m.m_data[2].y = in.m_data[2].y;
+	m.m_data[2].z = in.m_data[2].z;
+	m.m_data[2].w = in.m_data[2].w;
+	m.m_data[3].x = in.m_data[3].x;
+	m.m_data[3].y = in.m_data[3].y;
+	m.m_data[3].z = in.m_data[3].z;
+	m.m_data[3].w = in.m_data[3].w;
+	return m;
+}
+
+AppVec4f Application::AlVecToAppVec(const alVec4f& v)
+{
+	return AppVec4f(v.x, v.y, v.z, v.w);
+}
+
+AppVec3f Application::AlVecToAppVec(const alVec3f& v)
+{
+	return AppVec3f(v.x, v.y, v.z);
+}
+
+AppVec4 Application::AlVecToAppVec(const alVec4& v)
+{
+	return AppVec4(v.x, v.y, v.z, v.w);
+}
+
+AppVec3 Application::AlVecToAppVec(const alVec3& v)
+{
+	return AppVec3(v.x, v.y, v.z);
+}
+
