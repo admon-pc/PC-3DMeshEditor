@@ -159,7 +159,7 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 		ind[1] = 1;
 		ind[2] = 2;
 		
-		o->m_testGO_triangle = m_plugin->GetPluginInterface()->CreateGraphicsObject(&mesh);
+	//	o->m_testGO_triangle = m_plugin->GetPluginInterface()->CreateGraphicsObject(&mesh);
 	}
 
 	{
@@ -190,7 +190,7 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 		ind[4] = 2;
 		ind[5] = 0;
 
-		o->m_testGO_line = m_plugin->GetPluginInterface()->CreateGraphicsObject(&mesh);
+	//	o->m_testGO_line = m_plugin->GetPluginInterface()->CreateGraphicsObject(&mesh);
 	}
 
 	{
@@ -216,7 +216,7 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 		ind[1] = 1;
 		ind[2] = 2;
 
-		o->m_testGO_point = m_plugin->GetPluginInterface()->CreateGraphicsObject(&mesh);
+	//	o->m_testGO_point = m_plugin->GetPluginInterface()->CreateGraphicsObject(&mesh);
 	}
 
 	//GetPluginInterface()->MemAlloc
@@ -240,22 +240,22 @@ AppSceneObject_plane::AppSceneObject_plane(AppPluginObject* po)
 AppSceneObject_plane::~AppSceneObject_plane()
 {
 	auto pi = GetPluginObject()->GetPlugin()->GetPluginInterface();
-	if(m_testGO_triangle)
+	/*if(m_testGO_triangle)
 		pi->Destroy(m_testGO_triangle);
 	if (m_testGO_line)
 		pi->Destroy(m_testGO_line);
 	if (m_testGO_point)
-		pi->Destroy(m_testGO_point);
+		pi->Destroy(m_testGO_point);*/
 }
 
 void AppSceneObject_plane::Draw(AppViewportData* viewportData, AppPluginInterface* )
 {
-	if (m_testGO_triangle)
+	/*if (m_testGO_triangle)
 		m_testGO_triangle->Draw(viewportData, this);
 	if (m_testGO_line)
 		m_testGO_line->Draw(viewportData, this);
 	if (m_testGO_point)
-		m_testGO_point->Draw(viewportData, this);
+		m_testGO_point->Draw(viewportData, this);*/
 
 	/*if (dm == AppViewportDrawMode::Material
 		|| dm == AppViewportDrawMode::MaterialWireframe)
@@ -271,3 +271,40 @@ void AppSceneObject_plane::Draw(AppViewportData* viewportData, AppPluginInterfac
 		if (m_visualObject_edge) m_visualObject_edge->Draw(false);
 	}*/
 }
+
+bool AppSceneObject_plane::OnSelect(AppSelectionFrust* f, AppRay* r , bool selectByRectangle, AppEditMode em)
+{
+	if (selectByRectangle)
+	{
+		if (em == AppEditMode::Object)
+		{
+		}
+	}
+	else
+	{
+		if (em == AppEditMode::Object)
+		{
+		}
+	}
+	return false;
+}
+
+bool AppSceneObject_plane::IsCanSelect(AppSelectionFrust* f, AppRay* r)
+{
+	// this method currently only will be called when AppEditMode is AppEditMode::Object
+	// 
+	//if (em == AppEditMode::Object)
+	{
+		AppTriangle tri(AppVec3f(-1.f, 0.f, -1.f), AppVec3f(-1.f, 0.f, 1.f), AppVec3f(1.f, 0.f, 1.f));
+		float64_t T, U, V, W;
+		T = U = V = W = 0.f;
+		if (AppMath::RayTriangleMT(tri, *r, true, T, U, V, W))
+		{
+
+		}
+		//r->
+	}
+	return false;
+}
+
+

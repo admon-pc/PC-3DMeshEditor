@@ -38,6 +38,9 @@ constexpr float64_t PIPI = PI + PI;
 #include "AppVec.h"
 #include "AppQuaternion.h"
 #include "AppMatrix.h"
+#include "AppTriangle.h"
+
+class AppRay;
 
 class EDITORLIB_API AppMath
 {
@@ -72,6 +75,8 @@ public:
 	static AppVec3f Mul(const AppVec3f& vec, const AppMat3& mat);
 	static AppVec3f MulBasis(const AppVec3f& vec, const AppMat4& mat);
 	static AppQuaternion MatToQuat(const AppMat4& mat);
+	static bool RayTriangleMT(AppTriangle&, const AppRay&, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W);
+	static bool RayTriangleWT(AppTriangle&, const AppRay&, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W);
 };
 
 #endif

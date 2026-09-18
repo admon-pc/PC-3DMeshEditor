@@ -57,6 +57,15 @@ APP_DEFINE_GUID(APP_CLASS_ID_OBJECT_PLANE,
 
 #define AppPluginClassID alGUID
 
+// Some objects are supposed to be editable objects. Some not, like Dummy.
+// Lets just have minimum modes for editable polygonal object.
+enum class AppEditMode : uint32_t
+{
+	Vertex,
+	Edge,
+	Polygon,
+	Object,
+};
 
 class AppPluginInterface
 {
@@ -77,6 +86,7 @@ public:
 };
 
 #include "AppScene.h"
+#include "AppSelectionFrustum.h"
 
 class AppPluginObject;
 class AppPluginImport;

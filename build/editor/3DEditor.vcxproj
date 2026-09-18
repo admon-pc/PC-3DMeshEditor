@@ -29,7 +29,7 @@
     <ClCompile Include="..\..\src\editor\Gizmo.cpp" />
     <ClCompile Include="..\..\src\editor\Scene.cpp" />
     <ClCompile Include="..\..\src\editor\SceneObject.cpp" />
-    <ClCompile Include="..\..\src\editor\SelectionFrustum.cpp" />
+    <ClCompile Include="..\..\src\editor\AppSelectionFrustum.cpp" />
     <ClCompile Include="..\..\src\editor\Shaders.cpp" />
     <ClCompile Include="..\..\src\editor\ShortcutManager.cpp" />
     <ClCompile Include="..\..\src\editor\SystemWindowCallback.cpp" />

@@ -364,6 +364,129 @@ AppQuaternion AppMath::MatToQuat(const AppMat4& mat)
 	return q;
 }
 
+bool AppMath::RayTriangleMT(AppTriangle& tri, const AppRay& ray, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W)
+{
+	AppVec4  pvec;
+	ray.m_direction.Cross2(AppVec4(tri.e2.x, tri.e2.y, tri.e2.z, tri.e2.w), pvec);
+	float64_t det = tri.e1.Dot(AppVec4(pvec.x, pvec.y, pvec.z, pvec.w));
+
+	if (withBackFace)
+	{
+		if (std::fabs(det) < AppEpsilon)
+			return false;
+	}
+	else
+	{
+		if (det < AppEpsilon && det > -AppEpsilon)
+			return false;
+	}
+
+	AppVec4 tvec(
+		ray.m_origin.x - tri.v1.x,
+		ray.m_origin.y - tri.v1.y,
+		ray.m_origin.z - tri.v1.z,
+		0.f);
+
+	float64_t inv_det = 1.f / det;
+	U = (float32_t)tvec.Dot(pvec) * inv_det;
+
+	if (U < 0.f || U > 1.f)
+		return false;
+
+	AppVec4  qvec;
+	tvec.Cross2(AppVec4(tri.e1.x, tri.e1.y, tri.e1.z, tri.e1.w), qvec);
+	V = ray.m_direction.Dot(qvec) * inv_det;
+
+	if (V < 0.f || U + V > 1.f)
+		return false;
+
+	T = tri.e2.Dot(AppVec4(qvec.x, qvec.y, qvec.z, qvec.w)) * inv_det;
+
+	if (T < AppEpsilon) return false;
+
+	W = 1.f - U - V;
+	return true;
+}
+
+bool AppMath::RayTriangleWT(AppTriangle& tri, const AppRay& ray, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W)
+{
+	tri.v1.w = 1.f;
+	tri.v2.w = 1.f;
+	tri.v3.w = 1.f;
+	const auto A = tri.v2 - ray.m_origin;
+	const auto B = tri.v3 - ray.m_origin;
+	const auto C = tri.v1 - ray.m_origin;
+
+	const float64_t Ax = A[ray.m_kx] - (ray.m_Sx * A[ray.m_kz]);
+	const float64_t Ay = A[ray.m_ky] - (ray.m_Sy * A[ray.m_kz]);
+	const float64_t Bx = B[ray.m_kx] - (ray.m_Sx * B[ray.m_kz]);
+	const float64_t By = B[ray.m_ky] - (ray.m_Sy * B[ray.m_kz]);
+	const float64_t Cx = C[ray.m_kx] - (ray.m_Sx * C[ray.m_kz]);
+	const float64_t Cy = C[ray.m_ky] - (ray.m_Sy * C[ray.m_kz]);
+
+	U = (Cx * By) - (Cy * Bx);
+	V = (Ax * Cy) - (Ay * Cx);
+	W = (Bx * Ay) - (By * Ax);
+
+	if (U == 0.f || V == 0.f || W == 0.f)
+	{
+		float64_t CxBy = (float64_t)Cx * (float64_t)By;
+		float64_t CyBx = (float64_t)Cy * (float64_t)Bx;
+		U = (float64_t)(CxBy - CyBx);
+
+		float64_t AxCy = (float64_t)Ax * (float64_t)Cy;
+		float64_t AyCx = (float64_t)Ay * (float64_t)Cx;
+		V = (float64_t)(AxCy - AyCx);
+
+		float64_t BxAy = (float64_t)Bx * (float64_t)Ay;
+		float64_t ByAx = (float64_t)By * (float64_t)Ax;
+		W = (float64_t)(BxAy - ByAx);
+	}
+
+	if (withBackFace)
+	{
+		if ((U < 0.f || V < 0.f || W < 0.f) &&
+			(U > 0.f || V > 0.f || W > 0.f))
+			return false;
+	}
+	else
+	{
+		if (U < 0.f || V < 0.f || W < 0.f)
+			return false;
+	}
+
+	float64_t det = U + V + W;
+
+	if (det == 0.f)
+		return false;
+
+	const float64_t Az = ray.m_Sz * A[ray.m_kz];
+	const float64_t Bz = ray.m_Sz * B[ray.m_kz];
+	const float64_t Cz = ray.m_Sz * C[ray.m_kz];
+	const float64_t Ts = (U * Az) + (V * Bz) + (W * Cz);
+
+	if (!withBackFace) // CULL
+	{
+		if (Ts < 0.f || Ts > AppInfinity * det)
+			return false;
+	}
+	else
+	{
+		if (det < 0.f && (Ts >= 0.f || Ts < AppInfinity * det))
+			return false;
+		else if (det > 0.f && (Ts <= 0.f || Ts > AppInfinity * det))
+			return false;
+	}
+
+	const float64_t invDet = 1.f / det;
+	U = U * invDet;
+	V = V * invDet;
+	W = W * invDet;
+	T = Ts * invDet;
+	if (T < AppEpsilon)
+		return false;
+	return true;
+}
 
 
 

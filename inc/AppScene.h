@@ -13,6 +13,8 @@ class AppScene
 		_root_t();
 		virtual ~_root_t();
 		virtual void Draw(AppViewportData*, AppPluginInterface*) override {}
+		virtual bool OnSelect(AppSelectionFrust*, AppRay*, bool selectByRectangle, AppEditMode) override { return false; }
+		virtual bool IsCanSelect(AppSelectionFrust*, AppRay*) override { return false; }
 	};
 
 	AppSceneObject* m_rootObject = 0;

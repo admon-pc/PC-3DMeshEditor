@@ -680,6 +680,45 @@ bool Application::OnCreate(const char* videoDriver)
 
 	InitCommonControls();
 	
+	alSystemWindowOSDataWin32* w32 = (alSystemWindowOSDataWin32*)m_mainWindow->GetOSData();
+	{
+		m_hwnd_testDlg = CreateDialog(
+			GetModuleHandle(NULL),
+			MAKEINTRESOURCE(IDD_DIALOGBAR),
+			w32->m_hwnd,
+			DialogProcObjectList);
+
+		ShowWindow(m_hwnd_testDlg, SW_SHOW);
+		RECT rc;
+		GetClientRect(m_hwnd_testDlg, &rc);
+		MoveWindow(m_hwnd_testDlg, m_mainWindow->m_clientSize.x-g_rightPanelWidth,
+			g_topPanelHeight, g_rightPanelWidth, 400, TRUE);
+		//void* buffer = 0;
+		//BITMAPINFO bmi;
+		//memset(&bmi, 0, sizeof(BITMAPINFO));
+		//bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		//bmi.bmiHeader.biWidth = rc.right - rc.left;
+		//bmi.bmiHeader.biHeight = -(rc.bottom - rc.top);
+		//bmi.bmiHeader.biPlanes = 1;
+		//bmi.bmiHeader.biBitCount = 32;
+		//bmi.bmiHeader.biCompression = BI_RGB;
+		//HDC hdcSrc = GetDC(m_hwnd_testDlg);
+		//HDC hdcMem = CreateCompatibleDC(hdcSrc);
+
+		//m_bitmap_testDlg = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS,
+		//	&buffer, 0, 0);
+		//if (!m_bitmap_testDlg)
+		//{
+		//	ReleaseDC(m_hwnd_testDlg, hdcSrc);
+		//	DeleteDC(hdcMem);
+		//}
+		//else
+		//{
+
+		///*	BitBlt(dc, 0, 0, bmi.bmiHeader.biWidth, bmi.bmiHeader.biHeight,
+		//		);*/
+		//}
+	}
 
 	return true;
 }

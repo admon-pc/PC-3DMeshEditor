@@ -12,7 +12,7 @@ void Application::_trySelect()
 			aabb.Add(AppVec3f(m_cursorLMBClickPosition.x, m_cursorLMBClickPosition.y, 0.f));
 
 			m_selectionFrust.CreateWithFrame(
-				alVec4f(aabb.m_min.x, aabb.m_min.y, aabb.m_max.x, aabb.m_max.y),
+				alVec4f((float32_t)aabb.m_min.x, (float32_t)aabb.m_min.y, (float32_t)aabb.m_max.x, (float32_t)aabb.m_max.y),
 				viewport->m_rect,
 				viewport->m_activeCamera->m_viewProjectionInvertMatrix);
 
@@ -23,7 +23,7 @@ void Application::_trySelect()
 				ray.m_direction = Application::AlVecToAppVec(m_screenRayCurrent.m_direction);
 				ray.m_end = Application::AlVecToAppVec(m_screenRayCurrent.m_end);
 
-				if (viewport->m_visibleObjects.m_data[i].OnSelect(&m_selectionFrust, &ray, true, m_editMode))
+				if (viewport->m_visibleObjects.m_data[i]->OnSelect(&m_selectionFrust, &ray, true, m_editMode))
 				{
 				}
 			}
@@ -38,7 +38,7 @@ void Application::_trySelect()
 				ray.m_direction = Application::AlVecToAppVec(m_screenRayCurrent.m_direction);
 				ray.m_end = Application::AlVecToAppVec(m_screenRayCurrent.m_end);
 
-				if (viewport->m_visibleObjects.m_data[i].OnSelect(&m_selectionFrust, &ray, true, m_editMode))
+				if (viewport->m_visibleObjects.m_data[i]->OnSelect(&m_selectionFrust, &ray, true, m_editMode))
 				{
 				}
 			}

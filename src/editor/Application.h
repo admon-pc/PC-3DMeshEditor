@@ -3,7 +3,7 @@
 #define _PCApp_H_
 #include <Windows.h>
 #include <commctrl.h>
-#include "SelectionFrustum.h"
+#include "AppSelectionFrustum.h"
 #include "Shaders.h"
 
 #define AppViewportLayout_Full 0
@@ -133,15 +133,7 @@ enum class AppCursorType : uint32_t
 	_count
 };
 
-// Some objects are supposed to be editable objects. Some not, like Dummy.
-// Lets just have minimum modes for editable polygonal object.
-enum class AppEditMode : uint32_t
-{
-	Vertex,
-	Edge,
-	Polygon,
-	Object,
-};
+
 
 // When Transform Mode != NoTransform app will draw gizmo
 // When user will move cursor on gizmo and will press LMB
@@ -260,6 +252,8 @@ class Application
 	AppPluginInterface* m_pluginInterface = 0;
 
 	HWND m_hwnd_About = 0;
+	
+	HWND m_hwnd_testDlg = 0;
 
 	friend INT_PTR CALLBACK DialogProcObjectList(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	struct _objectListWindowData

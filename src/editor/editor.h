@@ -29,7 +29,6 @@ class AppViewportLayout;
 #include "Application.h"
 #include "Viewport.h"
 #include "Gizmo.h"
-#include "SelectionFrustum.h"
 #include "ShortcutManager.h"
 
 

@@ -7,6 +7,7 @@ enum class AppSceneObjectType
 	Polygonal
 };
 
+class AppSelectionFrust;
 class AppPluginObject;
 class AppSceneObject
 {
@@ -137,8 +138,8 @@ public:
 	// Return true if need to select this object.
 	// User can select object by clicking on it, or using rectangle,
 	// when you click LMB and drag mouse.
-	virtual bool OnSelect(AppSelectionFrust&, AppRay&, bool selectByRectangle, AppEditMode) = 0;
-	virtual bool IsCanSelect(AppSelectionFrust&, AppRay&) = 0;
+	virtual bool OnSelect(AppSelectionFrust*, AppRay*, bool selectByRectangle, AppEditMode) = 0;
+	virtual bool IsCanSelect(AppSelectionFrust*, AppRay*) = 0;
 };
 
 // Will be used only in .exe
