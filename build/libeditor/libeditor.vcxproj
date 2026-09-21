@@ -19,18 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\editor.lib\AppAabb.cpp" />
-    <ClCompile Include="..\..\src\editor.lib\AppMath.cpp" />
-    <ClCompile Include="..\..\src\editor.lib\AppString.cpp" />
-    <ClCompile Include="..\..\src\editor.lib\editor.lib.cpp" />
+    <ClCompile Include="..\..\src\libeditor\AppAabb.cpp" />
+    <ClCompile Include="..\..\src\libeditor\AppMath.cpp" />
+    <ClCompile Include="..\..\src\libeditor\AppString.cpp" />
+    <ClCompile Include="..\..\src\libeditor\editor.lib.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{C2FD7D02-9D21-4FD1-A7EF-B3709B2F79FB}</ProjectGuid>
-    <RootNamespace>editor.lib</RootNamespace>
+    <RootNamespace>libeditor</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>editor.lib</ProjectName>
+    <ProjectName>libeditor</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

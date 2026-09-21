@@ -3,13 +3,50 @@
 
 #include <filesystem>
 
-#pragma comment(lib, "editor.lib.lib")
+#pragma comment(lib, "libeditor.lib")
 
 Application* g_app = 0;
 alMat4 g_emptyMatrix;
 TOOLINFO g_toolTipInfo;
 INT_PTR CALLBACK DialogProcAbout(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK DialogProcObjectList(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+//const wchar_t* g_className = L"MyCustomControl";
+//LRESULT CALLBACK CustomControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+//{
+//	switch (msg)
+//	{
+//	case WM_PAINT:
+//	{
+//		PAINTSTRUCT ps;
+//		HDC hdc = BeginPaint(hWnd, &ps);
+//		RECT rc;
+//		GetClientRect(hWnd, &rc);
+//
+//		// Fill background
+//		HBRUSH brush = CreateSolidBrush(RGB(30, 144, 255));
+//		FillRect(hdc, &rc, brush);
+//		DeleteObject(brush);
+//		
+//		// Draw text
+//		SetBkMode(hdc, TRANSPARENT);
+//		SetTextColor(hdc, RGB(255, 255, 255));
+//		TextOut(hdc, 0,0, L"Custom Control", 10);
+//
+//		EndPaint(hWnd, &ps);
+//		return 0;
+//	}
+//	case WM_ERASEBKGND:
+//		return 1; // prevent flicker; we paint everything in WM_PAINT
+//
+//	case WM_DESTROY:
+//		PostQuitMessage(0);
+//		break;
+//
+//	default:
+//		return DefWindowProc(hWnd, msg, wParam, lParam);
+//	}
+//	return 0;
+//}
 
 void AppGUIListBox::OnListSelectItem(size_t index)
 {
@@ -195,7 +232,7 @@ void Application::GUI::CreatePanels()
 	m_panelCreate->AddElement(btn, true);
 
 	AppGUIListBox* lb = new AppGUIListBox(m_context,
-		alVec2f(0, 30), alVec2f(g_rightPanelWidth, 300));
+		alVec2f(0, 30), alVec2f(g_rightPanelWidth, 150));
 	lb->SetFont(g_app->m_fontGUI);
 	lb->SetID(GUI::elementID_lbCreate);
 	m_panelCreate->AddElement(lb, true);
@@ -379,6 +416,8 @@ Application::~Application()
 	
 	if (m_fileLog)
 		fclose(m_fileLog);
+
+	//UnregisterClass(g_className, GetModuleHandle(0));
 }
 void Application::HideToolTip()
 {
@@ -658,37 +697,33 @@ bool Application::OnCreate(const char* videoDriver)
 	}
 	SetRightTabMode(Application::RightTabMode::Create);
 	SetPanelCreateObjectType(AppPluginObject::EObjectType::EObjectType_Polygonal);
-	/*if(m_new_object_basic_data.m_categories.m_size)
-	{
-		auto e = m_gui->m_panelCreate->GetElementByID(AppGUIID_Combo_Create_Category);
-		if (e)
-		{
-			alGUIComboBox* combo = dynamic_cast<alGUIComboBox*>(e);
-			if (combo)
-			{
-				combo->SetItems(
-					m_new_object_basic_data.m_categories.m_data,
-					m_new_object_basic_data.m_categories.m_size,
-					sizeof(new_object_basic_data::new_object_category),
-					0);
-				combo->OnComboSelectItem(0);
-				combo->Rebuild();
-			}
-		}
-	}*/
 	OnWindowSizeChanged();
 
 	InitCommonControls();
 	
 	alSystemWindowOSDataWin32* w32 = (alSystemWindowOSDataWin32*)m_mainWindow->GetOSData();
 	{
+		//{
+		//	WNDCLASSEX wc = {};
+		//	wc.cbSize = sizeof(WNDCLASSEX);
+		//	wc.lpfnWndProc = CustomControlProc;
+		//	wc.hInstance = GetModuleHandle(0);
+		//	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		//	wc.hbrBackground = NULL; // we handle painting ourselves
+		//	wc.lpszClassName = g_className;
+
+		//	if (!RegisterClassEx(&wc))
+		//		MessageBox(NULL, L"RegisterClassEx failed", L"Error", MB_ICONERROR);
+		//}
+
+
 		m_hwnd_testDlg = CreateDialog(
 			GetModuleHandle(NULL),
 			MAKEINTRESOURCE(IDD_DIALOGBAR),
 			w32->m_hwnd,
 			DialogProcObjectList);
 
-		ShowWindow(m_hwnd_testDlg, SW_SHOW);
+	//	ShowWindow(m_hwnd_testDlg, SW_SHOW);
 		RECT rc;
 		GetClientRect(m_hwnd_testDlg, &rc);
 		MoveWindow(m_hwnd_testDlg, m_mainWindow->m_clientSize.x-g_rightPanelWidth,
@@ -720,6 +755,7 @@ bool Application::OnCreate(const char* videoDriver)
 		//}
 	}
 
+	
 	return true;
 }
 

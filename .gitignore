@@ -63,3 +63,5 @@ build/plugin/Debug
 build/plugin/Release
 build/editor.lib/Debug
 build/editor.lib/Release
+build/libeditor/Debug
+build/libeditor/Release

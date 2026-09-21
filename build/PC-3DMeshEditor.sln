@@ -7,9 +7,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "3DEditor", "editor\3DEditor
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{B5AA888F-57E0-416D-AB45-BA70D953F150}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "std.object.plane", "std.object.plane\std.object.plane.vcxproj", "{40CA879B-5C4D-40F2-9A75-DEAE295BE6C5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "std", "std.object.plane\std.object.plane.vcxproj", "{40CA879B-5C4D-40F2-9A75-DEAE295BE6C5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "editor.lib", "editor.lib\editor.lib.vcxproj", "{C2FD7D02-9D21-4FD1-A7EF-B3709B2F79FB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libeditor", "libeditor\libeditor.vcxproj", "{C2FD7D02-9D21-4FD1-A7EF-B3709B2F79FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

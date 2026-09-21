@@ -1,6 +1,6 @@
 ﻿#include "AppPluginInterface.h"
 #include "std.object.plane.h"
-#pragma comment(lib, "editor.lib.lib")
+#pragma comment(lib, "libeditor.lib")
 
 //AppPluginObject_plane* g_plugin = 0;
 AppPlugin_STD* g_plugin = 0;

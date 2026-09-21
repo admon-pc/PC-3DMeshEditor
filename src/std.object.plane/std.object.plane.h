@@ -48,6 +48,12 @@ public:
 	AppPluginObject_plane(AppPlugin* plugin);
 	virtual ~AppPluginObject_plane();
 
+	struct plane_params
+	{
+		uint32_t m_segments[2] = { 1,1 };
+		float32_t m_size[2] = { 1.f,1.f };
+	}m_params;
+
 	/// PluginObject
 	virtual EObjectType ObjectType() override;
 	virtual const char32_t* Category() override;
