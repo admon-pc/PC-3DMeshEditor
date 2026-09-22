@@ -52,7 +52,13 @@ protected:
 	bool m_isSelected = false;
 public:
 	AppSceneObject(AppPluginObject* po) : m_pluginObject(po) {}
-	virtual ~AppSceneObject() {}
+	virtual ~AppSceneObject()
+	{
+		if (m_name)
+		{
+			AppDestroyString(m_name);
+		}
+	}
 
 	virtual void SetParent(AppSceneObject* parent)
 	{
@@ -125,11 +131,14 @@ public:
 	{
 		if (s)
 		{
-			if(!m_name)
-				m_name = 
+			if (!m_name)
+				m_name = AppCreateString();
 
-			m_name->Assign(s);
-			m_name->ToUTF16(m_nameW); 
+			if (m_name)
+			{
+				m_name->Assign(s);
+				m_name->ToUTF16(m_nameW);
+			}
 		}
 	}
 	/*virtual void SetName(const char32_t* name)

@@ -488,7 +488,7 @@ void AppStringImpl::Assign(const char32_t* v)
 	Append(v);
 }
 
-void AppStringImpl::Assign(const AppStringImpl& v)
+void AppStringImpl::Assign(AppString* v)
 {
 	Clear();
 	Append(v);
@@ -649,6 +649,19 @@ void AppStringImpl::Append(const char32_t* str, size_t size)
 void AppStringImpl::Append(const char32_t* str)
 {
 	Append(str, Getlen(str));
+}
+
+void AppStringImpl::Append(AppString* str)
+{
+	size_t new_size = str->Size() + m_size;
+	if ((new_size + 1u) > m_allocated)
+		_reallocate((new_size + 1) + (1 + (size_t)(m_size * 0.5f)));
+	const char32_t* p = str->Data();
+	while (*p)
+	{
+		PushBack(*p);
+		++p;
+	}
 }
 
 void AppStringImpl::Append(const AppStringImpl& str)

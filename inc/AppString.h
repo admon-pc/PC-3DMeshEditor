@@ -10,7 +10,7 @@ public:
 	virtual void Assign(const char8_t*) = 0;
 	virtual void Assign(const char16_t*) = 0;
 	virtual void Assign(const char32_t*) = 0;
-	virtual void Assign(const AppString&) = 0;
+	virtual void Assign(AppString*) = 0;
 
 	virtual size_t Size() = 0;
 	virtual size_t Capacity() = 0;
@@ -30,7 +30,7 @@ public:
 	virtual void Append(const char16_t*) = 0;
 	virtual void Append(const char32_t*) = 0;
 	virtual void Append(const char32_t*, size_t size) = 0;
-	virtual void Append(const AppString&) = 0;
+	virtual void Append(AppString*) = 0;
 	virtual void Append(char32_t) = 0;
 	virtual void Append(uint32_t) = 0;
 	virtual void Append(uint64_t) = 0;

@@ -22,6 +22,9 @@ typedef double float64_t;
 	((uint32_t)(uint8_t)(ch0)|((uint32_t)(uint8_t)(ch1)<<8)|\
 	((uint32_t)(uint8_t)(ch2)<<16)|((uint32_t)(uint8_t)(ch3)<<24))
 
+
+class AppString;
+
 extern "C"
 {
 	EDITORLIB_API void* AppMalloc(size_t);
@@ -29,6 +32,8 @@ extern "C"
 	EDITORLIB_API void AppFree(void*);
 	EDITORLIB_API FILE* AppFopenA(const char*, const char* mode);
 	EDITORLIB_API FILE* AppFopenW(const wchar_t*, const wchar_t* mode);
+	EDITORLIB_API AppString* AppCreateString();
+	EDITORLIB_API void AppDestroyString(AppString*);
 }
 
 //AppPolygonImpl* newPolygon = AppCreate<AppPolygonImpl>();

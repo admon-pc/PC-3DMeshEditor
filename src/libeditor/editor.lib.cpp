@@ -1,4 +1,7 @@
 ﻿#include "editor.lib.h"
+
+#include "AppStringImpl.h"
+
 #include <stdlib.h>
 
 void* AppMalloc(size_t sz)
@@ -35,7 +38,16 @@ FILE* AppFopenW(const wchar_t* str, const wchar_t* mode)
 		_wfopen_s(&f, str, mode);
 		return f;
 	}
+	
 	return 0;
 }
 
+AppString* AppCreateString()
+{
+	AppStringImpl* str = AppCreate<AppStringImpl>();
+	return dynamic_cast<AppString*>(str);
+}
 
+void AppDestroyString(AppString*)
+{
+}

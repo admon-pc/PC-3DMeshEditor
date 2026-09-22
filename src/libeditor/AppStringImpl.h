@@ -30,7 +30,7 @@ public:
 	uint32_t m_8Num = 0;
 };
 
-class AppStringImpl
+class AppStringImpl : public AppString
 {
 	size_t m_size = 0;
 	size_t m_allocated = 0;
@@ -51,49 +51,50 @@ public:
 	AppStringImpl(const char32_t*);
 	AppStringImpl(const AppStringImpl&);
 	AppStringImpl(AppStringImpl&&) noexcept;
-	~AppStringImpl();
+	virtual ~AppStringImpl();
 
-	void Assign(const char*);
-	void Assign(const wchar_t*);
-	void Assign(const char8_t*);
-	void Assign(const char16_t*);
-	void Assign(const char32_t*);
-	void Assign(const AppStringImpl&);
+	virtual void Assign(const char*) override;
+	virtual void Assign(const wchar_t*) override;
+	virtual void Assign(const char8_t*) override;
+	virtual void Assign(const char16_t*) override;
+	virtual void Assign(const char32_t*) override;
+	virtual void Assign(AppString*) override;
 
-	size_t Size();
-	size_t Capacity();
-	void Reserve(size_t);
-	void Clear();
-	void PopBack();
-	void PushBack(char32_t);
-	char32_t* Data();
-	const char32_t* c_str();
-	void Flip();
+	virtual size_t Size() override;
+	virtual size_t Capacity() override;
+	virtual void Reserve(size_t) override;
+	virtual void Clear() override;
+	virtual void PopBack() override;
+	virtual void PushBack(char32_t) override;
+	virtual char32_t* Data() override;
+	virtual const char32_t* c_str() override;
+	virtual void Flip() override;
 
-	void Insert(char32_t c, size_t where);
+	virtual void Insert(char32_t c, size_t where) override;
 
-	void Append(const char*);
-	void Append(const char8_t*);
-	void Append(const wchar_t*);
-	void Append(const char16_t*);
-	void Append(const char32_t*);
-	void Append(const char32_t*, size_t size);
+	virtual void Append(const char*) override;
+	virtual void Append(const char8_t*) override;
+	virtual void Append(const wchar_t*) override;
+	virtual void Append(const char16_t*) override;
+	virtual void Append(const char32_t*) override;
+	virtual void Append(const char32_t*, size_t size) override;
+	virtual void Append(AppString*) override;
 	void Append(const AppStringImpl&);
-	void Append(char32_t);
-	void Append(uint32_t);
-	void Append(uint64_t);
-	void Append(int32_t);
-	void Append(int64_t);
-	void Append(float32_t);
-	void AppendFloat(float32_t);
-	void Append(float64_t);
+	virtual void Append(char32_t) override;
+	virtual void Append(uint32_t) override;
+	virtual void Append(uint64_t) override;
+	virtual void Append(int32_t) override;
+	virtual void Append(int64_t) override;
+	virtual void Append(float32_t) override;
+	virtual void AppendFloat(float32_t) override;
+	virtual void Append(float64_t) override;
 
-	int32_t ToInt();
-	uint32_t ToUint();
-	float32_t ToFloat();
-	float64_t ToFloat64();
-	void ToUTF8(std::string&);
-	void ToUTF16(std::wstring&);
+	virtual int32_t ToInt() override;
+	virtual uint32_t ToUint() override;
+	virtual float32_t ToFloat() override;
+	virtual float64_t ToFloat64() override;
+	virtual void ToUTF8(std::string&) override;
+	virtual void ToUTF16(std::wstring&) override;
 
 	// return is encoding type
 	// 1 - utf8
@@ -101,15 +102,15 @@ public:
 	// 3 - utf16 big endian
 	// 4 - utf32
 	// 5 - utf32 big endian
-	uint32_t ReadFromFile(const char*);
-	uint32_t ReadFromFile(const wchar_t*);
+	virtual uint32_t ReadFromFile(const char*) override;
+	virtual uint32_t ReadFromFile(const wchar_t*) override;
 
-	void SaveToFileUTF8(const char*, bool addBOM = true);
-	void SaveToFileUTF16(const char*, bool addBOM = true);
-	void SaveToFileUTF32(const char*, bool addBOM = true);
-	void SaveToFileUTF8(const wchar_t*, bool addBOM = true);
-	void SaveToFileUTF16(const wchar_t*, bool addBOM = true);
-	void SaveToFileUTF32(const wchar_t*, bool addBOM = true);
+	virtual void SaveToFileUTF8(const char*, bool addBOM = true) override;
+	virtual void SaveToFileUTF16(const char*, bool addBOM = true) override;
+	virtual void SaveToFileUTF32(const char*, bool addBOM = true) override;
+	virtual void SaveToFileUTF8(const wchar_t*, bool addBOM = true) override;
+	virtual void SaveToFileUTF16(const wchar_t*, bool addBOM = true) override;
+	virtual void SaveToFileUTF32(const wchar_t*, bool addBOM = true) override;
 
 	AppStringImpl& operator=(const AppStringImpl&);
 	AppStringImpl& operator=(AppStringImpl&&) noexcept;
@@ -120,5 +121,5 @@ public:
 	void operator+=(const char32_t* str) { Append(str); }
 
 	//m_size = size;
-	void _set_size(size_t size);
+	virtual void _set_size(size_t size) override;
 };
