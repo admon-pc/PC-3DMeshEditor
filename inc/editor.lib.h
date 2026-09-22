@@ -30,10 +30,13 @@ extern "C"
 	EDITORLIB_API void* AppMalloc(size_t);
 	EDITORLIB_API void* AppCalloc(size_t);
 	EDITORLIB_API void AppFree(void*);
+
 	EDITORLIB_API FILE* AppFopenA(const char*, const char* mode);
 	EDITORLIB_API FILE* AppFopenW(const wchar_t*, const wchar_t* mode);
+
+	// Create new char32_t string
+	// Use AppDestroyObject for destroying.
 	EDITORLIB_API AppString* AppCreateString();
-	EDITORLIB_API void AppDestroyString(AppString*);
 }
 
 //AppPolygonImpl* newPolygon = AppCreate<AppPolygonImpl>();
@@ -47,11 +50,16 @@ Type* AppCreate(Args&&... args)
 }
 
 template<typename Type>
-void AppDestroy(Type* p)
+void AppDestroyObject(Type* p)
 {
-	p->~Type();
-	AppFree(p);
+	if (p)
+	{
+		p->~Type();
+		AppFree(p);
+	}
 }
+
+
 
 template<typename T1, typename T2>
 struct AppPair

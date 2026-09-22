@@ -47,7 +47,3 @@ AppString* AppCreateString()
 	AppStringImpl* str = AppCreate<AppStringImpl>();
 	return dynamic_cast<AppString*>(str);
 }
-
-void AppDestroyString(AppString*)
-{
-}

@@ -56,7 +56,7 @@ public:
 	{
 		if (m_name)
 		{
-			AppDestroyString(m_name);
+			AppDestroyObject(m_name);
 		}
 	}
 

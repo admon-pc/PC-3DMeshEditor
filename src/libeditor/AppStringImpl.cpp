@@ -61,7 +61,6 @@ namespace al_internal
 AppUnicodeConverterImpl::AppUnicodeConverterImpl(){}
 AppUnicodeConverterImpl::~AppUnicodeConverterImpl() 
 {
-	printf("asdasd\n");
 }
 void AppUnicodeConverterImpl::Set(char32_t c)
 {
@@ -446,6 +445,7 @@ AppStringImpl::AppStringImpl(AppStringImpl&& str) noexcept
 
 AppStringImpl::~AppStringImpl()
 {
+	printf("~AppStringImpl\n");
 	_free();
 }
 

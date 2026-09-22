@@ -65,3 +65,4 @@ build/editor.lib/Debug
 build/editor.lib/Release
 build/libeditor/Debug
 build/libeditor/Release
+*.lib
