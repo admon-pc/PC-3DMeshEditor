@@ -19,9 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\libeditor\AppAabb.cpp" />
-    <ClCompile Include="..\..\src\libeditor\AppMath.cpp" />
-    <ClCompile Include="..\..\src\libeditor\AppString.cpp" />
+    <ClCompile Include="..\..\src\libeditor\AppAabbImpl.cpp" />
+    <ClCompile Include="..\..\src\libeditor\AppMathImpl.cpp" />
+    <ClCompile Include="..\..\src\libeditor\AppMeshImpl.cpp" />
+    <ClCompile Include="..\..\src\libeditor\AppPolygonCreatorImpl.cpp" />
+    <ClCompile Include="..\..\src\libeditor\AppPolygonImpl.cpp" />
+    <ClCompile Include="..\..\src\libeditor\AppPolygonMeshImpl.cpp" />
+    <ClCompile Include="..\..\src\libeditor\AppStringImpl.cpp" />
+    <ClCompile Include="..\..\src\libeditor\AppVertexImpl.cpp" />
     <ClCompile Include="..\..\src\libeditor\editor.lib.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

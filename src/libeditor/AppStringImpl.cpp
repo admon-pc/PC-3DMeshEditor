@@ -1,4 +1,5 @@
 ﻿#include "editor.lib.h"
+#include "AppStringImpl.h"
 
 template<typename other_type>
 size_t Getlen(const other_type* str)
@@ -57,16 +58,19 @@ namespace al_internal
 		0.0000000000000001,
 	};
 }
-AppUnicodeConverter::AppUnicodeConverter(){}
-AppUnicodeConverter::~AppUnicodeConverter() {}
-void AppUnicodeConverter::Set(char32_t c)
+AppUnicodeConverterImpl::AppUnicodeConverterImpl(){}
+AppUnicodeConverterImpl::~AppUnicodeConverterImpl() 
+{
+	printf("asdasd\n");
+}
+void AppUnicodeConverterImpl::Set(char32_t c)
 {
 	m_32 = c;
 	_find16From32();
 	_find8From32();
 }
 
-void AppUnicodeConverter::Set(char16_t c)
+void AppUnicodeConverterImpl::Set(char16_t c)
 {
 	m_32 = c;
 	m_16[0] = c;
@@ -75,7 +79,7 @@ void AppUnicodeConverter::Set(char16_t c)
 	_find8From32();
 }
 
-void AppUnicodeConverter::Set(char8_t c)
+void AppUnicodeConverterImpl::Set(char8_t c)
 {
 	m_32 = c;
 	m_16[0] = c;
@@ -88,7 +92,7 @@ void AppUnicodeConverter::Set(char8_t c)
 	m_8Num = 1;
 }
 
-void AppUnicodeConverter::Set(char c)
+void AppUnicodeConverterImpl::Set(char c)
 {
 	m_32 = c;
 	m_16[0] = c;
@@ -101,11 +105,11 @@ void AppUnicodeConverter::Set(char c)
 	m_8Num = 1;
 }
 
-void AppUnicodeConverter::Set(wchar_t c)
+void AppUnicodeConverterImpl::Set(wchar_t c)
 {
 	Set((char32_t)c);
 }
-void AppUnicodeConverter::_find16From32()
+void AppUnicodeConverterImpl::_find16From32()
 {
 	if (m_32 > 0xFFFF)
 	{
@@ -122,7 +126,7 @@ void AppUnicodeConverter::_find16From32()
 	}
 }
 
-void AppUnicodeConverter::_find8From32()
+void AppUnicodeConverterImpl::_find8From32()
 {
 	// u vvvv    wwww xxxx    yyyy zzzz
 	char32_t _u = m_32;
@@ -202,7 +206,7 @@ void AppUnicodeConverter::_find8From32()
 	}
 }
 
-uint32_t AppUnicodeConverter::Set(const AppVec4u& c)
+uint32_t AppUnicodeConverterImpl::Set(const AppVec4u& c)
 {
 	uint32_t c1 = c.x;
 	uint32_t c2 = c.y;
@@ -283,7 +287,7 @@ uint32_t AppUnicodeConverter::Set(const AppVec4u& c)
 	return m_8Num;
 }
 
-uint32_t AppUnicodeConverter::Set(char16_t c1, char16_t c2)
+uint32_t AppUnicodeConverterImpl::Set(char16_t c1, char16_t c2)
 {
 	m_32 = 0;
 	m_16[0] = 0;
@@ -316,9 +320,9 @@ uint32_t AppUnicodeConverter::Set(char16_t c1, char16_t c2)
 	return m_16Num;
 }
 
-void AppUnicodeConverter::wchar_to_char(const wchar_t* str, size_t sz, std::string* out)
+void AppUnicodeConverterImpl::wchar_to_char(const wchar_t* str, size_t sz, std::string* out)
 {
-	AppUnicodeConverter uc;
+	AppUnicodeConverterImpl uc;
 	if (str && sz && out)
 	{
 		out->clear();
@@ -341,9 +345,9 @@ void AppUnicodeConverter::wchar_to_char(const wchar_t* str, size_t sz, std::stri
 		}
 	}
 }
-void AppUnicodeConverter::char_to_wchar(const char* str, size_t sz, std::wstring* out)
+void AppUnicodeConverterImpl::char_to_wchar(const char* str, size_t sz, std::wstring* out)
 {
-	AppUnicodeConverter uc;
+	AppUnicodeConverterImpl uc;
 	if (str && sz && out)
 	{
 		out->clear();
@@ -373,7 +377,7 @@ void AppUnicodeConverter::char_to_wchar(const char* str, size_t sz, std::wstring
 
 
 
-void AppString::_reallocate(size_t new_allocated)
+void AppStringImpl::_reallocate(size_t new_allocated)
 {
 	char32_t* new_data = (char32_t*)AppMalloc(new_allocated * sizeof(char32_t));
 	if (m_data)
@@ -389,48 +393,48 @@ void AppString::_reallocate(size_t new_allocated)
 	m_allocated = new_allocated;
 }
 
-AppString::AppString()
+AppStringImpl::AppStringImpl()
 {
 	_reallocate(al_internal::string_wordSize);
 }
 
-AppString::AppString(const char8_t* str)
-{
-	_reallocate(al_internal::string_wordSize);
-	Append(str);
-}
-
-AppString::AppString(const char* str)
+AppStringImpl::AppStringImpl(const char8_t* str)
 {
 	_reallocate(al_internal::string_wordSize);
 	Append(str);
 }
 
-AppString::AppString(const wchar_t* str)
+AppStringImpl::AppStringImpl(const char* str)
 {
 	_reallocate(al_internal::string_wordSize);
 	Append(str);
 }
 
-AppString::AppString(const char16_t* str)
+AppStringImpl::AppStringImpl(const wchar_t* str)
 {
 	_reallocate(al_internal::string_wordSize);
 	Append(str);
 }
 
-AppString::AppString(const char32_t* str)
+AppStringImpl::AppStringImpl(const char16_t* str)
 {
 	_reallocate(al_internal::string_wordSize);
 	Append(str);
 }
 
-AppString::AppString(const AppString& str)
+AppStringImpl::AppStringImpl(const char32_t* str)
 {
 	_reallocate(al_internal::string_wordSize);
 	Append(str);
 }
 
-AppString::AppString(AppString&& str) noexcept
+AppStringImpl::AppStringImpl(const AppStringImpl& str)
+{
+	_reallocate(al_internal::string_wordSize);
+	Append(str);
+}
+
+AppStringImpl::AppStringImpl(AppStringImpl&& str) noexcept
 {
 	m_allocated = str.m_allocated;
 	m_data = str.m_data;
@@ -440,12 +444,12 @@ AppString::AppString(AppString&& str) noexcept
 	str.m_size = 0;
 }
 
-AppString::~AppString()
+AppStringImpl::~AppStringImpl()
 {
 	_free();
 }
 
-void AppString::_free()
+void AppStringImpl::_free()
 {
 	if (m_data)
 	{
@@ -454,53 +458,53 @@ void AppString::_free()
 	}
 }
 
-void AppString::Assign(const char* v)
+void AppStringImpl::Assign(const char* v)
 {
 	Clear();
 	Append(v);
 }
 
-void AppString::Assign(const char8_t* v)
+void AppStringImpl::Assign(const char8_t* v)
 {
 	Clear();
 	Append(v);
 }
 
-void AppString::Assign(const char16_t* v)
+void AppStringImpl::Assign(const char16_t* v)
 {
 	Clear();
 	Append(v);
 }
 
-void AppString::Assign(const wchar_t* v)
+void AppStringImpl::Assign(const wchar_t* v)
 {
 	Clear();
 	Append(v);
 }
 
-void AppString::Assign(const char32_t* v)
+void AppStringImpl::Assign(const char32_t* v)
 {
 	Clear();
 	Append(v);
 }
 
-void AppString::Assign(const AppString& v)
+void AppStringImpl::Assign(const AppStringImpl& v)
 {
 	Clear();
 	Append(v);
 }
 
-size_t AppString::Size()
+size_t AppStringImpl::Size()
 {
 	return m_size;
 }
 
-size_t AppString::Capacity()
+size_t AppStringImpl::Capacity()
 {
 	return m_allocated;
 }
 
-void AppString::Reserve(size_t s)
+void AppStringImpl::Reserve(size_t s)
 {
 	if (s > m_allocated)
 	{
@@ -508,13 +512,13 @@ void AppString::Reserve(size_t s)
 	}
 }
 
-void AppString::Clear()
+void AppStringImpl::Clear()
 {
 	m_size = 0;
 	m_data[m_size] = 0;
 }
 
-void AppString::PopBack()
+void AppStringImpl::PopBack()
 {
 	if (m_size)
 	{
@@ -523,7 +527,7 @@ void AppString::PopBack()
 	}
 }
 
-void AppString::PushBack(char32_t c)
+void AppStringImpl::PushBack(char32_t c)
 {
 	size_t new_size = m_size + 1;
 	if ((new_size + 1u) > m_allocated)
@@ -533,24 +537,24 @@ void AppString::PushBack(char32_t c)
 	m_data[m_size] = 0;
 }
 
-char32_t* AppString::Data()
+char32_t* AppStringImpl::Data()
 {
 	return m_data;
 }
 
-const char32_t* AppString::c_str()
+const char32_t* AppStringImpl::c_str()
 {
 	return m_data;
 }
 
-void AppString::Append(const char8_t* str)
+void AppStringImpl::Append(const char8_t* str)
 {
 	size_t new_size = Getlen(str) + m_size;
 
 	if ((new_size + 1u) > m_allocated)
 		_reallocate((new_size + 1) + (1 + (size_t)(m_size * 0.5f)));
 
-	AppUnicodeConverter uc;
+	AppUnicodeConverterImpl uc;
 
 	const char8_t* p = str;
 	while (*p)
@@ -583,24 +587,24 @@ void AppString::Append(const char8_t* str)
 	}
 }
 
-void AppString::Append(const char* str)
+void AppStringImpl::Append(const char* str)
 {
 	Append((const char8_t*)str);
 }
 
-void AppString::Append(const wchar_t* str)
+void AppStringImpl::Append(const wchar_t* str)
 {
 	Append((const char16_t*)str);
 }
 
-void AppString::Append(const char16_t* str)
+void AppStringImpl::Append(const char16_t* str)
 {
 	size_t new_size = Getlen(str) + m_size;
 
 	if ((new_size + 1u) > m_allocated)
 		_reallocate((new_size + 1) + (1 + (size_t)(m_size * 0.5f)));
 
-	AppUnicodeConverter uc;
+	AppUnicodeConverterImpl uc;
 
 	const char16_t* p = str;
 	while (*p)
@@ -627,7 +631,7 @@ void AppString::Append(const char16_t* str)
 }
 
 // it can be that str will not have zero at the end
-void AppString::Append(const char32_t* str, size_t size)
+void AppStringImpl::Append(const char32_t* str, size_t size)
 {
 	size_t new_size = size + m_size;
 
@@ -642,12 +646,12 @@ void AppString::Append(const char32_t* str, size_t size)
 	}
 }
 
-void AppString::Append(const char32_t* str)
+void AppStringImpl::Append(const char32_t* str)
 {
 	Append(str, Getlen(str));
 }
 
-void AppString::Append(const AppString& str)
+void AppStringImpl::Append(const AppStringImpl& str)
 {
 	size_t new_size = str.m_size + m_size;
 	if ((new_size + 1u) > m_allocated)
@@ -660,61 +664,61 @@ void AppString::Append(const AppString& str)
 	}
 }
 
-void AppString::Append(char32_t v)
+void AppStringImpl::Append(char32_t v)
 {
 	PushBack(v);
 }
 
-void AppString::Append(uint32_t v)
+void AppStringImpl::Append(uint32_t v)
 {
 	char buf[20];
 	sprintf_s(buf, 20, "%u", v);
 	Append(buf);
 }
 
-void AppString::Append(uint64_t v)
+void AppStringImpl::Append(uint64_t v)
 {
 	char buf[20];
 	sprintf_s(buf, 20, "%llu", v);
 	Append(buf);
 }
 
-void AppString::Append(int32_t v)
+void AppStringImpl::Append(int32_t v)
 {
 	char buf[20];
 	sprintf_s(buf, 20, "%i", v);
 	Append(buf);
 }
 
-void AppString::Append(int64_t v)
+void AppStringImpl::Append(int64_t v)
 {
 	char buf[20];
 	sprintf_s(buf, 20, "%lli", v);
 	Append(buf);
 }
 
-void AppString::Append(float32_t v)
+void AppStringImpl::Append(float32_t v)
 {
 	char buf[20];
 	sprintf_s(buf, 20, "%f", v);
 	Append(buf);
 }
 
-void AppString::AppendFloat(float32_t v)
+void AppStringImpl::AppendFloat(float32_t v)
 {
 	char buf[20];
 	sprintf_s(buf, 20, "%.7f", v);
 	Append(buf);
 }
 
-void AppString::Append(float64_t v)
+void AppStringImpl::Append(float64_t v)
 {
 	char buf[20];
 	sprintf_s(buf, 20, "%.14f", v);
 	Append(buf);
 }
 
-int32_t AppString::ToInt()
+int32_t AppStringImpl::ToInt()
 {
 	size_t len = m_size;
 	int32_t result = 0;
@@ -735,7 +739,7 @@ int32_t AppString::ToInt()
 	return result;
 }
 
-uint32_t AppString::ToUint()
+uint32_t AppStringImpl::ToUint()
 {
 	if (m_data[0] == U'-')
 		return 0;
@@ -755,7 +759,7 @@ uint32_t AppString::ToUint()
 	return result;
 }
 
-float32_t AppString::ToFloat()
+float32_t AppStringImpl::ToFloat()
 {
 	float32_t result = 0.f;
 	auto ptr = m_data;
@@ -791,7 +795,7 @@ float32_t AppString::ToFloat()
 	return is_negative ? -result : result;
 }
 
-float64_t AppString::ToFloat64()
+float64_t AppStringImpl::ToFloat64()
 {
 	float64_t result = 0.;
 	auto ptr = m_data;
@@ -827,10 +831,10 @@ float64_t AppString::ToFloat64()
 	return is_negative ? -result : result;
 }
 
-void AppString::ToUTF8(std::string& str)
+void AppStringImpl::ToUTF8(std::string& str)
 {
 	str.clear();
-	AppUnicodeConverter uc;
+	AppUnicodeConverterImpl uc;
 	for (size_t i = 0; i < m_size; ++i)
 	{
 		uc.Set(m_data[i]);
@@ -845,10 +849,10 @@ void AppString::ToUTF8(std::string& str)
 	}
 }
 
-void AppString::ToUTF16(std::wstring& str)
+void AppStringImpl::ToUTF16(std::wstring& str)
 {
 	str.clear();
-	AppUnicodeConverter uc;
+	AppUnicodeConverterImpl uc;
 	for (size_t i = 0; i < m_size; ++i)
 	{
 		uc.Set(m_data[i]);
@@ -861,7 +865,7 @@ void AppString::ToUTF16(std::wstring& str)
 			str.push_back(uc.m_16[1]);
 	}
 }
-uint32_t AppString::_readFromFile(FILE* f)
+uint32_t AppStringImpl::_readFromFile(FILE* f)
 {
 	uint32_t ret = 1;
 	if (f)
@@ -936,7 +940,7 @@ uint32_t AppString::_readFromFile(FILE* f)
 		}
 		uint_union;
 
-		AppUnicodeConverter uc;
+		AppUnicodeConverterImpl uc;
 		while (true)
 		{
 			uint8_t buf[4] = { 0,0,0,0 };
@@ -1015,50 +1019,50 @@ uint32_t AppString::_readFromFile(FILE* f)
 	return ret;
 }
 
-uint32_t AppString::ReadFromFile(const wchar_t* fn)
+uint32_t AppStringImpl::ReadFromFile(const wchar_t* fn)
 {
 	FILE* f = AppFopenW(fn, L"rb");
 	return _readFromFile(f);
 }
 
-uint32_t AppString::ReadFromFile(const char* fn)
+uint32_t AppStringImpl::ReadFromFile(const char* fn)
 {
 	FILE* f = AppFopenA(fn, "rb");
 	return _readFromFile(f);
 }
 
-void AppString::SaveToFileUTF8(const char* fn, bool addBOM)
+void AppStringImpl::SaveToFileUTF8(const char* fn, bool addBOM)
 {
 	_saveToFileUTF8(AppFopenA(fn, "wb"), addBOM);
 }
 
-void AppString::SaveToFileUTF16(const char* fn, bool addBOM)
+void AppStringImpl::SaveToFileUTF16(const char* fn, bool addBOM)
 {
 	_saveToFileUTF16(AppFopenA(fn, "wb"), addBOM);
 }
 
-void AppString::SaveToFileUTF32(const char* fn, bool addBOM)
+void AppStringImpl::SaveToFileUTF32(const char* fn, bool addBOM)
 {
 	_saveToFileUTF32(AppFopenA(fn, "wb"), addBOM);
 }
 
-void AppString::SaveToFileUTF8(const wchar_t* fn, bool addBOM)
+void AppStringImpl::SaveToFileUTF8(const wchar_t* fn, bool addBOM)
 {
 	_saveToFileUTF8(AppFopenW(fn, L"wb"), addBOM);
 }
 
-void AppString::SaveToFileUTF16(const wchar_t* fn, bool addBOM)
+void AppStringImpl::SaveToFileUTF16(const wchar_t* fn, bool addBOM)
 {
 	_saveToFileUTF16(AppFopenW(fn, L"wb"), addBOM);
 }
 
-void AppString::SaveToFileUTF32(const wchar_t* fn, bool addBOM)
+void AppStringImpl::SaveToFileUTF32(const wchar_t* fn, bool addBOM)
 {
 	_saveToFileUTF32(AppFopenW(fn, L"wb"), addBOM);
 }
 
 
-void AppString::_saveToFileUTF8(FILE* f, bool addBOM)
+void AppStringImpl::_saveToFileUTF8(FILE* f, bool addBOM)
 {
 	if (f && m_data && m_size)
 	{
@@ -1068,7 +1072,7 @@ void AppString::_saveToFileUTF8(FILE* f, bool addBOM)
 			fwrite(bom, 1, 3, f);
 		}
 
-		AppUnicodeConverter uc;
+		AppUnicodeConverterImpl uc;
 		for (size_t i = 0; i < m_size; ++i)
 		{
 			uc.Set(m_data[i]);
@@ -1083,7 +1087,7 @@ void AppString::_saveToFileUTF8(FILE* f, bool addBOM)
 		fclose(f);
 }
 
-void AppString::_saveToFileUTF16(FILE* f, bool addBOM)
+void AppStringImpl::_saveToFileUTF16(FILE* f, bool addBOM)
 {
 	if (f && m_data && m_size)
 	{
@@ -1093,7 +1097,7 @@ void AppString::_saveToFileUTF16(FILE* f, bool addBOM)
 			fwrite(bom, 1, 2, f);
 		}
 
-		AppUnicodeConverter uc;
+		AppUnicodeConverterImpl uc;
 		for (size_t i = 0; i < m_size; ++i)
 		{
 			uc.Set(m_data[i]);
@@ -1110,7 +1114,7 @@ void AppString::_saveToFileUTF16(FILE* f, bool addBOM)
 		fclose(f);
 }
 
-void AppString::_saveToFileUTF32(FILE* f, bool addBOM)
+void AppStringImpl::_saveToFileUTF32(FILE* f, bool addBOM)
 {
 	if (f && m_data && m_size)
 	{
@@ -1126,7 +1130,7 @@ void AppString::_saveToFileUTF32(FILE* f, bool addBOM)
 		fclose(f);
 }
 
-AppString& AppString::operator=(const AppString& str)
+AppStringImpl& AppStringImpl::operator=(const AppStringImpl& str)
 {
 	_reallocate(al_internal::string_wordSize);
 	Clear();
@@ -1134,7 +1138,7 @@ AppString& AppString::operator=(const AppString& str)
 	return *this;
 }
 
-AppString& AppString::operator=(AppString&& str) noexcept
+AppStringImpl& AppStringImpl::operator=(AppStringImpl&& str) noexcept
 {
 	_free();
 	m_allocated = str.m_allocated;
@@ -1146,11 +1150,11 @@ AppString& AppString::operator=(AppString&& str) noexcept
 	return *this;
 }
 
-void AppString::Flip()
+void AppStringImpl::Flip()
 {
 	if (!m_size)
 		return;
-	AppString flippedStr;
+	AppStringImpl flippedStr;
 	for (size_t i = m_size - 1; i >= 0; --i)
 	{
 		flippedStr.Append(m_data[i]);
@@ -1160,7 +1164,7 @@ void AppString::Flip()
 	*this = std::move(flippedStr);
 }
 
-void AppString::Insert(char32_t c, size_t where)
+void AppStringImpl::Insert(char32_t c, size_t where)
 {
 	size_t new_size = m_size + 1;
 	if ((new_size + 1u) > m_allocated)
@@ -1182,7 +1186,7 @@ void AppString::Insert(char32_t c, size_t where)
 	m_data[m_size] = 0;
 }
 
-void AppString::_set_size(size_t size)
+void AppStringImpl::_set_size(size_t size)
 {
 	m_size = size;
 }

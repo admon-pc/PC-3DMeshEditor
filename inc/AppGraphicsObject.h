@@ -38,8 +38,15 @@ struct AppMeshVertexLine
 	AppVec4i Bones;
 };
 
-struct AppMesh
+enum class AppMeshIndexType : uint32_t
 {
+	u16,
+	u32
+};
+
+class AppMesh
+{
+public:
 	AppMesh() {}
 	~AppMesh() 
 	{
@@ -50,6 +57,7 @@ struct AppMesh
 	}
 
 	AppMeshVertexType m_vertexType = AppMeshVertexType::Triangle;
+	AppMeshIndexType m_indexType = AppMeshIndexType::u16;
 	uint8_t* m_vertices = 0;
 	uint8_t* m_indices = 0;
 
@@ -57,10 +65,9 @@ struct AppMesh
 
 	uint32_t m_vCount = 0;
 	uint32_t m_iCount = 0;
+	uint32_t m_stride = 0;
 
 
-	// triNum must be < 21845
-	// because I use uint16_t for m_indices
 	void Allocate(uint32_t num, AppMeshVertexType vt)
 	{
 		m_vertexType = vt;
@@ -91,7 +98,14 @@ struct AppMesh
 			break;
 		}
 
-		m_indices = (uint8_t*)AppMalloc(sizeof(uint16_t) * m_iCount);
+		uint32_t indexTypeSize = sizeof(uint16_t);
+		if (m_iCount > 0xFFFF)
+		{
+			indexTypeSize = sizeof(uint32_t);
+			m_indexType = AppMeshIndexType::u32;
+		}
+
+		m_indices = (uint8_t*)AppMalloc(indexTypeSize * m_iCount);
 	}
 
 	char m_name[100];

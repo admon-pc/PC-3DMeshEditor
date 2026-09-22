@@ -31,10 +31,37 @@ extern "C"
 	EDITORLIB_API FILE* AppFopenW(const wchar_t*, const wchar_t* mode);
 }
 
+//AppPolygonImpl* newPolygon = AppCreate<AppPolygonImpl>();
+template<typename Type, typename... Args>
+Type* AppCreate(Args&&... args)
+{
+	Type* o = (Type*)AppMalloc(sizeof(Type));
+	if (o)
+		new(o)Type(std::forward<Args>(args)...);
+	return o;
+}
 
+template<typename Type>
+void AppDestroy(Type* p)
+{
+	p->~Type();
+	AppFree(p);
+}
+
+template<typename T1, typename T2>
+struct AppPair
+{
+	AppPair() {}
+	AppPair(const T1& _t1, const T2& _t2) :m_first(_t1), m_second(_t2) {}
+	T1 m_first;
+	T2 m_second;
+};
+
+
+#include "AppBaseObject.h"
 #include "AppColor.h"
 #include "AppMath.h"
-
+#include "AppMesh.h"
 
 #include "AppRay.h"
 #include "AppAabb.h"

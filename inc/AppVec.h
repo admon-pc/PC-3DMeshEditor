@@ -116,8 +116,22 @@ class AppVec4_t
 {
 public:
 	AppVec4_t<Type>() {}
-	AppVec4_t<Type>(Type _v) :x(_v), y(_v), z(_v), w(_v) {}
-	AppVec4_t<Type>(Type _x, Type _y, Type _z, Type _w) : x(_x), y(_y), z(_z), w(_w) {}
+	AppVec4_t<Type>(Type _v)
+		:
+		x(static_cast<Type>(_v)),
+		y(static_cast<Type>(_v)),
+		z(static_cast<Type>(_v)),
+		w(static_cast<Type>(_v))
+	{}
+
+	template<class T1, class T2, class T3, class T4>
+	AppVec4_t<Type>(T1 _x, T2 _y, T3 _z, T4 _w)
+		:
+		x(static_cast<Type>(_x)),
+		y(static_cast<Type>(_y)),
+		z(static_cast<Type>(_z)),
+		w(static_cast<Type>(_w))
+	{}
 	AppVec4_t<Type>(const AppVec3_t<float32_t>& _v) : x(_v.x), y(_v.y), z(_v.z), w(0) {}
 	Type x = 0;
 	Type y = 0;

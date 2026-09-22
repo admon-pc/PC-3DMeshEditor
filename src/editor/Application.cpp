@@ -623,7 +623,7 @@ bool Application::OnCreate(const char* videoDriver)
 
 	m_scene = new AppScene();
 	
-	AppString pstr;
+	//AppString pstr;
 
 	_initPlugins();
 	for (size_t i = 0; i < m_plugins.m_size; ++i)

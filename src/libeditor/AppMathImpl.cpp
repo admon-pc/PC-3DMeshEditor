@@ -364,7 +364,7 @@ AppQuaternion AppMath::MatToQuat(const AppMat4& mat)
 	return q;
 }
 
-bool AppMath::RayTriangleMT(AppTriangle& tri, const AppRay& ray, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W)
+bool AppMath::RayTriangleMT(AppTriangle& tri, AppRay& ray, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W)
 {
 	AppVec4  pvec;
 	ray.m_direction.Cross2(AppVec4(tri.e2.x, tri.e2.y, tri.e2.z, tri.e2.w), pvec);
@@ -408,7 +408,56 @@ bool AppMath::RayTriangleMT(AppTriangle& tri, const AppRay& ray, bool withBackFa
 	return true;
 }
 
-bool AppMath::RayTriangleWT(AppTriangle& tri, const AppRay& ray, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W)
+bool AppMath::RayTriangleMTf(AppTriangle& tri, AppRay& ray, bool withBackFace, float32_t& T, float32_t& U, float32_t& V, float32_t& W)
+{
+	AppVec4f  pvec;
+	AppVec4f rayDir(ray.m_direction.x, ray.m_direction.y, ray.m_direction.z, ray.m_direction.w);
+	rayDir.Cross2(AppVec4f(tri.e2.x, tri.e2.y, tri.e2.z, tri.e2.w), pvec);
+	
+	AppVec4f triE1(tri.e1.x, tri.e1.y, tri.e1.z, tri.e1.w);
+	AppVec4f triE2(tri.e2.x, tri.e2.y, tri.e2.z, tri.e2.w);
+
+	float32_t det = triE1.Dot(pvec);
+
+	if (withBackFace)
+	{
+		if (std::fabs(det) < AppEpsilon)
+			return false;
+	}
+	else
+	{
+		if (det < AppEpsilon && det > -AppEpsilon)
+			return false;
+	}
+
+	AppVec4f tvec(
+		ray.m_origin.x - tri.v1.x,
+		ray.m_origin.y - tri.v1.y,
+		ray.m_origin.z - tri.v1.z,
+		0.f);
+
+	float32_t inv_det = 1.f / det;
+	U = tvec.Dot(pvec) * inv_det;
+
+	if (U < 0.f || U > 1.f)
+		return false;
+
+	AppVec4f  qvec;
+	tvec.Cross2(triE1, qvec);
+	V = rayDir.Dot(qvec) * inv_det;
+
+	if (V < 0.f || U + V > 1.f)
+		return false;
+
+	T = triE2.Dot(qvec) * inv_det;
+
+	if (T < AppEpsilon) return false;
+
+	W = 1.f - U - V;
+	return true;
+}
+
+bool AppMath::RayTriangleWT(AppTriangle& tri, AppRay& ray, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W)
 {
 	tri.v1.w = 1.f;
 	tri.v2.w = 1.f;

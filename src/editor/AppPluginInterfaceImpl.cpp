@@ -80,6 +80,17 @@ AppGraphicsObject* AppPluginInterfaceImpl::CreateGraphicsObject(AppMesh* m)
 			break;
 		}
 
+		switch (m->m_indexType)
+		{
+		default:
+		case AppMeshIndexType::u16:
+			mesh.m_indexType = alMeshIndexType::u16;
+			break;
+		case AppMeshIndexType::u32:
+			mesh.m_indexType = alMeshIndexType::u32;
+			break;
+		}
+
 		mesh.m_vertices = m->m_vertices;
 		mesh.m_indices = m->m_indices;
 

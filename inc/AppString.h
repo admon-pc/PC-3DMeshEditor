@@ -2,70 +2,50 @@
 #ifndef _APPSTR_H_
 #define _APPSTR_H_
 
-class EDITORLIB_API AppString
+class AppString : public AppBaseObject
 {
-	size_t m_size = 0;
-	size_t m_allocated = 0;
-	char32_t* m_data = 0;
-
-	void _reallocate(size_t new_allocated);
-	void _free();
-	uint32_t _readFromFile(FILE*);
-	void _saveToFileUTF8(FILE*, bool addBOM = true);
-	void _saveToFileUTF16(FILE*, bool addBOM = true);
-	void _saveToFileUTF32(FILE*, bool addBOM = true);
 public:
-	AppString();
-	AppString(const char*);
-	AppString(const wchar_t*);
-	AppString(const char8_t*);
-	AppString(const char16_t*);
-	AppString(const char32_t*);
-	AppString(const AppString&);
-	AppString(AppString&&) noexcept;
-	~AppString();
+	virtual void Assign(const char*) = 0;
+	virtual void Assign(const wchar_t*) = 0;
+	virtual void Assign(const char8_t*) = 0;
+	virtual void Assign(const char16_t*) = 0;
+	virtual void Assign(const char32_t*) = 0;
+	virtual void Assign(const AppString&) = 0;
 
-	void Assign(const char*);
-	void Assign(const wchar_t*);
-	void Assign(const char8_t*);
-	void Assign(const char16_t*);
-	void Assign(const char32_t*);
-	void Assign(const AppString&);
+	virtual size_t Size() = 0;
+	virtual size_t Capacity() = 0;
+	virtual void Reserve(size_t) = 0;
+	virtual void Clear() = 0;
+	virtual void PopBack() = 0;
+	virtual void PushBack(char32_t) = 0;
+	virtual char32_t* Data() = 0;
+	virtual const char32_t* c_str() = 0;
+	virtual void Flip() = 0;
 
-	size_t Size();
-	size_t Capacity();
-	void Reserve(size_t);
-	void Clear();
-	void PopBack();
-	void PushBack(char32_t);
-	char32_t* Data();
-	const char32_t* c_str();
-	void Flip();
+	virtual void Insert(char32_t c, size_t where) = 0;
 
-	void Insert(char32_t c, size_t where);
+	virtual void Append(const char*) = 0;
+	virtual void Append(const char8_t*) = 0;
+	virtual void Append(const wchar_t*) = 0;
+	virtual void Append(const char16_t*) = 0;
+	virtual void Append(const char32_t*) = 0;
+	virtual void Append(const char32_t*, size_t size) = 0;
+	virtual void Append(const AppString&) = 0;
+	virtual void Append(char32_t) = 0;
+	virtual void Append(uint32_t) = 0;
+	virtual void Append(uint64_t) = 0;
+	virtual void Append(int32_t) = 0;
+	virtual void Append(int64_t) = 0;
+	virtual void Append(float32_t) = 0;
+	virtual void AppendFloat(float32_t) = 0;
+	virtual void Append(float64_t) = 0;
 
-	void Append(const char*);
-	void Append(const char8_t*);
-	void Append(const wchar_t*);
-	void Append(const char16_t*);
-	void Append(const char32_t*);
-	void Append(const char32_t*, size_t size);
-	void Append(const AppString&);
-	void Append(char32_t);
-	void Append(uint32_t);
-	void Append(uint64_t);
-	void Append(int32_t);
-	void Append(int64_t);
-	void Append(float32_t);
-	void AppendFloat(float32_t);
-	void Append(float64_t);
-
-	int32_t ToInt();
-	uint32_t ToUint();
-	float32_t ToFloat();
-	float64_t ToFloat64();
-	void ToUTF8(std::string&);
-	void ToUTF16(std::wstring&);
+	virtual int32_t ToInt() = 0;
+	virtual uint32_t ToUint() = 0;
+	virtual float32_t ToFloat() = 0;
+	virtual float64_t ToFloat64() = 0;
+	virtual void ToUTF8(std::string&) = 0;
+	virtual void ToUTF16(std::wstring&) = 0;
 
 	// return is encoding type
 	// 1 - utf8
@@ -73,26 +53,18 @@ public:
 	// 3 - utf16 big endian
 	// 4 - utf32
 	// 5 - utf32 big endian
-	uint32_t ReadFromFile(const char*);
-	uint32_t ReadFromFile(const wchar_t*);
+	virtual uint32_t ReadFromFile(const char*) = 0;
+	virtual uint32_t ReadFromFile(const wchar_t*) = 0;
 
-	void SaveToFileUTF8(const char*, bool addBOM = true);
-	void SaveToFileUTF16(const char*, bool addBOM = true);
-	void SaveToFileUTF32(const char*, bool addBOM = true);
-	void SaveToFileUTF8(const wchar_t*, bool addBOM = true);
-	void SaveToFileUTF16(const wchar_t*, bool addBOM = true);
-	void SaveToFileUTF32(const wchar_t*, bool addBOM = true);
-
-	AppString& operator=(const AppString&);
-	AppString& operator=(AppString&&) noexcept;
-
-	void operator+=(const char* str) { Append(str); }
-	void operator+=(const char8_t* str) { Append(str); }
-	void operator+=(const char16_t* str) { Append(str); }
-	void operator+=(const char32_t* str) { Append(str); }
+	virtual void SaveToFileUTF8(const char*, bool addBOM = true) = 0;
+	virtual void SaveToFileUTF16(const char*, bool addBOM = true) = 0;
+	virtual void SaveToFileUTF32(const char*, bool addBOM = true) = 0;
+	virtual void SaveToFileUTF8(const wchar_t*, bool addBOM = true) = 0;
+	virtual void SaveToFileUTF16(const wchar_t*, bool addBOM = true) = 0;
+	virtual void SaveToFileUTF32(const wchar_t*, bool addBOM = true) = 0;
 
 	//m_size = size;
-	void _set_size(size_t size);
+	virtual void _set_size(size_t size) = 0;
 };
 
 #endif

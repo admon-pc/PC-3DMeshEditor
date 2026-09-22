@@ -75,8 +75,9 @@ public:
 	static AppVec3f Mul(const AppVec3f& vec, const AppMat3& mat);
 	static AppVec3f MulBasis(const AppVec3f& vec, const AppMat4& mat);
 	static AppQuaternion MatToQuat(const AppMat4& mat);
-	static bool RayTriangleMT(AppTriangle&, const AppRay&, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W);
-	static bool RayTriangleWT(AppTriangle&, const AppRay&, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W);
+	static bool RayTriangleMT(AppTriangle&, AppRay&, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W);
+	static bool RayTriangleMTf(AppTriangle&, AppRay&, bool withBackFace, float32_t& T, float32_t& U, float32_t& V, float32_t& W);
+	static bool RayTriangleWT(AppTriangle&, AppRay&, bool withBackFace, float64_t& T, float64_t& U, float64_t& V, float64_t& W);
 };
 
 #endif
