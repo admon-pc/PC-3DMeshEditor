@@ -1,8 +1,0 @@
-Info: Sep 21 2026 : 12:38:28
-Load Image: ../font0.png
-Load Image: ../guiicons0.png
-Load Image: ../data/gui/gui.png
-Info: Load plugin: plugins/std.dll...
-Info: 	(Standart)
-Info: 	(Plugin with all basic functuionality)
-Info: 		((c) Artemy Basov)

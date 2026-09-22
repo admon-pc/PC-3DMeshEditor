@@ -20,7 +20,7 @@ protected:
 	AppPluginClassID m_classID; // object type
 
 	alUnicodeString m_name;
-	std::wstring m_nameW;
+	alStringW m_nameW;
 
 	AppSceneObjectImpl* m_parent = 0;
 	AppList<AppSceneObjectImpl*> m_children;

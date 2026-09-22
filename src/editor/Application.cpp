@@ -726,8 +726,8 @@ bool Application::OnCreate(const char* videoDriver)
 	//	ShowWindow(m_hwnd_testDlg, SW_SHOW);
 		RECT rc;
 		GetClientRect(m_hwnd_testDlg, &rc);
-		MoveWindow(m_hwnd_testDlg, m_mainWindow->m_clientSize.x-g_rightPanelWidth,
-			g_topPanelHeight, g_rightPanelWidth, 400, TRUE);
+		MoveWindow(m_hwnd_testDlg, m_mainWindow->m_clientSize.x- (int)g_rightPanelWidth,
+			(int)g_topPanelHeight, (int)g_rightPanelWidth, 400, TRUE);
 		//void* buffer = 0;
 		//BITMAPINFO bmi;
 		//memset(&bmi, 0, sizeof(BITMAPINFO));
@@ -1387,7 +1387,7 @@ void ExpandTree(HWND hTree)
 
 void Application::_updateObjectList(HTREEITEM parent, AppSceneObject* sceneObject)
 {
-	auto& children = sceneObject->GetChildren();
+	const AppList<AppSceneObject*>& children = sceneObject->GetChildren();
 	if (children.m_head)
 	{
 		auto curr = children.m_head;

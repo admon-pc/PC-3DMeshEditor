@@ -112,6 +112,7 @@ public:
 };
 
 
+struct AppViewportData;
 // GPU mesh
 class AppGraphicsObject
 {

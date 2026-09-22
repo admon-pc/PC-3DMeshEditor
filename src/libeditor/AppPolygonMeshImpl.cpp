@@ -1,5 +1,6 @@
 ﻿#include "editor.lib.h"
 #include "AppMeshImpl.h"
+#include "AppGraphicsObject.h"
 
 void AppPolygonMeshImpl::_add_vertex_to_list(AppVertexImpl* newVertex)
 {

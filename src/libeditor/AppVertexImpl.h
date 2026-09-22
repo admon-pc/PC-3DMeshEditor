@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class AppPolygonImpl;
 class AppVertexImpl : public AppVertex
 {
 public:

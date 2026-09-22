@@ -37,7 +37,7 @@ public:
 
 	size_t size() { return m_size; }
 
-	AppListNode<_type>* find(const _type& data) const
+	AppListNode<_type>* find(const _type& data)
 	{ 
 		if (!m_head)
 			return 0;
@@ -56,7 +56,7 @@ public:
 		return 0;
 	}
 
-	void clear() const
+	void clear()
 	{
 		if (!m_head)
 			return;
@@ -76,7 +76,7 @@ public:
 	}
 
 
-	AppListNode<_type>* insert_after(const _type& after_this, const _type& data) const
+	AppListNode<_type>* insert_after(const _type& after_this, const _type& data)
 	{
 		AppListNode<_type>* node = (AppListNode<_type>*)AppMalloc(sizeof(AppListNode<_type>));
 		new(node)AppListNode<_type>();
@@ -122,7 +122,7 @@ public:
 		return node;
 	}
 
-	AppListNode<_type>* insert_before(const _type& after_this, const _type& data) const
+	AppListNode<_type>* insert_before(const _type& after_this, const _type& data)
 	{
 		AppListNode<_type>* node = (AppListNode<_type>*)AppMalloc(sizeof(AppListNode<_type>));
 		new(node)AppListNode<_type>();
@@ -169,7 +169,7 @@ public:
 		return node;
 	}
 
-	AppListNode<_type>* push_back(const _type& data) const
+	AppListNode<_type>* push_back(const _type& data)
 	{
 		AppListNode<_type>* node = (AppListNode<_type>*)AppMalloc(sizeof(AppListNode<_type>));
 		new(node)AppListNode<_type>();
@@ -194,7 +194,7 @@ public:
 		return node;
 	}
 
-	AppListNode<_type>* push_front(const _type& data) const
+	AppListNode<_type>* push_front(const _type& data)
 	{
 		AppListNode<_type>* node = (AppListNode<_type>*)AppMalloc(sizeof(AppListNode<_type>));
 		new(node)AppListNode<_type>();
@@ -219,7 +219,7 @@ public:
 		return node;
 	}
 
-	void pop_front() const
+	void pop_front()
 	{
 		if (!m_head)
 			return;
@@ -240,7 +240,7 @@ public:
 		last->m_right = next;
 	}
 
-	void pop_back() const
+	void pop_back()
 	{
 		if (!m_head)
 			return;
@@ -260,12 +260,12 @@ public:
 		}
 	}
 
-	void erase(AppListNode<_type>* node) const
+	void erase(AppListNode<_type>* node)
 	{
 		erase_by_node(node);
 	}
 
-	bool erase_first(const _type& object) const 
+	bool erase_first(const _type& object) 
 	{
 		if (!m_head)
 			return false;
@@ -292,7 +292,7 @@ public:
 		return false;
 	}
 
-	void replace(const _type& oldObject, const _type& newObject) const
+	void replace(const _type& oldObject, const _type& newObject)
 	{
 		if (!m_head)
 			return;
@@ -313,7 +313,7 @@ public:
 		}
 	}
 
-	void reverse() const
+	void reverse()
 	{
 		if (!m_head)
 			return;
@@ -334,7 +334,7 @@ public:
 		m_head = tail;
 	}
 
-	void erase_by_node(AppListNode<_type>* object) const
+	void erase_by_node(AppListNode<_type>* object)
 	{
 		if (!m_head)
 			return;

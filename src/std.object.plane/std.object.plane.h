@@ -40,6 +40,13 @@ public:
 	/*AppGraphicsObject* m__triangle = 0;
 	AppGraphicsObject* m_testGO_line = 0;
 	AppGraphicsObject* m_testGO_point = 0;*/
+
+
+	struct plane_params
+	{
+		uint32_t m_segments[2] = { 1,1 };
+		float32_t m_size[2] = { 1.f,1.f };
+	}m_params;
 };
 
 class AppPluginObject_plane : public AppPluginObject
@@ -47,12 +54,6 @@ class AppPluginObject_plane : public AppPluginObject
 public:
 	AppPluginObject_plane(AppPlugin* plugin);
 	virtual ~AppPluginObject_plane();
-
-	struct plane_params
-	{
-		uint32_t m_segments[2] = { 1,1 };
-		float32_t m_size[2] = { 1.f,1.f };
-	}m_params;
 
 	/// PluginObject
 	virtual EObjectType ObjectType() override;
