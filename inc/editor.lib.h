@@ -24,6 +24,8 @@ typedef double float64_t;
 
 
 class AppString;
+class AppPolygonCreator;
+class AppPolygonMesh;
 
 extern "C"
 {
@@ -37,6 +39,9 @@ extern "C"
 	// Create new char32_t string
 	// Use AppDestroyObject for destroying.
 	EDITORLIB_API AppString* AppCreateString();
+	
+	EDITORLIB_API AppPolygonCreator* AppCreatePolygonCreator();
+	EDITORLIB_API AppPolygonMesh* AppCreatePolygonMesh();
 }
 
 //AppPolygonImpl* newPolygon = AppCreate<AppPolygonImpl>();
@@ -74,7 +79,6 @@ struct AppPair
 #include "AppBaseObject.h"
 #include "AppColor.h"
 #include "AppMath.h"
-#include "AppMesh.h"
 
 #include "AppRay.h"
 #include "AppAabb.h"
@@ -82,5 +86,7 @@ struct AppPair
 #include "AppString.h"
 #include "AppList.h"
 #include "AppArray.h"
+
+#include "AppMesh.h"
 
 #endif

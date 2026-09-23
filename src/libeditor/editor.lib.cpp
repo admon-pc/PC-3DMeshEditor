@@ -1,6 +1,8 @@
 ﻿#include "editor.lib.h"
 
 #include "AppStringImpl.h"
+#include "AppPolygonCreatorImpl.h"
+#include "AppPolygonMeshImpl.h"
 
 #include <stdlib.h>
 
@@ -44,6 +46,15 @@ FILE* AppFopenW(const wchar_t* str, const wchar_t* mode)
 
 AppString* AppCreateString()
 {
-	AppStringImpl* str = AppCreate<AppStringImpl>();
-	return dynamic_cast<AppString*>(str);
+	return dynamic_cast<AppString*>(AppCreate<AppStringImpl>());
+}
+
+AppPolygonCreator* AppCreatePolygonCreator()
+{
+	return dynamic_cast<AppPolygonCreator*>(AppCreate<AppPolygonCreatorImpl>());
+}
+
+AppPolygonMesh* AppCreatePolygonMesh()
+{
+	return dynamic_cast<AppPolygonMesh*>(AppCreate<AppPolygonMeshImpl>());
 }

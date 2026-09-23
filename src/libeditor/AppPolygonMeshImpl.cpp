@@ -530,13 +530,18 @@ void AppPolygonMeshImpl::AddPolygon(AppPolygonCreator* pc)
 	}
 }
 
-AppMesh* AppPolygonMeshImpl::CreateMesh()
+AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>* arr, uint32_t _triLimit)
 {
+	uint32_t triLimit = 0xFFFFFFFF;
+	if (_triLimit && arr)
+		triLimit = _triLimit;
+
 	AppMesh* newMesh = 0;
-	uint32_t numOfVerts = 0;
 
 	if (m_first_polygon)
 	{
+		uint32_t numOfVerts = 0;
+		uint32_t numOfTris = 0;
 
 		auto c = m_first_polygon;
 		auto l = c->m_left;
@@ -557,14 +562,17 @@ AppMesh* AppPolygonMeshImpl::CreateMesh()
 				cv = cv->m_right;
 			}
 
-			uint32_t numOfTris = numVertPerPolygon - 2;
+			uint32_t numOfTrisInPolygon = numVertPerPolygon - 2;
+			numOfTris += numOfTrisInPolygon;
 
-			numOfVerts += numOfTris * 3;
+			numOfVerts += numOfTrisInPolygon * 3;
 
 			if (c == l)
 				break;
 			c = c->m_right;
 		}
+
+
 
 		if (numOfVerts > 2)
 		{
@@ -609,26 +617,6 @@ AppMesh* AppPolygonMeshImpl::CreateMesh()
 
 			AppMeshVertexTriangle* meshVerts = (AppMeshVertexTriangle*)newMesh->m_vertices;
 
-			/*c = m_first_polygon;
-			l = c->m_left;
-			while (true)
-			{
-				auto cv = c->m_verts.m_head;
-				auto lv = cv->m_left;
-				while (true)
-				{
-					meshVerts->Position = cv->m_data.m_vertex->m_position;
-					meshVerts->UV1 = cv->m_data.m_uv;
-					++meshVerts;
-
-					if (cv == lv)
-						break;
-					cv = cv->m_right;
-				}
-				if (c == l)
-					break;
-				c = c->m_right;
-			}*/
 			auto current_polygon = m_first_polygon;
 			auto last_polygon = current_polygon->m_left;
 			while (true)
@@ -751,3 +739,7 @@ void AppPolygonMeshImpl::DeletePolygon(AppPolygon*)
 {
 }
 
+AppAabb* AppPolygonMeshImpl::GetAABB()
+{
+	return &m_aabb;
+}

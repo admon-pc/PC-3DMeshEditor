@@ -137,6 +137,32 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 	o->SetName(U"Plane");
 	o->SetEdgeColor(AppColor(0xFFFF00FF));
 
+	AppPolygonCreator* pc = AppCreatePolygonCreator();
+	if (pc)
+	{
+		AppPolygonMesh* pm = AppCreatePolygonMesh();
+		if (pm)
+		{
+			pm->AddSphere(35, 1.f, AppMat4());
+			pm->GenerateNormals(true);
+
+			auto aabb = o->GetAABB();
+			*aabb = *pm->GetAABB();
+
+			AppMesh * mesh = pm->CreateMesh(AppMeshVertexType::Triangle);
+			if (mesh)
+			{
+				o->m_testGO_triangle = m_plugin->GetPluginInterface()->CreateGraphicsObject(mesh);
+
+				AppDestroyObject(mesh);
+			}
+
+			AppDestroyObject(pm);
+		}
+
+		AppDestroyObject(pc);
+	}
+
 	{
 		auto aabb = o->GetAABB();
 
@@ -233,16 +259,14 @@ void AppPluginObject_plane::DestroyObject(AppSceneObject* o)
 AppSceneObject_plane::AppSceneObject_plane(AppPluginObject* po)
 	:
 	AppSceneObject(po)
-{
-	
-}
+{}
 
 AppSceneObject_plane::~AppSceneObject_plane()
 {
 	auto pi = GetPluginObject()->GetPlugin()->GetPluginInterface();
-	/*if(m_testGO_triangle)
+	if(m_testGO_triangle)
 		pi->Destroy(m_testGO_triangle);
-	if (m_testGO_line)
+	/*if (m_testGO_line)
 		pi->Destroy(m_testGO_line);
 	if (m_testGO_point)
 		pi->Destroy(m_testGO_point);*/
@@ -250,9 +274,9 @@ AppSceneObject_plane::~AppSceneObject_plane()
 
 void AppSceneObject_plane::Draw(AppViewportData* viewportData, AppPluginInterface* )
 {
-	/*if (m_testGO_triangle)
+	if (m_testGO_triangle)
 		m_testGO_triangle->Draw(viewportData, this);
-	if (m_testGO_line)
+	/*if (m_testGO_line)
 		m_testGO_line->Draw(viewportData, this);
 	if (m_testGO_point)
 		m_testGO_point->Draw(viewportData, this);*/

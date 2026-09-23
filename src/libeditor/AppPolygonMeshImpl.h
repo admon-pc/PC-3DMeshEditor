@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+class AppVertexImpl;
+class AppPolygonImpl;
+
 class AppPolygonMeshImpl : public AppPolygonMesh
 {
 	void _add_vertex_to_list(AppVertexImpl* newVertex);
@@ -14,9 +17,6 @@ public:
 	AppPolygonMeshImpl();
 	virtual ~AppPolygonMeshImpl();
 
-	void Clear();
-	void AddCube(float32_t size, const AppMat4&);
-	void AddSphere(uint32_t segments, float32_t radius, const AppMat4&);
 
 	AppPolygonImpl* m_first_polygon = 0;
 	AppVertexImpl* m_first_vertex = 0;
@@ -27,11 +27,16 @@ public:
 
 	AppAabb m_aabb;
 
-	void UpdateCounts();
+	virtual void Clear() override;
+	virtual void AddCube(float32_t size, const AppMat4&) override;
+	virtual void AddSphere(uint32_t segments, float32_t radius, const AppMat4&) override;
+	virtual void UpdateCounts() override;
 
-	void AddPolygon(AppPolygonCreator*);
-	AppMesh* CreateMesh();
+	virtual void AddPolygon(AppPolygonCreator*) override;
+	virtual AppMesh* CreateMesh(AppMeshVertexType, AppArray<AppMesh*>* arr, uint32_t triLimit) override;
 
-	void GenerateNormals(bool smooth);
-	void DeletePolygon(AppPolygon*);
+	virtual void GenerateNormals(bool smooth) override;
+	virtual void DeletePolygon(AppPolygon*) override;
+
+	virtual AppAabb* GetAABB() override;
 };
