@@ -149,22 +149,44 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 			auto aabb = o->GetAABB();
 			*aabb = *pm->GetAABB();
 
-			AppArray<AppMesh*> meshArr;
-			//AppMesh * mesh = 
-				pm->CreateMesh(AppMeshVertexType::Triangle, &meshArr, 1);
-			//if (mesh)
-			if (meshArr.size())
+			AppArray<AppMesh*> meshArrTri;
+			pm->CreateMesh(AppMeshVertexType::Triangle, &meshArrTri, 15000);
+			AppArray<AppMesh*> meshArrLine;
+			pm->CreateMesh(AppMeshVertexType::Line, &meshArrLine, 15000);
+			AppArray<AppMesh*> meshArrPoint;
+			pm->CreateMesh(AppMeshVertexType::Point, &meshArrPoint, 15000);
+
+			if (meshArrTri.size())
 			{
-				for (size_t i = 0; i < meshArr.m_size; ++i)
+				for (size_t i = 0; i < meshArrTri.m_size; ++i)
 				{
-					//o->m_testGO_triangle = m_plugin->GetPluginInterface()->CreateGraphicsObject(mesh);
-					auto go = m_plugin->GetPluginInterface()->CreateGraphicsObject(meshArr.m_data[i]);
+					auto go = m_plugin->GetPluginInterface()->CreateGraphicsObject(meshArrTri.m_data[i]);
 					if(go)
 						o->m_GO_triangle.push_back(go);
-					
-					AppDestroyObject(meshArr.m_data[i]);
+					AppDestroyObject(meshArrTri.m_data[i]);
 				}
+			}
 
+			if (meshArrPoint.size())
+			{
+				for (size_t i = 0; i < meshArrPoint.m_size; ++i)
+				{
+					auto go = m_plugin->GetPluginInterface()->CreateGraphicsObject(meshArrPoint.m_data[i]);
+					if (go)
+						o->m_GO_point.push_back(go);
+					AppDestroyObject(meshArrPoint.m_data[i]);
+				}
+			}
+
+			if (meshArrLine.size())
+			{
+				for (size_t i = 0; i < meshArrLine.m_size; ++i)
+				{
+					auto go = m_plugin->GetPluginInterface()->CreateGraphicsObject(meshArrLine.m_data[i]);
+					if (go)
+						o->m_GO_line.push_back(go);
+					AppDestroyObject(meshArrLine.m_data[i]);
+				}
 			}
 
 			AppDestroyObject(pm);
@@ -280,6 +302,16 @@ AppSceneObject_plane::~AppSceneObject_plane()
 		AppDestroyObject(m_GO_triangle.m_data[i]);
 	}
 
+	for (size_t i = 0; i < m_GO_line.m_size; ++i)
+	{
+		AppDestroyObject(m_GO_line.m_data[i]);
+	}
+
+	for (size_t i = 0; i < m_GO_point.m_size; ++i)
+	{
+		AppDestroyObject(m_GO_point.m_data[i]);
+	}
+
 	//if(m_testGO_triangle)
 		//pi->Destroy(m_testGO_triangle);
 
@@ -294,6 +326,14 @@ void AppSceneObject_plane::Draw(AppViewportData* viewportData, AppPluginInterfac
 	for (size_t i = 0; i < m_GO_triangle.m_size; ++i)
 	{
 		m_GO_triangle.m_data[i]->Draw(viewportData, this);
+	}
+	for (size_t i = 0; i < m_GO_line.m_size; ++i)
+	{
+		m_GO_line.m_data[i]->Draw(viewportData, this);
+	}
+	for (size_t i = 0; i < m_GO_point.m_size; ++i)
+	{
+		m_GO_point.m_data[i]->Draw(viewportData, this);
 	}
 	/*if (m_testGO_line)
 		m_testGO_line->Draw(viewportData, this);

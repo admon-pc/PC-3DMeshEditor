@@ -572,7 +572,7 @@ AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>
 				|| (cp == lp))
 			{
 				newMesh = AppCreate<AppMesh>();
-				newMesh->Allocate(triCounter, AppMeshVertexType::Triangle);
+				newMesh->Allocate(triCounter, vt);
 				uint32_t indexCounter = 0;
 				uint32_t* inds32 = 0;
 				uint16_t* inds16 = 0;

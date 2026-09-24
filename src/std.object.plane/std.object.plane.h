@@ -35,6 +35,8 @@ public:
 	virtual bool IsCanSelect(AppSelectionFrust*, AppRay*) override;
 
 	AppArray<AppGraphicsObject*> m_GO_triangle;
+	AppArray<AppGraphicsObject*> m_GO_line;
+	AppArray<AppGraphicsObject*> m_GO_point;
 	//AppGraphicsObject* m_testGO_triangle = 0;
 
 	/*AppGraphicsObject* m_testGO_triangle = 0;
