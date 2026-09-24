@@ -2,6 +2,8 @@
 #include "AppMeshImpl.h"
 #include "AppGraphicsObject.h"
 
+#include <vector>
+
 void AppPolygonMeshImpl::_add_vertex_to_list(AppVertexImpl* newVertex)
 {
 	if (!m_first_vertex)
@@ -530,27 +532,28 @@ void AppPolygonMeshImpl::AddPolygon(AppPolygonCreator* pc)
 	}
 }
 
-AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>* arr, uint32_t _triLimit)
+AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>* arr, uint32_t polygonLimit)
 {
-	uint32_t triLimit = 0xFFFFFFFF;
-	if (_triLimit && arr)
-		triLimit = _triLimit;
-
 	AppMesh* newMesh = 0;
+	if (!polygonLimit)
+		polygonLimit = 0xFFFFFFFF;
 
 	if (m_first_polygon)
 	{
-		uint32_t numOfVerts = 0;
-		uint32_t numOfTris = 0;
+		uint32_t polygonCounter = 0;
+		uint32_t triCounter = 0;
 
-		auto c = m_first_polygon;
-		auto l = c->m_left;
+		std::vector<AppPolygonImpl*> polygonsForMesh;
+
+		auto cp = m_first_polygon;
+		auto lp = cp->m_left;
 		while (true)
 		{
-			//++m_polygonCount; just to know
+			polygonsForMesh.push_back(cp);
+			++polygonCounter;
 
 			uint32_t numVertPerPolygon = 0;
-			auto cv = c->m_verts.m_head;
+			auto cv = cp->m_verts.m_head;
 			auto lv = cv->m_left;
 			while (true)
 			{
@@ -562,107 +565,89 @@ AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>
 				cv = cv->m_right;
 			}
 
-			uint32_t numOfTrisInPolygon = numVertPerPolygon - 2;
-			numOfTris += numOfTrisInPolygon;
+			uint32_t numOfTris = numVertPerPolygon - 2;
+			triCounter += numOfTris;
 
-			numOfVerts += numOfTrisInPolygon * 3;
-
-			if (c == l)
-				break;
-			c = c->m_right;
-		}
-
-
-
-		if (numOfVerts > 2)
-		{
-			newMesh = AppCreate<AppMesh>();
-			newMesh->m_aabb = m_aabb;
-			newMesh->m_iCount = newMesh->m_vCount = numOfVerts;
-
-			uint32_t indexCounter = 0;
-
-			uint32_t* inds32 = 0;
-			uint16_t* inds16 = 0;
-			if (newMesh->m_iCount > 0xffff)
+			if ((polygonCounter == polygonLimit)
+				|| (cp == lp))
 			{
-				newMesh->m_indexType = AppMeshIndexType::u32;
-				newMesh->m_indices = (uint8_t*)AppMalloc(newMesh->m_iCount * sizeof(uint32_t));
+				newMesh = AppCreate<AppMesh>();
+				newMesh->Allocate(triCounter, AppMeshVertexType::Triangle);
+				uint32_t indexCounter = 0;
+				uint32_t* inds32 = 0;
+				uint16_t* inds16 = 0;
 				inds32 = (uint32_t*)newMesh->m_indices;
-			}
-			else
-			{
-				newMesh->m_indices = (uint8_t*)AppMalloc(newMesh->m_iCount * sizeof(uint16_t));
 				inds16 = (uint16_t*)newMesh->m_indices;
+
+				for (uint32_t i = 0; i < newMesh->m_iCount; ++i)
+				{
+					if (newMesh->m_indexType == AppMeshIndexType::u32)
+					{
+						*inds32 = indexCounter;
+						++inds32;
+						++indexCounter;
+					}
+					else
+					{
+						*inds16 = indexCounter;
+						++inds16;
+						++indexCounter;
+					}
+				}
+				AppMeshVertexTriangle* meshVerts = (AppMeshVertexTriangle*)newMesh->m_vertices;
+				for (size_t oi = 0; oi < polygonsForMesh.size(); ++oi)
+				{
+					auto polygon = polygonsForMesh.data()[oi];
+					auto vertex_1 = polygon->m_verts.m_head;
+					auto vertex_3 = vertex_1->m_right;
+					auto vertex_2 = vertex_3->m_right;
+					while (true)
+					{
+						meshVerts->Position = vertex_1->m_data.m_vertex->m_position;
+						meshVerts->UV1 = vertex_1->m_data.m_uv;
+						meshVerts->Normal = vertex_1->m_data.m_normal;
+						meshVerts->Binormal = vertex_1->m_data.m_binormal;
+						meshVerts->Tangent = vertex_1->m_data.m_tangent;
+						++meshVerts;
+
+						meshVerts->Position = vertex_2->m_data.m_vertex->m_position;
+						meshVerts->UV1 = vertex_2->m_data.m_uv;
+						meshVerts->Normal = vertex_2->m_data.m_normal;
+						meshVerts->Binormal = vertex_2->m_data.m_binormal;
+						meshVerts->Tangent = vertex_2->m_data.m_tangent;
+						++meshVerts;
+
+						meshVerts->Position = vertex_3->m_data.m_vertex->m_position;
+						meshVerts->UV1 = vertex_3->m_data.m_uv;
+						meshVerts->Normal = vertex_3->m_data.m_normal;
+						meshVerts->Binormal = vertex_3->m_data.m_binormal;
+						meshVerts->Tangent = vertex_3->m_data.m_tangent;
+						++meshVerts;
+
+						vertex_2 = vertex_2->m_right;
+						vertex_3 = vertex_3->m_right;
+
+						if (vertex_2 == vertex_1)
+							break;
+					}
+				}
+
+				arr->push_back(newMesh);
+				/////////////////////////////////////////////////////////////
+				polygonsForMesh.clear();
+				polygonCounter = 0;
+				triCounter = 0;
 			}
 
-			newMesh->m_vertexType = AppMeshVertexType::Triangle;
-			newMesh->m_stride = sizeof(AppMeshVertexTriangle);
-			newMesh->m_vertices = (uint8_t*)AppMalloc(newMesh->m_vCount * newMesh->m_stride);
-			for (uint32_t i = 0; i < newMesh->m_iCount; ++i)
-			{
-				if (newMesh->m_indexType == AppMeshIndexType::u32)
-				{
-					*inds32 = indexCounter;
-					++inds32;
-					++indexCounter;
-				}
-				else
-				{
-					*inds16 = indexCounter;
-					++inds16;
-					++indexCounter;
-				}
-			}
-
-			AppMeshVertexTriangle* meshVerts = (AppMeshVertexTriangle*)newMesh->m_vertices;
-
-			auto current_polygon = m_first_polygon;
-			auto last_polygon = current_polygon->m_left;
-			while (true)
-			{
-				auto vertex_1 = current_polygon->m_verts.m_head;
-				auto vertex_3 = vertex_1->m_right;
-				auto vertex_2 = vertex_3->m_right;
-				while (true)
-				{
-					meshVerts->Position = vertex_1->m_data.m_vertex->m_position;
-					meshVerts->UV1 = vertex_1->m_data.m_uv;
-					meshVerts->Normal = vertex_1->m_data.m_normal;
-					meshVerts->Binormal = vertex_1->m_data.m_binormal;
-					meshVerts->Tangent = vertex_1->m_data.m_tangent;
-					++meshVerts;
-
-					meshVerts->Position = vertex_2->m_data.m_vertex->m_position;
-					meshVerts->UV1 = vertex_2->m_data.m_uv;
-					meshVerts->Normal = vertex_2->m_data.m_normal;
-					meshVerts->Binormal = vertex_2->m_data.m_binormal;
-					meshVerts->Tangent = vertex_2->m_data.m_tangent;
-					++meshVerts;
-
-					meshVerts->Position = vertex_3->m_data.m_vertex->m_position;
-					meshVerts->UV1 = vertex_3->m_data.m_uv;
-					meshVerts->Normal = vertex_3->m_data.m_normal;
-					meshVerts->Binormal = vertex_3->m_data.m_binormal;
-					meshVerts->Tangent = vertex_3->m_data.m_tangent;
-					++meshVerts;
-
-					vertex_2 = vertex_2->m_right;
-					vertex_3 = vertex_3->m_right;
-
-					if (vertex_2 == vertex_1)
-						break;
-				}
-				if (current_polygon == last_polygon)
-					break;
-				current_polygon = current_polygon->m_right;
-			}
+			if (cp == lp)
+				break;
+			cp = cp->m_right;
 		}
 	}
 
 	//printf("numOfVerts: %u\n", numOfVerts);
 
-	return newMesh;
+	return arr ? 0 : newMesh;
 }
 
 void AppPolygonMeshImpl::GenerateNormals(bool smooth)
@@ -743,3 +728,31 @@ AppAabb* AppPolygonMeshImpl::GetAABB()
 {
 	return &m_aabb;
 }
+
+void AppPolygonMeshImpl::SetPolygonFlag(uint32_t f)
+{
+	auto current_polygon = m_first_polygon;
+	auto last_polygon = current_polygon->m_left;
+	while (true)
+	{
+		current_polygon->m_flags |= f;
+		if (current_polygon == last_polygon)
+			break;
+		current_polygon = current_polygon->m_right;
+	}
+}
+
+void AppPolygonMeshImpl::RemovePolygonFlag(uint32_t f)
+{
+	auto current_polygon = m_first_polygon;
+	auto last_polygon = current_polygon->m_left;
+	while (true)
+	{
+		current_polygon->m_flags &= ~f;
+
+		if (current_polygon == last_polygon)
+			break;
+		current_polygon = current_polygon->m_right;
+	}
+}
+

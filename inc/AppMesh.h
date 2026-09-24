@@ -66,7 +66,8 @@ public:
 	uint32_t m_iCount = 0;
 	uint32_t m_stride = 0;
 
-
+	// num is triNum for AppMeshVertexType::Triangle
+	// for other type is number of points
 	void Allocate(uint32_t num, AppMeshVertexType vt)
 	{
 		m_vertexType = vt;
@@ -78,6 +79,7 @@ public:
 			m_vCount = num;
 			m_iCount = m_vCount;
 			m_vertices = (uint8_t*)AppMalloc(sizeof(AppMeshVertexPoint) * m_vCount);
+			m_stride = sizeof(AppMeshVertexPoint);
 			break;
 		case AppMeshVertexType::Line:
 			m_vCount = num;
@@ -89,11 +91,13 @@ public:
 			*/
 			m_iCount = (m_vCount - 1) * 2;
 			m_vertices = (uint8_t*)AppMalloc(sizeof(AppMeshVertexLine) * m_vCount);
+			m_stride = sizeof(AppMeshVertexLine);
 			break;
 		case AppMeshVertexType::Triangle:
 			m_vCount = num * 3;
 			m_iCount = m_vCount;
 			m_vertices = (uint8_t*)AppMalloc(sizeof(AppMeshVertexTriangle) * m_vCount);
+			m_stride = sizeof(AppMeshVertexTriangle);
 			break;
 		}
 
@@ -130,6 +134,7 @@ public:
 	virtual AppVec3f GetFaceNormalCalculateNew() = 0;
 	virtual void Flip() = 0;
 	virtual void FixOrder(float32_t lineLineCollisionLen) = 0;
+
 };
 
 
@@ -180,6 +185,9 @@ public:
 	virtual void GenerateNormals(bool smooth) = 0;
 	virtual void DeletePolygon(AppPolygon*) = 0;
 	virtual AppAabb* GetAABB() = 0;
+
+	virtual void SetPolygonFlag(uint32_t) = 0;
+	virtual void RemovePolygonFlag(uint32_t) = 0;
 };
 
 

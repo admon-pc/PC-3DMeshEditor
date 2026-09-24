@@ -36,6 +36,8 @@ public:
 	};
 	AppList<_vertex_data> m_verts;
 
+	uint32_t m_flags = 0;
+
 	AppVec3f m_faceNormal;
 
 	AppListNode<_vertex_data>* FindVertex(AppVertexImpl* v);

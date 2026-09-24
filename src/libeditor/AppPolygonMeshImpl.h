@@ -25,6 +25,7 @@ public:
 	uint32_t m_vertexCount = 0;
 	uint32_t m_polygonCount = 0;
 
+
 	AppAabb m_aabb;
 
 	virtual void Clear() override;
@@ -33,10 +34,13 @@ public:
 	virtual void UpdateCounts() override;
 
 	virtual void AddPolygon(AppPolygonCreator*) override;
-	virtual AppMesh* CreateMesh(AppMeshVertexType, AppArray<AppMesh*>* arr, uint32_t triLimit) override;
+	virtual AppMesh* CreateMesh(AppMeshVertexType, AppArray<AppMesh*>* arr, uint32_t polygonLimit) override;
 
 	virtual void GenerateNormals(bool smooth) override;
 	virtual void DeletePolygon(AppPolygon*) override;
 
 	virtual AppAabb* GetAABB() override;
+
+	virtual void SetPolygonFlag(uint32_t) override;
+	virtual void RemovePolygonFlag(uint32_t) override;
 };
