@@ -143,7 +143,7 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 		AppPolygonMesh* pm = AppCreatePolygonMesh();
 		if (pm)
 		{
-			pm->AddSphere(12, 1.f, AppMat4());
+			pm->AddSphere(44, 1.f, AppMat4());
 			pm->GenerateNormals(true);
 
 			auto aabb = o->GetAABB();

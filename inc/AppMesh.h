@@ -89,7 +89,7 @@ public:
 			4 points -> 0,1 1,2 2,3
 			5 points -> 0,1 1,2 2,3 3,4
 			*/
-			m_iCount = (m_vCount - 1) * 2;
+			m_iCount = m_vCount * 2;
 			m_vertices = (uint8_t*)AppMalloc(sizeof(AppMeshVertexLine) * m_vCount);
 			m_stride = sizeof(AppMeshVertexLine);
 			break;

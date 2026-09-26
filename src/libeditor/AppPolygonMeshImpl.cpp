@@ -542,6 +542,7 @@ AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>
 	{
 		uint32_t polygonCounter = 0;
 		uint32_t triCounter = 0;
+		uint32_t pointCounter = 0;
 
 		std::vector<AppPolygonImpl*> polygonsForMesh;
 
@@ -565,6 +566,8 @@ AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>
 				cv = cv->m_right;
 			}
 
+			pointCounter += numVertPerPolygon;
+
 			uint32_t numOfTris = numVertPerPolygon - 2;
 			triCounter += numOfTris;
 
@@ -572,63 +575,149 @@ AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>
 				|| (cp == lp))
 			{
 				newMesh = AppCreate<AppMesh>();
-				newMesh->Allocate(triCounter, vt);
+				uint32_t num = triCounter;
+				if (vt != AppMeshVertexType::Triangle)
+				{
+					num = pointCounter;
+				}
+				newMesh->Allocate(num, vt);
 				uint32_t indexCounter = 0;
 				uint32_t* inds32 = 0;
 				uint16_t* inds16 = 0;
 				inds32 = (uint32_t*)newMesh->m_indices;
 				inds16 = (uint16_t*)newMesh->m_indices;
-
-				for (uint32_t i = 0; i < newMesh->m_iCount; ++i)
+				if (vt == AppMeshVertexType::Triangle)
 				{
-					if (newMesh->m_indexType == AppMeshIndexType::u32)
+					for (uint32_t i = 0; i < newMesh->m_iCount; ++i)
 					{
-						*inds32 = indexCounter;
-						++inds32;
-						++indexCounter;
-					}
-					else
-					{
-						*inds16 = indexCounter;
-						++inds16;
-						++indexCounter;
+						if (newMesh->m_indexType == AppMeshIndexType::u32)
+						{
+							*inds32 = indexCounter;
+							++inds32;
+							++indexCounter;
+						}
+						else
+						{
+							*inds16 = indexCounter;
+							++inds16;
+							++indexCounter;
+						}
 					}
 				}
+				else if (vt == AppMeshVertexType::Line)
+				{
+
+				}
+
 				AppMeshVertexTriangle* meshVerts = (AppMeshVertexTriangle*)newMesh->m_vertices;
+				AppMeshVertexPoint* meshVertsPoint = (AppMeshVertexPoint*)newMesh->m_vertices;
+				AppMeshVertexLine* meshVertsLine = (AppMeshVertexLine*)newMesh->m_vertices;
 				for (size_t oi = 0; oi < polygonsForMesh.size(); ++oi)
 				{
 					auto polygon = polygonsForMesh.data()[oi];
-					auto vertex_1 = polygon->m_verts.m_head;
-					auto vertex_3 = vertex_1->m_right;
-					auto vertex_2 = vertex_3->m_right;
-					while (true)
+					if (vt == AppMeshVertexType::Triangle)
 					{
-						meshVerts->Position = vertex_1->m_data.m_vertex->m_position;
-						meshVerts->UV1 = vertex_1->m_data.m_uv;
-						meshVerts->Normal = vertex_1->m_data.m_normal;
-						meshVerts->Binormal = vertex_1->m_data.m_binormal;
-						meshVerts->Tangent = vertex_1->m_data.m_tangent;
-						++meshVerts;
+						auto vertex_1 = polygon->m_verts.m_head;
+						auto vertex_3 = vertex_1->m_right;
+						auto vertex_2 = vertex_3->m_right;
+						while (true)
+						{
+							meshVerts->Position = vertex_1->m_data.m_vertex->m_position;
+							meshVerts->UV1 = vertex_1->m_data.m_uv;
+							meshVerts->Normal = vertex_1->m_data.m_normal;
+							meshVerts->Binormal = vertex_1->m_data.m_binormal;
+							meshVerts->Tangent = vertex_1->m_data.m_tangent;
+							++meshVerts;
 
-						meshVerts->Position = vertex_2->m_data.m_vertex->m_position;
-						meshVerts->UV1 = vertex_2->m_data.m_uv;
-						meshVerts->Normal = vertex_2->m_data.m_normal;
-						meshVerts->Binormal = vertex_2->m_data.m_binormal;
-						meshVerts->Tangent = vertex_2->m_data.m_tangent;
-						++meshVerts;
+							meshVerts->Position = vertex_2->m_data.m_vertex->m_position;
+							meshVerts->UV1 = vertex_2->m_data.m_uv;
+							meshVerts->Normal = vertex_2->m_data.m_normal;
+							meshVerts->Binormal = vertex_2->m_data.m_binormal;
+							meshVerts->Tangent = vertex_2->m_data.m_tangent;
+							++meshVerts;
 
-						meshVerts->Position = vertex_3->m_data.m_vertex->m_position;
-						meshVerts->UV1 = vertex_3->m_data.m_uv;
-						meshVerts->Normal = vertex_3->m_data.m_normal;
-						meshVerts->Binormal = vertex_3->m_data.m_binormal;
-						meshVerts->Tangent = vertex_3->m_data.m_tangent;
-						++meshVerts;
+							meshVerts->Position = vertex_3->m_data.m_vertex->m_position;
+							meshVerts->UV1 = vertex_3->m_data.m_uv;
+							meshVerts->Normal = vertex_3->m_data.m_normal;
+							meshVerts->Binormal = vertex_3->m_data.m_binormal;
+							meshVerts->Tangent = vertex_3->m_data.m_tangent;
+							++meshVerts;
+							//else if (vt == AppMeshVertexType::Point)
+							//{
+							//	/*meshVertsPoint->Position = vertex_1->m_data.m_vertex->m_position;
+							//	meshVertsPoint->Color.Set(1.f, 0.f, -0.f, 1.f);
+							//	++meshVertsPoint;
 
-						vertex_2 = vertex_2->m_right;
-						vertex_3 = vertex_3->m_right;
+							//	meshVertsPoint->Position = vertex_2->m_data.m_vertex->m_position;
+							//	meshVertsPoint->Color.Set(1.f, 0.f, -0.f, 1.f);
+							//	++meshVertsPoint;
 
-						if (vertex_2 == vertex_1)
-							break;
+							//	meshVertsPoint->Position = vertex_3->m_data.m_vertex->m_position;
+							//	meshVertsPoint->Color.Set(1.f, 0.f, -0.f, 1.f);
+							//	++meshVertsPoint;*/
+							//}
+							//else
+
+							vertex_2 = vertex_2->m_right;
+							vertex_3 = vertex_3->m_right;
+
+							if (vertex_2 == vertex_1)
+								break;
+						}
+					}
+					else
+					{
+
+						auto vertex = polygon->m_verts.m_head;
+						//auto vertex_2 = vertex_1->m_right;
+						auto vertex_last = vertex->m_left;
+						auto firstindex = indexCounter;
+						while (true)
+						{
+							if (vt == AppMeshVertexType::Line)
+							{
+								meshVertsLine[0].Position = vertex->m_data.m_vertex->m_position;
+								meshVertsLine[0].Color.Set(1.f, 0.f, -0.f, 1.f);
+								++meshVertsLine;
+
+								if (newMesh->m_indexType == AppMeshIndexType::u32)
+								{
+									inds32[0] = indexCounter;
+
+									if (vertex_last == vertex)
+									{
+										inds32[1] = firstindex;
+									}
+									else
+									{
+										inds32[1] = indexCounter + 1;
+										inds32 += 2;
+									}
+
+									++indexCounter;
+								}
+								else
+								{
+									inds16[0] = indexCounter;
+
+									if (vertex_last == vertex)
+									{
+										inds16[1] = firstindex;
+									}
+									else
+									{
+										inds16[1] = indexCounter + 1;
+										inds16 += 2;
+									}
+
+									++indexCounter;
+								}
+							}
+
+							if (vertex_last == vertex)
+								break;
+							vertex = vertex->m_right;
+						}
 					}
 				}
 
@@ -637,6 +726,7 @@ AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>
 				polygonsForMesh.clear();
 				polygonCounter = 0;
 				triCounter = 0;
+				pointCounter = 0;
 			}
 
 			if (cp == lp)
