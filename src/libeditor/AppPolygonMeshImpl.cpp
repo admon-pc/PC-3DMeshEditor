@@ -642,21 +642,6 @@ AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>
 							meshVerts->Binormal = vertex_3->m_data.m_binormal;
 							meshVerts->Tangent = vertex_3->m_data.m_tangent;
 							++meshVerts;
-							//else if (vt == AppMeshVertexType::Point)
-							//{
-							//	/*meshVertsPoint->Position = vertex_1->m_data.m_vertex->m_position;
-							//	meshVertsPoint->Color.Set(1.f, 0.f, -0.f, 1.f);
-							//	++meshVertsPoint;
-
-							//	meshVertsPoint->Position = vertex_2->m_data.m_vertex->m_position;
-							//	meshVertsPoint->Color.Set(1.f, 0.f, -0.f, 1.f);
-							//	++meshVertsPoint;
-
-							//	meshVertsPoint->Position = vertex_3->m_data.m_vertex->m_position;
-							//	meshVertsPoint->Color.Set(1.f, 0.f, -0.f, 1.f);
-							//	++meshVertsPoint;*/
-							//}
-							//else
 
 							vertex_2 = vertex_2->m_right;
 							vertex_3 = vertex_3->m_right;
@@ -669,7 +654,6 @@ AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>
 					{
 
 						auto vertex = polygon->m_verts.m_head;
-						//auto vertex_2 = vertex_1->m_right;
 						auto vertex_last = vertex->m_left;
 						auto firstindex = indexCounter;
 						while (true)
@@ -710,6 +694,23 @@ AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>
 										inds16 += 2;
 									}
 
+									++indexCounter;
+								}
+							}
+							else if (vt == AppMeshVertexType::Point)
+							{
+								meshVertsLine[0].Position = vertex->m_data.m_vertex->m_position;
+								meshVertsLine[0].Color.Set(1.f, 1.f, 1.f, 1.f);
+								++meshVertsLine;
+
+								if (newMesh->m_indexType == AppMeshIndexType::u32)
+								{
+									inds32[0] = indexCounter;
+									++indexCounter;
+								}
+								else
+								{
+									inds16[0] = indexCounter;
 									++indexCounter;
 								}
 							}
