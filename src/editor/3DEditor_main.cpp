@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
 	InitCommonControlsEx(&iccex);
 
 	alLib::InitializeLib();
+
 	Application* app = new Application;
 	
 	if (app->OnCreate("..."))

@@ -376,7 +376,7 @@ Application::Application()
 	g_app = this;
 	m_input = alLib::GetInput();
 	m_colorThemeCurr = &m_colorTheme;
-
+	alLog::SetOStream(&m_ostream);
 }
 
 Application::~Application()
@@ -451,7 +451,7 @@ void Application::ShowToolTip(int x, int y, const wchar_t* text)
 
 bool Application::OnCreate(const char* videoDriver)
 {
-	alLog::SetPrintFunction(PrintLogFunction);
+	//alLog::SetPrintFunction(PrintLogFunction);
 	alLog::PrintInfo("%s : %s\n", __DATE__, __TIME__);
 
 	m_pluginInterface = alCreate<AppPluginInterfaceImpl>(this);
@@ -857,15 +857,36 @@ void Application::MainLoop()
 void Application::PrintLog(const char* s)
 {
 	if (!m_fileLog)
-	{
 		fopen_s(&m_fileLog, "log.txt", "wb");
-	}
 
-	printf("%s", s);
+	if (m_fileLog)
+		fprintf(m_fileLog, "%s", s);
+}
+
+void Application::PrintLog(const wchar_t* s)
+{
+	if (!m_fileLog)
+		fopen_s(&m_fileLog, "log.txt", "wb");
 
 	if (m_fileLog)
 	{
-		fprintf(m_fileLog, "%s", s);
+		alUnicodeConverter::wchar_to_char(s, wcslen(s), &m_logBufferA);
+		if(m_logBufferA.size())
+			fwrite(m_logBufferA.c_str(), 1, m_logBufferA.size(), m_fileLog);
+	}
+}
+
+void Application::PrintLog(const char32_t* s)
+{
+	if (!m_fileLog)
+		fopen_s(&m_fileLog, "log.txt", "wb");
+
+	if (m_fileLog)
+	{
+		alUnicodeString u(s);
+		u.ToUTF8(m_logBufferA);
+		if (m_logBufferA.size())
+			fwrite(m_logBufferA.c_str(), 1, m_logBufferA.size(), m_fileLog);
 	}
 }
 

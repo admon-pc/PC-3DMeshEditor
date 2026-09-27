@@ -235,6 +235,25 @@ struct AppColorTheme
 	alGUIColorTheme m_GUIColorTheme2;
 };
 
+class AppOStream : public alOStream
+{
+	alOStream* m_defaultOStream = 0;
+public:
+	AppOStream();
+	virtual ~AppOStream();
+	virtual void print(const char* format, ...) override;
+	virtual void print(const wchar_t* format, ...) override;
+	virtual void print(const char32_t* format, ...) override;
+
+	virtual void vprint(const char* format, va_list arg) override;
+	virtual void vprint(const wchar_t* format, va_list arg) override;
+	virtual void vprint(const char32_t* format, va_list arg) override;
+
+	virtual void on_write(const char*) override;
+	virtual void on_write(const wchar_t*) override;
+	virtual void on_write(const char32_t*) override;
+};
+
 class Application
 {
 	friend class SystemWindowCallback;
@@ -254,6 +273,9 @@ class Application
 	HWND m_hwnd_About = 0;
 	
 	HWND m_hwnd_testDlg = 0;
+
+	alStringA m_logBufferA;
+	AppOStream m_ostream;
 
 	friend INT_PTR CALLBACK DialogProcObjectList(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	struct _objectListWindowData
@@ -504,6 +526,8 @@ public:
 	bool OnCreate(const char* videoDriver);
 	void MainLoop();
 	void PrintLog(const char* s);
+	void PrintLog(const wchar_t* s);
+	void PrintLog(const char32_t* s);
 	void UpdateWindowTitle();
 	void OnSetCursor();
 	void OnPopupCommand(uint32_t cmd);

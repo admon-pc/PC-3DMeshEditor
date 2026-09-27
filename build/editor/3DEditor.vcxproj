@@ -24,6 +24,7 @@
     <ClCompile Include="..\..\src\editor\Application.cpp" />
     <ClCompile Include="..\..\src\editor\Application.select.cpp" />
     <ClCompile Include="..\..\src\editor\Application.viewport.cpp" />
+    <ClCompile Include="..\..\src\editor\AppOStream.cpp" />
     <ClCompile Include="..\..\src\editor\DialogWndProcs.cpp" />
     <ClCompile Include="..\..\src\editor\AppPluginInterfaceImpl.cpp" />
     <ClCompile Include="..\..\src\editor\Gizmo.cpp" />
