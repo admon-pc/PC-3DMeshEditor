@@ -1,33 +1,35 @@
 ﻿#include "editor.h"
+#include "Scene.h"
 
 extern Application* g_app;
 
 
-AppScene::_root_t::_root_t():AppSceneObject(0){}
-AppScene::_root_t::~_root_t(){}
+AppSceneImpl::_root_t::_root_t():AppSceneObject(0){}
+AppSceneImpl::_root_t::~_root_t(){}
 
-AppScene::AppScene()
+AppSceneImpl::AppSceneImpl()
 {
 	m_rootObject = new _root_t();
 	m_rootObject->SetName(U"Root");
 }
 
-AppScene::~AppScene()
+AppSceneImpl::~AppSceneImpl()
 {
 	ClearScene();
 	delete m_rootObject;
 }
 
-void AppScene::DeleteObject(AppSceneObject* o)
+void AppSceneImpl::DeleteObject(AppSceneObject* o)
 {
 	if (o == m_rootObject)
 		return;
 
 	o->SetParent(0);
 	o->GetPluginObject()->DestroyObject(o);
+	_updateOnSelectObject();
 }
 
-void AppScene::ClearScene()
+void AppSceneImpl::ClearScene()
 {
 	AppArray<AppSceneObject*> arr;
 	GetAllObjects(&arr);
@@ -38,9 +40,10 @@ void AppScene::ClearScene()
 
 	m_rootObject->ClearChildrenList();
 	g_app->UpdateObjectList();
+	_updateOnSelectObject();
 }
 
-void AppScene::AddObject(AppSceneObject* object)
+void AppSceneImpl::AddObject(AppSceneObject* object)
 {
 	if (object)
 	{
@@ -55,10 +58,11 @@ void AppScene::AddObject(AppSceneObject* object)
 		object->m_flags |= AppSceneObject::flag_addedToScene;
 		object->UpdateAabb();
 		g_app->UpdateObjectList();
+		_onGetAllObjectsIntoArray();
 	}
 }
 
-void AppScene::_onGetAllObjects(AppSceneObject* o)
+void AppSceneImpl::_onGetAllObjects(AppSceneObject* o)
 {
 	m_getAllObjectArrayPtr->push_back(o);
 
@@ -79,12 +83,12 @@ void AppScene::_onGetAllObjects(AppSceneObject* o)
 	}
 }
 
-void AppScene::_onGetAllObjectsIntoArray()
+void AppSceneImpl::_onGetAllObjectsIntoArray()
 {
 	GetAllObjects(&m_allObjectsOnScene);
 }
 
-void AppScene::GetAllObjects(AppArray<AppSceneObject*>* out)
+void AppSceneImpl::GetAllObjects(AppArray<AppSceneObject*>* out)
 {
 	m_getAllObjectArrayPtr = out;
 	m_getAllObjectArrayPtr->clear();
@@ -106,7 +110,7 @@ void AppScene::GetAllObjects(AppArray<AppSceneObject*>* out)
 	}
 }
 
-void AppScene::GetFreeName(alUnicodeString* str)
+void AppSceneImpl::GetFreeName(alUnicodeString* str)
 {
 	alUnicodeString name = *str;
 	uint32_t nameNumber = 0;
@@ -127,7 +131,7 @@ void AppScene::GetFreeName(alUnicodeString* str)
 	*str = name;
 }
 
-bool AppScene::IsNameFree(AppSceneObject* o, alUnicodeString* name)
+bool AppSceneImpl::IsNameFree(AppSceneObject* o, alUnicodeString* name)
 {
 	if (alLib::strcmp(o->GetName(), name->c_str()) == 0)
 		return false;
@@ -152,11 +156,43 @@ bool AppScene::IsNameFree(AppSceneObject* o, alUnicodeString* name)
 	return true;
 }
 
-//void AppScene::Update(float32_t dt)
+AppSceneObject* AppSceneImpl::GetRootObject()
+{
+	return m_rootObject;
+}
+
+void AppSceneImpl::DeselectAll()
+{
+	for (auto o : m_allObjectsOnScene)
+	{
+		o->m_isSelected = false;
+	}
+	_updateOnSelectObject();
+}
+
+void AppSceneImpl::SelectObject(AppSceneObject* o)
+{
+	o->m_isSelected = true;
+	_updateOnSelectObject();
+}
+
+void AppSceneImpl::_updateOnSelectObject()
+{
+	m_selectedObjects.clear();
+	for (auto o : m_allObjectsOnScene)
+	{
+		if (o->m_isSelected)
+		{
+			m_selectedObjects.push_back(o);
+		}
+	}
+}
+
+//void AppSceneImpl::Update(float32_t dt)
 //{
 //}
 //
-//void AppScene::Draw(float32_t dt)
+//void AppSceneImpl::Draw(float32_t dt)
 //{
 //}
 

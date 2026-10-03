@@ -109,10 +109,7 @@ AppGraphicsObject* AppPluginInterfaceImpl::CreateGraphicsObject(AppMesh* m)
 	return result;
 }
 
-void AppPluginInterfaceImpl::Destroy(AppGraphicsObject* go)
+AppScene* AppPluginInterfaceImpl::GetScene()
 {
-	if (go)
-	{
-	}
+	return m_app->m_scene;
 }
-

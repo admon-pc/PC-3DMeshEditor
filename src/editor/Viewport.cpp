@@ -627,8 +627,8 @@ void AppViewport::Draw3D()
 	{
 		_drawSelectedObjectFrame();
 		_drawScene();
-		/*if (m_isDrawAabbs)
-			g_app->DrawAabb(g_app->m_sceneAabb, alVec4f(1.f), v3f());*/
+		//if (m_drawAabbs)
+		//	g_app->DrawAabb(g_app->m_sceneAabb, ColorWhite, alVec4());
 	}
 
 	//	if (g_app->m_isClickAndDrag)
@@ -670,6 +670,7 @@ void AppViewport::_drawAabb(const AppAabb& aabb, const AppColor& _color, const A
 	alVec4 v7(p2.x, p1.y, p2.z, 1.f);
 	alVec4 v8(p2.x, p2.y, p1.z, 1.f);
 
+	m_gs->BeginDrawLine3D();
 	gs->DrawLine3D(v1 + positionOffset, v4 + positionOffset, color);
 	gs->DrawLine3D(v5 + positionOffset, v8 + positionOffset, color);
 	gs->DrawLine3D(v1 + positionOffset, v5 + positionOffset, color);
@@ -721,7 +722,7 @@ void AppViewport::_drawScene()
 	switch (g_app->m_editMode)
 	{
 	case AppEditMode::Object:
-		if (g_app->m_selectedObjects.m_size)
+		if (g_app->m_scene->m_selectedObjects.m_size)
 			g_app->m_gizmo->Draw(this);
 		break;
 	default:
@@ -904,60 +905,61 @@ void AppViewport::_drawSelectedObjectFrame()
 	float32_t frameIndentY = 0.f;
 	float32_t frameIndentZ = 0.f;
 
-	//for (uint32_t i = 0; i < g_app->m_selectedObjects.m_size; ++i)
-	//{
-	//	auto obj = g_app->m_selectedObjects.m_data[i];
+	m_gs->BeginDrawLine3D();
+	for (uint32_t i = 0; i < g_app->m_scene->m_selectedObjects.m_size; ++i)
+	{
+		auto obj = g_app->m_scene->m_selectedObjects.m_data[i];
 
-	//	auto aabb = *obj->GetAABBTransformed();
-	//	aabb.m_max.w = 0.f;
-	//	aabb.m_min.w = 0.f;
+		auto aabb = *obj->GetAABBTransformed();
+		aabb.m_max.w = 0.f;
+		aabb.m_min.w = 0.f;
 
-	//	if (g_app->m_editMode == miEditMode::Object)
-	//	{
-	//		aabb.m_max += g_app->m_gizmo->m_var_move;
-	//		aabb.m_min += g_app->m_gizmo->m_var_move;
-	//	}
+		if (g_app->m_editMode == AppEditMode::Object)
+		{
+			aabb.m_max += g_app->m_gizmo->m_var_move;
+			aabb.m_min += g_app->m_gizmo->m_var_move;
+		}
 
-	//	frameSizeX = (aabb.m_max.x - aabb.m_min.x) * 0.2f;
-	//	frameSizeY = (aabb.m_max.y - aabb.m_min.y) * 0.2f;
-	//	frameSizeZ = (aabb.m_max.z - aabb.m_min.z) * 0.2f;
-	//	//frameSize /= 12.f;
-	//	frameIndentX = frameSizeX * 0.2f;
-	//	frameIndentY = frameSizeY * 0.2f;
-	//	frameIndentZ = frameSizeZ * 0.2f;
+		frameSizeX = float(aabb.m_max.x - aabb.m_min.x) * 0.2f;
+		frameSizeY = float(aabb.m_max.y - aabb.m_min.y) * 0.2f;
+		frameSizeZ = float(aabb.m_max.z - aabb.m_min.z) * 0.2f;
+		//frameSize /= 12.f;
+		frameIndentX = frameSizeX * 0.2f;
+		frameIndentY = frameSizeY * 0.2f;
+		frameIndentZ = frameSizeZ * 0.2f;
 
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_min.x - frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_min.x + frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_min.x - frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_min.x + frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
 
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_max.x + frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_max.x - frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_max.x + frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_max.x - frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
 
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_max.x + frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_max.x - frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_max.x + frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_max.x - frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
 
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_min.x - frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_min.x + frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_min.x - frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_min.x + frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_min.x - frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
 
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_min.x + frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_min.x - frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_min.x + frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_min.x - frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
 
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_min.x + frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_min.x - frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_min.x + frameSizeX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_min.x - frameIndentX, aabb.m_max.y - frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_min.x - frameIndentX, aabb.m_max.y + frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
 
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_max.x - frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_max.x + frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_max.x - frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_max.x + frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_min.z - frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z - frameIndentZ, 0.f), alVec4(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_min.z + frameSizeZ, 0.f), ColorLightGray);
 
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_max.x - frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_max.x + frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
-	//	m_gs->DrawLine3D(alVec4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4f(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
-	//}
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_max.x - frameSizeX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_max.x + frameIndentX, aabb.m_min.y + frameSizeY, aabb.m_max.z + frameIndentZ, 0.f), ColorLightGray);
+		m_gs->DrawLine3D(alVec4(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z + frameIndentZ, 0.f), alVec4(aabb.m_max.x + frameIndentX, aabb.m_min.y - frameIndentY, aabb.m_max.z - frameSizeZ, 0.f), ColorLightGray);
+	}
 }
 
 

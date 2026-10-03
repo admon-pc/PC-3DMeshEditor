@@ -18,7 +18,7 @@ public:
 	virtual uint32_t snprintf(char32_t* str, size_t n, const char32_t* format, ...) override;
 	
 	virtual AppGraphicsObject* CreateGraphicsObject(AppMesh* desc) override;
-	virtual void Destroy(AppGraphicsObject*) override;
+	virtual AppScene* GetScene() override;
 };
 
 #endif

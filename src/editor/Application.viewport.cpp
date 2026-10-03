@@ -638,7 +638,7 @@ void Application::DrawViewportsGUI()
 			switch (m_editMode)
 			{
 			case AppEditMode::Object:
-				if (m_selectedObjects.m_size)
+				if (m_scene->m_selectedObjects.m_size)
 					m_gizmo->Update(viewport);
 				break;
 			default:

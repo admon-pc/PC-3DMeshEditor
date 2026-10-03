@@ -1,8 +1,4 @@
-Info: Hello!
-char
-wchar_t
-char32_t
-Info: Sep 27 2026 : 23:22:57
+Info: Oct  3 2026 : 21:49:19
 Load Image: ../font0.png
 Load Image: ../guiicons0.png
 Load Image: ../data/gui/gui.png

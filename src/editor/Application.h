@@ -258,7 +258,7 @@ class Application
 {
 	friend class SystemWindowCallback;
 	friend class AppGizmo;
-	friend class AppScene;
+	friend class AppSceneImpl;
 	friend class AppViewportCamera;
 	friend class AppViewport;
 	friend class AppShortcutManager;
@@ -288,7 +288,7 @@ class Application
 	void _updateObjectList(HTREEITEM parent, AppSceneObject* sceneObject);
 	void UpdateObjectList();
 
-	AppScene* m_scene = 0;
+	AppSceneImpl* m_scene = 0;
 
 	// When I need to create new object
 	// click on list box item and I need to save
@@ -339,7 +339,7 @@ class Application
 
 	AppEditMode m_editMode = AppEditMode::Object;
 
-	alArray<AppSceneObject*> m_selectedObjects;
+	//alArray<AppSceneObject*> m_selectedObjects;
 
 	AppGizmo* m_gizmo = 0;
 	AppGizmoMode m_gizmoMode = AppGizmoMode::NoTransform;
@@ -402,7 +402,7 @@ class Application
 	alVec4f m_UVAabbMoveOffset;
 	float32_t m_UVAngle = 0.f;
 	void UVSelectAll();
-
+	
 	AppColorTheme m_colorTheme;
 	AppColorTheme* m_colorThemeCurr = 0;
 

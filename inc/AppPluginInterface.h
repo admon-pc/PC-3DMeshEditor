@@ -67,6 +67,7 @@ enum class AppEditMode : uint32_t
 	Object,
 };
 
+class AppScene;
 class AppPluginInterface
 {
 public:
@@ -82,7 +83,8 @@ public:
 	virtual uint32_t snprintf(char32_t* str, size_t n, const char32_t* format, ...) = 0;
 	
 	virtual AppGraphicsObject* CreateGraphicsObject(AppMesh* m) = 0;
-	virtual void Destroy(AppGraphicsObject*) = 0;
+
+	virtual AppScene* GetScene() = 0;
 };
 
 #include "AppScene.h"

@@ -11,15 +11,8 @@ class AppSelectionFrust;
 class AppPluginObject;
 class AppSceneObject
 {
-	friend class AppScene;
+	friend class AppSceneImpl;
 
-	uint32_t m_flags = 0;
-	enum
-	{
-		// this flag will be used in app
-		// it will be used to know that this object was added on scene only once
-		flag_addedToScene = 0x1,
-	};
 	std::wstring m_nameW;
 
 protected:
@@ -52,6 +45,15 @@ protected:
 	bool m_isSelected = false;
 public:
 	AppSceneObject(AppPluginObject* po) : m_pluginObject(po) {}
+
+	enum
+	{
+		// this flag will be used in app
+		// it will be used to know that this object was added on scene only once
+		flag_addedToScene = 0x1,
+	};
+	uint32_t m_flags = 0;
+
 	virtual ~AppSceneObject()
 	{
 		if (m_name)

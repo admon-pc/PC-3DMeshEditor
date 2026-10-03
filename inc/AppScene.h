@@ -4,46 +4,22 @@
 
 #include "AppSceneObject.h"
 
-
-class AppScene
+class AppScene : public AppBaseObject
 {
-	class _root_t : public AppSceneObject
-	{
-	public:
-		_root_t();
-		virtual ~_root_t();
-		virtual void Draw(AppViewportData*, AppPluginInterface*) override {}
-		virtual bool OnSelect(AppSelectionFrust*, AppRay*, bool selectByRectangle, AppEditMode) override { return false; }
-		virtual bool IsCanSelect(AppSelectionFrust*, AppRay*) override { return false; }
-	};
-
-	AppSceneObject* m_rootObject = 0;
-	//AppSceneObjectInternal* m_rootObject = 0;
-
-	AppArray<AppSceneObject*>* m_getAllObjectArrayPtr = 0;
-	AppArray<AppSceneObject*> m_allObjectsOnScene;
-	void _onGetAllObjectsIntoArray();
-	void _onGetAllObjects(AppSceneObject*);
-
 public:
-	AppScene();
-	~AppScene();
-	AL_DECLARE_DEFAULT_ALLOCATOR(AppScene);
-
-	void DeleteObject(AppSceneObject*);
+	virtual void DeleteObject(AppSceneObject*) = 0;
 	// Delete all objects
-	void ClearScene();
+	virtual void ClearScene() = 0;
 
-	void AddObject(AppSceneObject*);
-	void GetAllObjects(AppArray<AppSceneObject*>*);
+	virtual void AddObject(AppSceneObject*) = 0;
+	virtual void GetAllObjects(AppArray<AppSceneObject*>*) = 0;
 
-	bool IsNameFree(AppSceneObject* , alUnicodeString*);
-	void GetFreeName(alUnicodeString*);
+	virtual bool IsNameFree(AppSceneObject* , alUnicodeString*) = 0;
+	virtual void GetFreeName(alUnicodeString*) = 0;
 
-	//void Update(float32_t dt);
-	//void Draw(float32_t dt);
-
-	AppSceneObject* GetRootObject() { return m_rootObject; }
+	virtual AppSceneObject* GetRootObject() = 0;
+	virtual void DeselectAll() = 0;
+	virtual void SelectObject(AppSceneObject*) = 0;
 };
 
 #endif

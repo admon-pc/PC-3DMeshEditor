@@ -392,7 +392,8 @@ Application::~Application()
 	AL_DESTROY(m_fontGUI);
 	AL_DESTROY(m_fontGUIIcons32);
 
-
+	
+	AL_DESTROY(m_gizmo);
 	AL_DESTROY(m_shortcutManager);
 	AL_DESTROY(m_blackTexture);
 	AL_DESTROY(m_transparentTexture);
@@ -621,8 +622,8 @@ bool Application::OnCreate(const char* videoDriver)
 
 //	_callViewportOnWindowSize();
 
-	m_scene = new AppScene();
-	
+	m_scene = alCreate<AppSceneImpl>();
+	m_gizmo = alCreate<AppGizmo>(this);
 	//AppString pstr;
 
 	_initPlugins();
@@ -648,52 +649,6 @@ bool Application::OnCreate(const char* videoDriver)
 				otData->m_objs.push_back(obj);
 			}
 		}
-		//auto pluginType = plugin.m_plugin->PluginType();
-		//if (alLib::GUIDIsEqual(pluginType, APP_CLASS_ID_PLUGIN_TYPE_OBJECT))
-		//{
-		//	AppPluginObject* po = dynamic_cast<AppPluginObject*>(plugin.m_plugin);
-		//	if (po)
-		//	{
-		//		const char32_t* cat = po->Category();
-		//		const char32_t* title = po->TitleName();
-		//		auto objType = po->ObjectType();
-		//		if (cat && objType != AppPluginObject::EObjectType::EObjectType__end)
-		//		{
-		//			auto* otData = &m_new_object_basic_data.m_data[objType];
-		//			
-		//			// ПОКА БУДЕТ НЕ ТАК
-		//			/*Application::new_object_basic_data::_object* category = 0;
-		//			for (size_t ci = 0; ci < otData->m_objs.m_size; ++ci)
-		//			{
-		//				category = &otData->m_objs.m_data[ci];
-		//				if (alLib::strcmp(category->m_name, cat) == 0)
-		//					break;
-		//				category = 0;
-		//			}
-
-		//			if (!category)
-		//			{
-		//				Application::new_object_basic_data::_object newCategory;
-		//				alLib::snprintf(
-		//					newCategory.m_name, 
-		//					Application::new_object_basic_data::NAME_SIZE,
-		//					U"%s", cat);
-		//				otData->m_objs.push_back(newCategory);
-		//				category = &otData->m_objs
-		//					.m_data[otData->m_objs.m_size - 1];
-		//			}*/
-
-		//			// ПОКА БУДЕТ ПРОСТОЙ СПИСОК
-		//			Application::new_object_basic_data::_object obj;
-		//			alLib::snprintf(
-		//				obj.m_name,
-		//				Application::new_object_basic_data::NAME_SIZE,
-		//				U"%s:%s", cat, title);
-		//			obj.m_pluginObject = po;
-		//			otData->m_objs.push_back(obj);
-		//		}
-		//	}
-		//}
 	}
 	SetRightTabMode(Application::RightTabMode::Create);
 	SetPanelCreateObjectType(AppPluginObject::EObjectType::EObjectType_Polygonal);
@@ -836,8 +791,11 @@ void Application::MainLoop()
 		m_gs->BeginDraw();
 		m_gs->SetClearColor(m_colorThemeCurr->m_windowClearColor);
 		m_gs->ClearAll();
-
-		DrawViewports3D();
+		
+		if (m_scene)
+		{
+			DrawViewports3D();
+		}
 
 		m_gs->BeginDrawGUI();
 		DrawViewportsGUI();
@@ -849,8 +807,6 @@ void Application::MainLoop()
 
 		m_gs->EndDraw();
 		m_gs->SwapBuffers();
-
-	//	OnSetCursor();
 	}
 }
 
@@ -1690,6 +1646,8 @@ void Application::OnButtonCreateNewObject()
 		if (o)
 		{
 			m_scene->AddObject(o);
+			m_scene->DeselectAll();
+			m_scene->SelectObject(o);
 		}
 	}
 }
