@@ -156,8 +156,8 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 			pm->CreateMesh(AppMeshVertexType::Triangle, &meshArrTri, 15000);
 			AppArray<AppMesh*> meshArrLine;
 			pm->CreateMesh(AppMeshVertexType::Line, &meshArrLine, 15000);
-			AppArray<AppMesh*> meshArrPoint;
-			pm->CreateMesh(AppMeshVertexType::Point, &meshArrPoint, 15000);
+			/*AppArray<AppMesh*> meshArrPoint;
+			pm->CreateMesh(AppMeshVertexType::Point, &meshArrPoint, 15000);*/
 
 			if (meshArrTri.size())
 			{
@@ -170,7 +170,7 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 				}
 			}
 
-			if (meshArrPoint.size())
+		/*	if (meshArrPoint.size())
 			{
 				for (size_t i = 0; i < meshArrPoint.m_size; ++i)
 				{
@@ -179,7 +179,7 @@ AppSceneObject* AppPluginObject_plane::CreateObject()
 						o->m_GO_point.push_back(go);
 					AppDestroyObject(meshArrPoint.m_data[i]);
 				}
-			}
+			}*/
 
 			if (meshArrLine.size())
 			{
@@ -227,52 +227,42 @@ AppSceneObject_plane::~AppSceneObject_plane()
 		AppDestroyObject(m_GO_line.m_data[i]);
 	}
 
-	for (size_t i = 0; i < m_GO_point.m_size; ++i)
+	/*for (size_t i = 0; i < m_GO_point.m_size; ++i)
 	{
 		AppDestroyObject(m_GO_point.m_data[i]);
-	}
-
-	//if(m_testGO_triangle)
-		//pi->Destroy(m_testGO_triangle);
-
-	/*if (m_testGO_line)
-		pi->Destroy(m_testGO_line);
-	if (m_testGO_point)
-		pi->Destroy(m_testGO_point);*/
+	}*/
 }
 
 void AppSceneObject_plane::Draw(AppViewportData* viewportData, AppPluginInterface* )
 {
-	for (size_t i = 0; i < m_GO_triangle.m_size; ++i)
-	{
-		m_GO_triangle.m_data[i]->Draw(viewportData, this);
-	}
-	for (size_t i = 0; i < m_GO_line.m_size; ++i)
-	{
-		m_GO_line.m_data[i]->Draw(viewportData, this);
-	}
-	for (size_t i = 0; i < m_GO_point.m_size; ++i)
+	
+	
+	/*for (size_t i = 0; i < m_GO_point.m_size; ++i)
 	{
 		m_GO_point.m_data[i]->Draw(viewportData, this);
-	}
-	/*if (m_testGO_line)
-		m_testGO_line->Draw(viewportData, this);
-	if (m_testGO_point)
-		m_testGO_point->Draw(viewportData, this);*/
+	}*/
 
-	/*if (dm == AppViewportDrawMode::Material
+	auto dm = viewportData->m_drawMode;
+
+	if (dm == AppViewportDrawMode::Material
 		|| dm == AppViewportDrawMode::MaterialWireframe)
 	{
-		if (m_visualObject_polygon) m_visualObject_polygon->Draw(false);
+		for (size_t i = 0; i < m_GO_triangle.m_size; ++i)
+		{
+			m_GO_triangle.m_data[i]->Draw(viewportData, this);
+		}
 	}
 
 	if ((dm == AppViewportDrawMode::Wireframe || dm == AppViewportDrawMode::MaterialWireframe)
-		|| (m_isSelected && em == AppEditMode::Edge)
-		|| (m_isSelected && em == AppEditMode::Polygon)
+		/*|| (m_isSelected && em == AppEditMode::Edge)
+		|| (m_isSelected && em == AppEditMode::Polygon)*/
 		)
 	{
-		if (m_visualObject_edge) m_visualObject_edge->Draw(false);
-	}*/
+		for (size_t i = 0; i < m_GO_line.m_size; ++i)
+		{
+			m_GO_line.m_data[i]->Draw(viewportData, this);
+		}
+	}
 }
 
 bool AppSceneObject_plane::OnSelect(AppSelectionFrust* f, AppRay* r , bool selectByRectangle, AppEditMode em)

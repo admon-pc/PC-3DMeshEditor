@@ -155,6 +155,7 @@ void AppViewport::Copy(AppViewport* other)
 	this->SetCameraType(other->m_cameraType);
 	this->SetDrawGrid(other->m_drawGrid);
 	this->SetDrawMode(other->m_viewportData.m_drawMode);
+	m_drawAabbs = other->m_drawAabbs;
 	m_activeCamera->Copy(other->m_activeCamera);
 	m_activeCamera->Update();
 }

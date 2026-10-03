@@ -36,15 +36,7 @@ public:
 
 	AppArray<AppGraphicsObject*> m_GO_triangle;
 	AppArray<AppGraphicsObject*> m_GO_line;
-	AppArray<AppGraphicsObject*> m_GO_point;
-	//AppGraphicsObject* m_testGO_triangle = 0;
-
-	/*AppGraphicsObject* m_testGO_triangle = 0;
-	AppGraphicsObject* m_testGO_line = 0;
-	AppGraphicsObject* m_testGO_point = 0;*/
-	/*AppGraphicsObject* m__triangle = 0;
-	AppGraphicsObject* m_testGO_line = 0;
-	AppGraphicsObject* m_testGO_point = 0;*/
+	//AppArray<AppGraphicsObject*> m_GO_point;
 
 
 	struct plane_params

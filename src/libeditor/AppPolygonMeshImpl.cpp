@@ -661,7 +661,7 @@ AppMesh* AppPolygonMeshImpl::CreateMesh(AppMeshVertexType vt, AppArray<AppMesh*>
 							if (vt == AppMeshVertexType::Line)
 							{
 								meshVertsLine[0].Position = vertex->m_data.m_vertex->m_position;
-								meshVertsLine[0].Color.Set(1.f, 0.f, -0.f, 1.f);
+								meshVertsLine[0].Color.Set(1.f, 1.f, 1.f, 1.f);
 								++meshVertsLine;
 
 								if (newMesh->m_indexType == AppMeshIndexType::u32)
