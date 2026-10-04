@@ -6,6 +6,7 @@ class AppSceneImpl : public AppScene
 {
 	friend class Application;
 	friend class AppViewport;
+	friend class AppGizmo;
 
 	class _root_t : public AppSceneObject
 	{

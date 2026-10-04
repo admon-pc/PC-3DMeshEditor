@@ -120,9 +120,9 @@ public:
 	alColor m_color_z;
 
 	alVec3f m_moveDelta;
-	AppVec4 m_var_move_old;
-	AppVec4 m_var_move;
-	AppVec4 m_var_move_onEscape; // just for moving verts back to position 
+	alVec3f m_var_move_old;
+	alVec3f m_var_move;
+	alVec3f m_var_move_onEscape; // just for moving verts back to position 
 	alVec3f m_var_scale;
 	alVec3f m_var_scale2;
 	alVec4f m_var_rotate;

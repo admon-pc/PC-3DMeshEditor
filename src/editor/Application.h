@@ -411,6 +411,7 @@ class Application
 
 	AppGSShaderCallback_LineModel3D* m_shaderLineModel = 0;
 	AppGSShaderCallback_DefaultTriangle* m_shaderDefaultTriangle = 0;
+	AppGSShaderCallback_GIZMOTriangle* m_shaderGIZMOTriangle = 0;
 	AppGSShaderCallback_PointModel* m_shaderPointModel = 0;
 
 	alInput* m_input = 0;
@@ -566,6 +567,9 @@ public:
 	void SetRightTabMode(RightTabMode);
 	void SetPanelCreateObjectType(AppPluginObject::EObjectType);
 	//void OnCombo_Create_Category(uint32_t);
+
+	void DrawAabb(const AppAabb& aabb, const AppColor& _color, const AppVec3f& _positionOffset);
+	void DrawAabb(const alAabb& aabb, const alColor& _color, const alVec3f& _positionOffset);
 
 	static alVec4f AppVecToAlVec(const AppVec4f&);
 	static alVec3f AppVecToAlVec(const AppVec3f&);

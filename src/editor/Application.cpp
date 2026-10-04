@@ -296,6 +296,17 @@ void Application::GUI::CreateButtons()
 	m_panel->AddElement(btn, true);
 	position += 32;
 
+	btn = new AppGUIButtonIcon(m_context, m_ta, iconIDSc1, alVec2f(position, 0), alVec2f(32.f, 32.f));
+	btn->SetUserData(this);
+	btn->SetID(elementID_btnGizmoScale);
+	btn->m_toggleButton = true;
+	btn->m_radioButton = true;
+	btn->m_radioGroup = AppGUIRadioGroupID_GIZMOMODE;
+	btn->m_iconIndexPress = iconIDSc2;
+	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
+	m_panel->AddElement(btn, true);
+	position += 32;
+
 	btn = new AppGUIButtonIcon(m_context, m_ta, iconIDRot1, alVec2f(position, 0), alVec2f(32.f, 32.f));
 	btn->SetUserData(this);
 	btn->SetID(elementID_btnGizmoRotate);
@@ -307,16 +318,7 @@ void Application::GUI::CreateButtons()
 	m_panel->AddElement(btn, true);
 	position += 32;
 
-	btn = new AppGUIButtonIcon(m_context, m_ta, iconIDSc1, alVec2f(position, 0), alVec2f(32.f, 32.f));
-	btn->SetUserData(this);
-	btn->SetID(elementID_btnGizmoScale);
-	btn->m_toggleButton = true;
-	btn->m_radioButton = true;
-	btn->m_radioGroup = AppGUIRadioGroupID_GIZMOMODE;
-	btn->m_iconIndexPress = iconIDSc2;
-	btn->m_colorTheme = &g_app->m_colorThemeCurr->m_GUIColorTheme;
-	m_panel->AddElement(btn, true);
-	position += 32;
+
 
 	position = 0;
 	btn = new AppGUIButtonIcon(m_context, m_ta, iconIDEdit1, alVec2f(position, 0), alVec2f(32.f, 32.f));
@@ -400,6 +402,7 @@ Application::~Application()
 	AL_DESTROY(m_shaderLineModel);
 	AL_DESTROY(m_shaderPointModel);
 	AL_DESTROY(m_shaderDefaultTriangle);
+	AL_DESTROY(m_shaderGIZMOTriangle);
 	AL_DESTROY(m_gs);
 	AL_DESTROY(m_windowCallback);
 	AL_DESTROY(m_pluginInterface);
@@ -574,6 +577,11 @@ bool Application::OnCreate(const char* videoDriver)
 	{
 		m_shaderDefaultTriangle = alCreate<AppGSShaderCallback_DefaultTriangle>();
 		if (!m_shaderDefaultTriangle->Create(m_gs))
+			return false;
+	}
+	{
+		m_shaderGIZMOTriangle = alCreate<AppGSShaderCallback_GIZMOTriangle>();
+		if (!m_shaderGIZMOTriangle->Create(m_gs))
 			return false;
 	}
 
@@ -1252,6 +1260,37 @@ void Application::OnSetCursor()
 void Application::SetTransformMode(AppTransformMode mode)
 {
 	m_transformMode = mode;
+
+	uint32_t buttonID = 0;
+	switch (mode)
+	{
+	case AppTransformMode::NoTransform:
+		buttonID = GUI::elementID_btnGizmoSelect;
+		break;
+	case AppTransformMode::Move:
+		buttonID = GUI::elementID_btnGizmoMove;
+		break;
+	case AppTransformMode::Rotate:
+		buttonID = GUI::elementID_btnGizmoRotate;
+		break;
+	case AppTransformMode::Scale:
+		buttonID = GUI::elementID_btnGizmoScale;
+		break;
+	case AppTransformMode::RotateLocal:
+		buttonID = GUI::elementID_btnGizmoRotateLocal;
+		break;
+	case AppTransformMode::ScaleLocal:
+		buttonID = GUI::elementID_btnGizmoScaleLocal;
+		break;
+	default:
+		break;
+	}
+
+	auto bi = dynamic_cast<AppGUIButtonIcon*>(m_gui->m_panel->GetElementByID(buttonID));
+	if (bi)
+	{
+		bi->RadioCheck();
+	}
 }
 
 void Application::OnPopupCommand(uint32_t cmd)
@@ -1827,3 +1866,84 @@ AppVec3 Application::AlVecToAppVec(const alVec3& v)
 	return AppVec3(v.x, v.y, v.z);
 }
 
+void Application::DrawAabb(const AppAabb& aabb, const AppColor& _color, const AppVec3f& _positionOffset)
+{
+	auto gs = g_app->m_gs;
+	auto& p1 = aabb.m_min;
+	auto& p2 = aabb.m_max;
+
+	alColor color;
+	color.m_data[0] = _color.m_data[0];
+	color.m_data[1] = _color.m_data[1];
+	color.m_data[2] = _color.m_data[2];
+	color.m_data[3] = 1.f;
+
+	alVec4f positionOffset = Application::AppVecToAlVec(_positionOffset);
+	alVec4 v1 = Application::AppVecToAlVec(p1);
+	alVec4 v2 = Application::AppVecToAlVec(p2);
+
+	alVec4 v3(p1.x, p1.y, p2.z, 1.f);
+	alVec4 v4(p2.x, p1.y, p1.z, 1.f);
+	alVec4 v5(p1.x, p2.y, p1.z, 1.f);
+	alVec4 v6(p1.x, p2.y, p2.z, 1.f);
+	alVec4 v7(p2.x, p1.y, p2.z, 1.f);
+	alVec4 v8(p2.x, p2.y, p1.z, 1.f);
+
+	m_gs->BeginDrawLine3D();
+	gs->DrawLine3D(v1 + positionOffset, v4 + positionOffset, color);
+	gs->DrawLine3D(v5 + positionOffset, v8 + positionOffset, color);
+	gs->DrawLine3D(v1 + positionOffset, v5 + positionOffset, color);
+	gs->DrawLine3D(v4 + positionOffset, v8 + positionOffset, color);
+	gs->DrawLine3D(v3 + positionOffset, v7 + positionOffset, color);
+	gs->DrawLine3D(v6 + positionOffset, v2 + positionOffset, color);
+	gs->DrawLine3D(v3 + positionOffset, v6 + positionOffset, color);
+	gs->DrawLine3D(v7 + positionOffset, v2 + positionOffset, color);
+	gs->DrawLine3D(v2 + positionOffset, v8 + positionOffset, color);
+	gs->DrawLine3D(v4 + positionOffset, v7 + positionOffset, color);
+	gs->DrawLine3D(v5 + positionOffset, v6 + positionOffset, color);
+	gs->DrawLine3D(v1 + positionOffset, v3 + positionOffset, color);
+
+
+	gs->DrawLine3D(alVec4(), alVec4(0.f, 10.f, 0.f, 0.f), ColorBlue);
+}
+
+void Application::DrawAabb(const alAabb& aabb, const alColor& _color, const alVec3f& _positionOffset)
+{
+	auto gs = g_app->m_gs;
+	auto& p1 = aabb.m_min;
+	auto& p2 = aabb.m_max;
+
+	alColor color;
+	color.m_data[0] = _color.m_data[0];
+	color.m_data[1] = _color.m_data[1];
+	color.m_data[2] = _color.m_data[2];
+	color.m_data[3] = 1.f;
+
+	alVec4 positionOffset = _positionOffset;
+	alVec4 v1 = (p1);
+	alVec4 v2 = (p2);
+
+	alVec4 v3(p1.x, p1.y, p2.z, 1.f);
+	alVec4 v4(p2.x, p1.y, p1.z, 1.f);
+	alVec4 v5(p1.x, p2.y, p1.z, 1.f);
+	alVec4 v6(p1.x, p2.y, p2.z, 1.f);
+	alVec4 v7(p2.x, p1.y, p2.z, 1.f);
+	alVec4 v8(p2.x, p2.y, p1.z, 1.f);
+
+	m_gs->BeginDrawLine3D();
+	gs->DrawLine3D(v1 + positionOffset, v4 + positionOffset, color);
+	gs->DrawLine3D(v5 + positionOffset, v8 + positionOffset, color);
+	gs->DrawLine3D(v1 + positionOffset, v5 + positionOffset, color);
+	gs->DrawLine3D(v4 + positionOffset, v8 + positionOffset, color);
+	gs->DrawLine3D(v3 + positionOffset, v7 + positionOffset, color);
+	gs->DrawLine3D(v6 + positionOffset, v2 + positionOffset, color);
+	gs->DrawLine3D(v3 + positionOffset, v6 + positionOffset, color);
+	gs->DrawLine3D(v7 + positionOffset, v2 + positionOffset, color);
+	gs->DrawLine3D(v2 + positionOffset, v8 + positionOffset, color);
+	gs->DrawLine3D(v4 + positionOffset, v7 + positionOffset, color);
+	gs->DrawLine3D(v5 + positionOffset, v6 + positionOffset, color);
+	gs->DrawLine3D(v1 + positionOffset, v3 + positionOffset, color);
+
+
+	gs->DrawLine3D(alVec4(), alVec4(0.f, 10.f, 0.f, 0.f), ColorBlue);
+}

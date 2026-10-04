@@ -78,6 +78,36 @@ public:
 	alGSTexture* m_texture1 = 0;
 };
 
+class AppGSShaderCallback_GIZMOTriangle : public alGSShaderCallback
+{
+public:
+	AppGSShaderCallback_GIZMOTriangle();
+	virtual ~AppGSShaderCallback_GIZMOTriangle();
+
+	virtual void OnSetShader() override;
+	virtual void OnSetConstants() override;
+
+	bool Create(alGS*);
+	alGSShaderConstantBuffer* m_constantBufferV = 0;
+	alGSShaderConstantBuffer* m_constantBufferP = 0;
+	alGSShader* m_shader = 0;
+
+	struct cbVertex
+	{
+		alMat4 WVP;
+		alMat4 W;
+		alVec4f ViewDir;
+	}
+	m_cbVertexData;
+
+	struct cbPixel
+	{
+		alColor Color;
+	}
+	m_cbPixelData;
+
+};
+
 
 #endif
 

@@ -648,47 +648,6 @@ void AppViewport::ToggleDrawAABB()
 	m_drawAabbs = m_drawAabbs ? false : true;
 }
 
-void AppViewport::_drawAabb(const AppAabb& aabb, const AppColor& _color, const AppVec3f& _positionOffset)
-{
-	auto gs = g_app->m_gs;
-	auto& p1 = aabb.m_min;
-	auto& p2 = aabb.m_max;
-
-	alColor color;
-	color.m_data[0] = _color.m_data[0];
-	color.m_data[1] = _color.m_data[1];
-	color.m_data[2] = _color.m_data[2];
-	color.m_data[3] = 1.f;
-
-	alVec4f positionOffset = Application::AppVecToAlVec(_positionOffset);
-	alVec4 v1 = Application::AppVecToAlVec(p1);
-	alVec4 v2 = Application::AppVecToAlVec(p2);
-
-	alVec4 v3(p1.x, p1.y, p2.z, 1.f);
-	alVec4 v4(p2.x, p1.y, p1.z, 1.f);
-	alVec4 v5(p1.x, p2.y, p1.z, 1.f);
-	alVec4 v6(p1.x, p2.y, p2.z, 1.f);
-	alVec4 v7(p2.x, p1.y, p2.z, 1.f);
-	alVec4 v8(p2.x, p2.y, p1.z, 1.f);
-
-	m_gs->BeginDrawLine3D();
-	gs->DrawLine3D(v1 + positionOffset, v4 + positionOffset, color);
-	gs->DrawLine3D(v5 + positionOffset, v8 + positionOffset, color);
-	gs->DrawLine3D(v1 + positionOffset, v5 + positionOffset, color);
-	gs->DrawLine3D(v4 + positionOffset, v8 + positionOffset, color);
-	gs->DrawLine3D(v3 + positionOffset, v7 + positionOffset, color);
-	gs->DrawLine3D(v6 + positionOffset, v2 + positionOffset, color);
-	gs->DrawLine3D(v3 + positionOffset, v6 + positionOffset, color);
-	gs->DrawLine3D(v7 + positionOffset, v2 + positionOffset, color);
-	gs->DrawLine3D(v2 + positionOffset, v8 + positionOffset, color);
-	gs->DrawLine3D(v4 + positionOffset, v7 + positionOffset, color);
-	gs->DrawLine3D(v5 + positionOffset, v6 + positionOffset, color);
-	gs->DrawLine3D(v1 + positionOffset, v3 + positionOffset, color);
-	
-	
-	gs->DrawLine3D(alVec4(), alVec4(0.f,10.f,0.f,0.f), ColorBlue);
-}
-
 void AppViewport::_drawScene() 
 {
 	auto dm = m_viewportData.m_drawMode;
@@ -716,7 +675,7 @@ void AppViewport::_drawScene()
 		if (object->IsSelected())
 		{
 			if (m_drawAabbs)
-				_drawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor(), AppVec3f());
+				g_app->DrawAabb(*object->GetAABBTransformed(), *object->GetEdgeColor(), AppVec3f());
 		}
 	}
 
@@ -724,7 +683,10 @@ void AppViewport::_drawScene()
 	{
 	case AppEditMode::Object:
 		if (g_app->m_scene->m_selectedObjects.m_size)
+		{
+			g_app->m_gizmo->Update(this);
 			g_app->m_gizmo->Draw(this);
+		}
 		break;
 	default:
 		/*if (g_app->m_isVertexEdgePolygonSelected)
@@ -917,8 +879,8 @@ void AppViewport::_drawSelectedObjectFrame()
 
 		if (g_app->m_editMode == AppEditMode::Object)
 		{
-			aabb.m_max += g_app->m_gizmo->m_var_move;
-			aabb.m_min += g_app->m_gizmo->m_var_move;
+			aabb.m_max += Application::AlVecToAppVec(g_app->m_gizmo->m_var_move);
+			aabb.m_min += Application::AlVecToAppVec(g_app->m_gizmo->m_var_move);
 		}
 
 		frameSizeX = float(aabb.m_max.x - aabb.m_min.x) * 0.2f;

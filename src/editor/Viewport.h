@@ -97,7 +97,6 @@ public:
 	void SetDrawGrid(bool);
 	void _drawGrid();
 	void _drawScene();
-	void _drawAabb(const AppAabb& aabb, const AppColor& _color, const AppVec3f& positionOffset);
 
 	void _drawSelectedObjectFrame();
 
