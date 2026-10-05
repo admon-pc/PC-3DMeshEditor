@@ -872,25 +872,24 @@ void AppGizmo::Draw(AppViewport* vp)
 			m_app->DrawAabb(m_ZYAabbMod, m_color_x, m_var_move);
 
 		{
-			float32_t _x = vp->m_rect.x + m_2d_point.x;
-			float32_t _y = vp->m_rect.y + m_2d_point.y;
-			alVec4f old_vp;
+			float32_t _x = m_2d_point.x;
+			float32_t _y = m_2d_point.y;
 			auto color2d = ColorWhite;
 			if (m_isIn2d)
 				color2d = ColorYellow;
-			m_app->m_gs->SetViewport(0, 0, m_app->m_mainWindow->m_clientSize.x,
-				m_app->m_mainWindow->m_clientSize.y);
 			float32_t rsz = m_isIn2d ? m_size_2d + 2.f : m_size_2d;
 			m_app->m_gs->BeginDrawLine2D();
 			m_app->m_gs->DrawLine2D(alVec2f(_x - rsz, _y - rsz), alVec2f(_x + rsz, _y - rsz), color2d);
 			m_app->m_gs->DrawLine2D(alVec2f(_x - rsz, _y + rsz), alVec2f(_x + rsz, _y + rsz), color2d);
 			m_app->m_gs->DrawLine2D(alVec2f(_x - rsz, _y - rsz), alVec2f(_x - rsz, _y + rsz), color2d);
 			m_app->m_gs->DrawLine2D(alVec2f(_x + rsz, _y - rsz), alVec2f(_x + rsz, _y + rsz), color2d);
-			m_app->m_gs->SetViewport(old_vp.x, old_vp.y, old_vp.z, old_vp.w);
 		}
 
 		break;
 	case AppTransformMode::Scale:
+		m_app->m_shaderLineModel->m_cbVertexData.WVP = m_WVP;
+		m_app->m_gs->SetShader(m_app->m_shaderLineModel->m_shader);
+		m_app->m_gs->SetPrimitiveType(alGSPrimitiveType::Line);
 		m_app->m_gs->SetMesh(m_X);
 		m_app->m_gs->Draw();
 		if (m_isDrawAabbX)
@@ -907,82 +906,103 @@ void AppGizmo::Draw(AppViewport* vp)
 		if (m_isDrawAabbZ)
 			m_app->DrawAabb(m_ZAabbMod, m_color_z, m_var_move);
 
+		m_app->m_shaderGIZMOTriangle->m_cbVertexData.W = m_W;
+		m_app->m_shaderGIZMOTriangle->m_cbVertexData.WVP = m_WVP;
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_x;
+		m_app->m_gs->SetShader(m_app->m_shaderGIZMOTriangle->m_shader);
+		m_app->m_gs->SetPrimitiveType(alGSPrimitiveType::Triangle);
+		m_app->m_gs->SetRasterizationType(alGSRasterizationType::SolidNoCull);
 		m_app->m_gs->SetMesh(m_HeadScaleX);
 		m_app->m_gs->Draw();
 		if (m_isDrawAabbScaleHeadX)
 			m_app->DrawAabb(m_HeadScaleXAabbMod, m_color_x, m_var_move);
 
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_y;
 		m_app->m_gs->SetMesh(m_HeadScaleY);
 		m_app->m_gs->Draw();
 		if (m_isDrawAabbScaleHeadY)
 			m_app->DrawAabb(m_HeadScaleYAabbMod, m_color_y, m_var_move);
 
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_z;
 		m_app->m_gs->SetMesh(m_HeadScaleZ);
 		m_app->m_gs->Draw();
 		if (m_isDrawAabbScaleHeadZ)
 			m_app->DrawAabb(m_HeadScaleZAabbMod, m_color_z, m_var_move);
 
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_y;
 		m_app->m_gs->SetMesh(m_XZ);
 		m_app->m_gs->Draw();
 		if (m_isDrawAabbXZ)
 			m_app->DrawAabb(m_XZAabbMod, m_color_y, m_var_move);
 
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_z;
 		m_app->m_gs->SetMesh(m_XY);
 		m_app->m_gs->Draw();
 		if (m_isDrawAabbXY)
 			m_app->DrawAabb(m_XYAabbMod, m_color_z, m_var_move);
 
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_x;
 		m_app->m_gs->SetMesh(m_ZY);
 		m_app->m_gs->Draw();
 		if (m_isDrawAabbZY)
 			m_app->DrawAabb(m_ZYAabbMod, m_color_x, m_var_move);
 
 		{
-			float32_t _x = vp->m_rect.x + m_2d_point.x;
-			float32_t _y = vp->m_rect.y + m_2d_point.y;
-			alVec4f old_vp;
+			float32_t _x = m_2d_point.x;
+			float32_t _y = m_2d_point.y;
 			auto color2d = ColorWhite;
-			if (m_isIn2d)color2d = ColorYellow;
-			m_app->m_gs->SetViewport(0, 0,
-				m_app->m_mainWindow->m_clientSize.x,
-				m_app->m_mainWindow->m_clientSize.y);
+			if (m_isIn2d)
+				color2d = ColorYellow;
 			float32_t rsz = m_isIn2d ? m_size_2d + 2.f : m_size_2d;
+			m_app->m_gs->BeginDrawLine2D();
 			m_app->m_gs->DrawLine2D(alVec2f(_x - rsz, _y - rsz), alVec2f(_x + rsz, _y - rsz), color2d);
 			m_app->m_gs->DrawLine2D(alVec2f(_x - rsz, _y + rsz), alVec2f(_x + rsz, _y + rsz), color2d);
 			m_app->m_gs->DrawLine2D(alVec2f(_x - rsz, _y - rsz), alVec2f(_x - rsz, _y + rsz), color2d);
 			m_app->m_gs->DrawLine2D(alVec2f(_x + rsz, _y - rsz), alVec2f(_x + rsz, _y + rsz), color2d);
-			m_app->m_gs->SetViewport(old_vp.x, old_vp.y, old_vp.z, old_vp.w);
 		}
 		break;
 	case AppTransformMode::Rotate:
 	{
 		m_app->m_gs->ClearDepth();
 		m_app->m_gs->EnableDepth();
-		/*m_app->m_gs->UseBlend(true);
+		//m_app->m_gs->UseBlend(true);
 
-		Mat4 WVP;
+		alMat4 spriteMatrix;
+
+		m_app->m_shaderLineModel->m_cbVertexData.WVP =
+			vp->m_activeCamera->m_projectionMatrix *
+			vp->m_activeCamera->m_viewMatrix *
+			spriteMatrix;
+		m_app->m_gs->SetShader(m_app->m_shaderLineModel->m_shader);
+		m_app->m_gs->SetPrimitiveType(alGSPrimitiveType::Line);
+		/*
+		alMat4 WVP;
 		WVP = vp->m_activeCamera->m_projectionMatrix * vp->m_activeCamera->m_viewMatrix * m_rotateSprite->m_globalMatrix;
 		auto oldWVP = miGetMatrix(alMatrixType::WorldViewProjection);
 		miSetMatrix(alMatrixType::WorldViewProjection, &WVP);
-		m_app->m_gs->DrawSprite(m_rotateSprite);
-		m_isRotationHoverScreen ? m_commonMaterial.m_colorDiffuse = ColorYellow : m_commonMaterial.m_colorDiffuse = ColorWhite;
+		m_app->m_gs->DrawSprite(m_rotateSprite);*/
+		
+		m_isRotationHoverScreen ? m_app->m_shaderLineModel->m_cbPixelData.BaseColor = ColorYellow : m_app->m_shaderLineModel->m_cbPixelData.BaseColor = ColorWhite;
 		m_app->m_gs->SetMesh(m_rotateScreen);
 		m_app->m_gs->Draw();
-		miSetMatrix(alMatrixType::WorldViewProjection, oldWVP);*/
+		//miSetMatrix(alMatrixType::WorldViewProjection, oldWVP);
+
+		//m_isRotationHoverX ? m_commonMaterial.m_colorDiffuse = ColorYellow : m_commonMaterial.m_colorDiffuse = m_color_x;
+		m_isRotationHoverScreen ? m_app->m_shaderLineModel->m_cbPixelData.BaseColor = ColorYellow : m_app->m_shaderLineModel->m_cbPixelData.BaseColor = m_color_x;
+		m_app->m_shaderLineModel->m_cbVertexData.WVP = m_WVP;
+		m_app->m_gs->SetMesh(m_rotateX);
+		m_app->m_gs->Draw();
+
+		//m_isRotationHoverY ? m_commonMaterial.m_colorDiffuse = ColorYellow : m_commonMaterial.m_colorDiffuse = m_color_y;
+		m_isRotationHoverScreen ? m_app->m_shaderLineModel->m_cbPixelData.BaseColor = ColorYellow : m_app->m_shaderLineModel->m_cbPixelData.BaseColor = m_color_y;
+		m_app->m_gs->SetMesh(m_rotateY);
+		m_app->m_gs->Draw();
+
+		//m_isRotationHoverZ ? m_commonMaterial.m_colorDiffuse = ColorYellow : m_commonMaterial.m_colorDiffuse = m_color_z;
+		m_isRotationHoverScreen ? m_app->m_shaderLineModel->m_cbPixelData.BaseColor = ColorYellow : m_app->m_shaderLineModel->m_cbPixelData.BaseColor = m_color_z;
+		m_app->m_gs->SetMesh(m_rotateZ);
+		m_app->m_gs->Draw();
 	}
-
-	/*m_isRotationHoverX ? m_commonMaterial.m_colorDiffuse = ColorYellow : m_commonMaterial.m_colorDiffuse = m_color_x;
-	m_app->m_gs->SetMesh(m_rotateX);
-	m_app->m_gs->Draw();
-
-	m_isRotationHoverY ? m_commonMaterial.m_colorDiffuse = ColorYellow : m_commonMaterial.m_colorDiffuse = m_color_y;
-	m_app->m_gs->SetMesh(m_rotateY);
-	m_app->m_gs->Draw();
-
-	m_isRotationHoverZ ? m_commonMaterial.m_colorDiffuse = ColorYellow : m_commonMaterial.m_colorDiffuse = m_color_z;
-	m_app->m_gs->SetMesh(m_rotateZ);
-	m_app->m_gs->Draw();*/
-
 
 	break;
 	}
@@ -1028,10 +1048,11 @@ void AppGizmo::Update(AppViewport* vp)
 	m_2d_point = alMath::WorldToScreen(
 		vp->m_activeCamera->m_viewProjectionMatrix,
 		point3D_for_2D,
-		vp->m_rectSz,
-		alVec2f(vp->m_rect.x, vp->m_rect.y)
+		alVec2f((float32_t)m_app->m_mainWindow->m_clientSize.x,
+			m_app->m_mainWindow->m_clientSize.y),
+		alVec2f(0, 0)
 	);
-	m_2d_point = alMath::ScreenToClient(m_2d_point, vp->m_rect);
+//	m_2d_point = alMath::ScreenToClient(m_2d_point, vp->m_rect);
 
 	//if (m_app->m_transformMode == AppTransformMode::Rotate)
 	//{
