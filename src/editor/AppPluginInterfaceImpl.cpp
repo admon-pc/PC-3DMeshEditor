@@ -113,3 +113,41 @@ AppScene* AppPluginInterfaceImpl::GetScene()
 {
 	return m_app->m_scene;
 }
+
+void AppPluginInterfaceImpl::GetRayFromScreen(
+	AppRay* ray, 
+	const AppVec2f& coords,
+	const AppVec4f& viewportRect, 
+	const AppMat4& VPInvert)
+{
+	AppVec2f point;
+	point.x = coords.x - viewportRect.x;
+	point.y = coords.y - viewportRect.y;
+	float pt_x = ((float)point.x / (viewportRect.z - viewportRect.x)) * 2.f - 1.f;
+	float pt_y = -((float)point.y / (viewportRect.w - viewportRect.y)) * 2.f + 1.f;
+
+	AppMat4 VPI;
+	auto VPIptr = VPI.GetPtr();
+	auto VPInvertptr = VPInvert.GetPtrConst();
+	for (int i = 0; i < 16; ++i) {
+		VPIptr[i] = VPInvertptr[i];
+	}
+	auto O = AppMath::Mul(AppVec4f(pt_x, pt_y, m_app->m_gpuDepthRange.x, 1.f), VPI);
+	auto E = AppMath::Mul(AppVec4f(pt_x, pt_y, m_app->m_gpuDepthRange.y, 1.f), VPI);
+
+	ray->m_origin.Set(O.x, O.y, O.z, 1.f);
+	ray->m_end.Set(E.x, E.y, E.z, 1.f);
+
+	ray->m_origin.w = 1.0f / ray->m_origin.w;
+	ray->m_origin.x *= ray->m_origin.w;
+	ray->m_origin.y *= ray->m_origin.w;
+	ray->m_origin.z *= ray->m_origin.w;
+
+	ray->m_end.w = 1.0f / ray->m_end.w;
+	ray->m_end.x *= ray->m_end.w;
+	ray->m_end.y *= ray->m_end.w;
+	ray->m_end.z *= ray->m_end.w;
+
+	ray->Update();
+}
+

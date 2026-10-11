@@ -343,7 +343,11 @@ class Application
 
 	AppGizmo* m_gizmo = 0;
 	AppGizmoMode m_gizmoMode = AppGizmoMode::NoTransform;
+	void _setGizmoMode(AppGizmoMode gm);
 	AppGizmoUVMode m_gizmoModeUV = AppGizmoUVMode::NoTransform;
+	alRay m_rayCursor;
+	void _getRayFromCursor();
+	bool m_isGizmoMouseHover = false;
 
 	alGSMesh* m_gridModel_perspective1 = 0;
 	alGSMesh* m_gridModel_perspective2 = 0;

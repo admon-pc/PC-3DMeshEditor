@@ -286,6 +286,17 @@ AppVec4 AppMath::Mul(const AppVec4& vec, const AppMat4& mat)
 	);
 }
 
+AppVec4f AppMath::Mul(const AppVec4f& vec, const AppMat4& mat)
+{
+	return AppVec4f
+	(
+		mat[0].x * vec.x + mat[1].x * vec.y + mat[2].x * vec.z + mat[3].x * vec.w,
+		mat[0].y * vec.x + mat[1].y * vec.y + mat[2].y * vec.z + mat[3].y * vec.w,
+		mat[0].z * vec.x + mat[1].z * vec.y + mat[2].z * vec.z + mat[3].z * vec.w,
+		mat[0].w * vec.x + mat[1].w * vec.y + mat[2].w * vec.z + mat[3].w * vec.w
+	);
+}
+
 AppVec3 AppMath::Mul(const AppVec3& vec, const AppMat4& mat)
 {
 	return AppVec3

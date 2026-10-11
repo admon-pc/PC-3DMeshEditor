@@ -70,6 +70,7 @@ public:
 	static void TranslationMatrix(AppMat4& out, const AppVec3& position);
 	static void ScaleMatrix(AppMat4& out, const AppVec3& scale);
 	static AppVec4 Mul(const AppVec4& vec, const AppMat4& mat);
+	static AppVec4f Mul(const AppVec4f& vec, const AppMat4& mat);
 	static AppVec3 Mul(const AppVec3& vec, const AppMat4& mat);
 	static AppVec3f Mul(const AppVec3f& vec, const AppMat4& mat);
 	static AppVec3f Mul(const AppVec3f& vec, const AppMat3& mat);

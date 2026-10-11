@@ -761,6 +761,7 @@ void Application::MainLoop()
 	//	SendMessage(m_hwndTT, TTM_UPDATE, (WPARAM)TRUE, (LPARAM)&g_toolTipInfo);
 		alLib::Update();
 		m_currentCursor = AppCursorType::Arrow;
+		m_gizmo->OnStartFrame();
 
 		m_dt = *dt;
 		m_isCursorMove = (input->m_mouseDelta.x != 0.f) || (input->m_mouseDelta.y != 0.f);
@@ -793,8 +794,16 @@ void Application::MainLoop()
 
 		m_gui->m_context->Update(m_dt);
 
+
 		UpdateViewports();
 		ProcessShortcuts3D();
+		
+		if (m_isCursorInWindow 
+			&& !m_isCursorInGUI 
+			/*&& !m_isGUIInputFocus*/)
+		{
+			_getRayFromCursor();
+		}
 
 		m_gs->BeginDraw();
 		m_gs->SetClearColor(m_colorThemeCurr->m_windowClearColor);
@@ -815,6 +824,8 @@ void Application::MainLoop()
 
 		m_gs->EndDraw();
 		m_gs->SwapBuffers();
+
+		m_gizmo->OnEndFrame();
 	}
 }
 
@@ -1943,7 +1954,56 @@ void Application::DrawAabb(const alAabb& aabb, const alColor& _color, const alVe
 	gs->DrawLine3D(v4 + positionOffset, v7 + positionOffset, color);
 	gs->DrawLine3D(v5 + positionOffset, v6 + positionOffset, color);
 	gs->DrawLine3D(v1 + positionOffset, v3 + positionOffset, color);
+}
 
+void Application::_getRayFromCursor()
+{
+	auto vprct = this->AlVecToAppVec(m_viewportUnderCursor->m_rect);
+	auto vpPI = this->AlMatToAppMat(m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix);
 
-	gs->DrawLine3D(alVec4(), alVec4(0.f, 10.f, 0.f, 0.f), ColorBlue);
+	AppVec2f point;
+	point.x = m_input->m_cursorCoords.x - m_viewportUnderCursor->m_rect.x;
+	point.y = m_input->m_cursorCoords.y - m_viewportUnderCursor->m_rect.y;
+	float pt_x = ((float)point.x / (m_viewportUnderCursor->m_rect.z - m_viewportUnderCursor->m_rect.x)) * 2.f - 1.f;
+	float pt_y = -((float)point.y / (m_viewportUnderCursor->m_rect.w - m_viewportUnderCursor->m_rect.y)) * 2.f + 1.f;
+
+	AppMat4 VPI;
+	auto VPIptr = VPI.GetPtr();
+	auto VPInvertptr = m_viewportUnderCursor->m_activeCamera->m_viewProjectionInvertMatrix.GetPtrConst();
+	for (int i = 0; i < 16; ++i) {
+		VPIptr[i] = VPInvertptr[i];
+	}
+	auto O = AppMath::Mul(AppVec4f(pt_x, pt_y, m_gpuDepthRange.x, 1.f), VPI);
+	auto E = AppMath::Mul(AppVec4f(pt_x, pt_y, m_gpuDepthRange.y, 1.f), VPI);
+
+	m_rayCursor.m_origin.Set(O.x, O.y, O.z, O.w);
+	m_rayCursor.m_end.Set(E.x, E.y, E.z, E.w);
+
+	m_rayCursor.m_origin.w = 1.0f / m_rayCursor.m_origin.w;
+	m_rayCursor.m_origin.x *= m_rayCursor.m_origin.w;
+	m_rayCursor.m_origin.y *= m_rayCursor.m_origin.w;
+	m_rayCursor.m_origin.z *= m_rayCursor.m_origin.w;
+
+	m_rayCursor.m_end.w = 1.0f / m_rayCursor.m_end.w;
+	m_rayCursor.m_end.x *= m_rayCursor.m_end.w;
+	m_rayCursor.m_end.y *= m_rayCursor.m_end.w;
+	m_rayCursor.m_end.z *= m_rayCursor.m_end.w;
+
+	m_rayCursor.Update();
+}
+
+void Application::_setGizmoMode(AppGizmoMode gm)
+{
+	m_gizmoMode = gm;
+	switch (m_gizmoMode)
+	{
+	case AppGizmoMode::RotateX:
+	case AppGizmoMode::RotateY:
+	case AppGizmoMode::RotateZ:
+	case AppGizmoMode::RotateScreen:
+		//m_GUI->m_txt_rotationAngle->SetVisible(true);
+		break;
+	default:
+		break;
+	}
 }

@@ -85,6 +85,8 @@ public:
 	virtual AppGraphicsObject* CreateGraphicsObject(AppMesh* m) = 0;
 
 	virtual AppScene* GetScene() = 0;
+	virtual void GetRayFromScreen(AppRay* ray, const AppVec2f& coords, 
+		const AppVec4f& viewportRect, const AppMat4& VPInvert) = 0;
 };
 
 #include "AppScene.h"

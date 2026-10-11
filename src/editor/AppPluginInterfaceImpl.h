@@ -19,6 +19,8 @@ public:
 	
 	virtual AppGraphicsObject* CreateGraphicsObject(AppMesh* desc) override;
 	virtual AppScene* GetScene() override;
+	virtual void GetRayFromScreen(AppRay* ray, const AppVec2f& coords,
+		const AppVec4f& viewportRect, const AppMat4& VPInvert) override;
 };
 
 #endif
