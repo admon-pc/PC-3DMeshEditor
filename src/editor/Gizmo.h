@@ -53,13 +53,13 @@ public:
 	alAabb m_ZAabbMod;
 
 
-	alAabb m_HeadXAabb;
-	alAabb m_HeadYAabb;
-	alAabb m_HeadZAabb;
+	alAabb m_HeadMoveXAabb;
+	alAabb m_HeadMoveYAabb;
+	alAabb m_HeadMoveZAabb;
 
-	alAabb m_HeadXAabbMod;
-	alAabb m_HeadYAabbMod;
-	alAabb m_HeadZAabbMod;
+	alAabb m_HeadMoveXAabbMod;
+	alAabb m_HeadMoveYAabbMod;
+	alAabb m_HeadMoveZAabbMod;
 
 	alAabb m_HeadScaleXAabb;
 	alAabb m_HeadScaleYAabb;
@@ -69,6 +69,14 @@ public:
 	alAabb m_HeadScaleYAabbMod;
 	alAabb m_HeadScaleZAabbMod;
 
+	alAabb m_HeadRotXAabb;
+	alAabb m_HeadRotYAabb;
+	alAabb m_HeadRotZAabb;
+
+	alAabb m_HeadRotXAabbMod;
+	alAabb m_HeadRotYAabbMod;
+	alAabb m_HeadRotZAabbMod;
+
 	bool m_isDrawAabbX = false;
 	bool m_isDrawAabbY = false;
 	bool m_isDrawAabbZ = false;
@@ -77,9 +85,9 @@ public:
 	bool m_isDrawAabbHeadY = false;
 	bool m_isDrawAabbHeadZ = false;
 
-	bool m_isDrawAabbScaleHeadX = false;
-	bool m_isDrawAabbScaleHeadY = false;
-	bool m_isDrawAabbScaleHeadZ = false;
+	//bool m_isDrawAabbScaleHeadX = false;
+	//bool m_isDrawAabbScaleHeadY = false;
+	//bool m_isDrawAabbScaleHeadZ = false;
 
 	bool m_isRotationHoverX = false;
 	bool m_isRotationHoverY = false;

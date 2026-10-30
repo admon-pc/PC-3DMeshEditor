@@ -1,11 +1,15 @@
 ﻿#include "editor.h"
 #include "Classes/alColor.h"
 #include "Geometry/alMesh.h"
+#include "Geometry/alPopygonMesh.h"
 
 AppGizmo::AppGizmo(Application* app)
 	:
 	m_app(app)
 {
+	//float gizmo_Rot_segments = 6.f;
+	//m_gizmo_rot_sz = 10.f;
+
 	m_gizmo_rot_sz_screen = m_gizmo_rot_sz + 0.05f;
 
 //	m_rotateSprite = miCreateSprite(alVec4f(0.f, 0.f, 1.f, 1.f), m_app->m_transparentTexture, 8);
@@ -17,7 +21,7 @@ AppGizmo::AppGizmo(Application* app)
 
 	m_size_2d = 10.f;
 
-	{
+	{// pivot model
 		alMesh* mesh = alCreate<alMesh>();
 		mesh->m_stride = sizeof(alVertexAnimatedLine);
 		mesh->m_vertexType = alMeshVertexType::AnimatedLine;
@@ -49,7 +53,7 @@ AppGizmo::AppGizmo(Application* app)
 
 		m_pivotModel = m_app->m_gs->CreateMesh(mesh);
 	}
-	{ //
+	{ // X
 		alMesh* mesh = alCreate<alMesh>();
 		mesh->m_stride = sizeof(alVertexAnimatedLine);
 		mesh->m_vertexType = alMeshVertexType::AnimatedLine;
@@ -79,7 +83,7 @@ AppGizmo::AppGizmo(Application* app)
 		m_XAabb.m_min -= alVec4(0.f, sz, sz, 0.f);
 		m_XAabb.m_max += alVec4(0.f, sz, sz, 0.f);
 	}
-	{
+	{ // y
 		alMesh* mesh = alCreate<alMesh>();
 		mesh->m_stride = sizeof(alVertexAnimatedLine);
 		mesh->m_vertexType = alMeshVertexType::AnimatedLine;
@@ -110,7 +114,7 @@ AppGizmo::AppGizmo(Application* app)
 		m_YAabb.m_min -= alVec4(sz, 0.f, sz, 0.f);
 		m_YAabb.m_max += alVec4(sz, 0.f, sz, 0.f);
 	}
-	{
+	{ // z
 		alMesh* mesh = alCreate<alMesh>();
 		mesh->m_stride = sizeof(alVertexAnimatedLine);
 		mesh->m_vertexType = alMeshVertexType::AnimatedLine;
@@ -140,7 +144,7 @@ AppGizmo::AppGizmo(Application* app)
 		m_ZAabb.m_min -= alVec4(sz, sz, 0.f, 0.f);
 		m_ZAabb.m_max += alVec4(sz, sz, 0.f, 0.f);
 	}
-	{
+	{ // move head x
 		alMesh* mesh = alCreate<alMesh>();
 		mesh->m_vertexType = alMeshVertexType::Triangle;
 		mesh->m_stride = sizeof(alVertexTriangle);
@@ -152,27 +156,27 @@ AppGizmo::AppGizmo(Application* app)
 		auto vertex = (alVertexTriangle*)mesh->m_vertices;
 		vertex->Position.Set(m_gizmo_arrow_body_size, 0.f, 0.f);
 		vertex->Color = m_color_x.GetV4f();
-		m_HeadXAabb.Add(vertex->Position);
+		m_HeadMoveXAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(m_gizmo_arrow_body_size - m_gizmo_head_len, -m_gizmo_head_size, -m_gizmo_head_size);
 		vertex->Color = m_color_x.GetV4f();
-		m_HeadXAabb.Add(vertex->Position);
+		m_HeadMoveXAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(m_gizmo_arrow_body_size - m_gizmo_head_len, -m_gizmo_head_size, m_gizmo_head_size);
 		vertex->Color = m_color_x.GetV4f();
-		m_HeadXAabb.Add(vertex->Position);
+		m_HeadMoveXAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size, m_gizmo_head_size);
 		vertex->Color = m_color_x.GetV4f();
-		m_HeadXAabb.Add(vertex->Position);
+		m_HeadMoveXAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size, -m_gizmo_head_size);
 		vertex->Color = m_color_x.GetV4f();
-		m_HeadXAabb.Add(vertex->Position);
+		m_HeadMoveXAabb.Add(vertex->Position);
 		vertex++;
 
 		uint16_t* index = (uint16_t*)mesh->m_indices;
@@ -192,8 +196,8 @@ AppGizmo::AppGizmo(Application* app)
 		m_HeadMoveX = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
-		m_HeadXAabb.m_min -= alVec4(0.f, sz, sz, 0.f);
-		m_HeadXAabb.m_max += alVec4(0.f, sz, sz, 0.f);
+		m_HeadMoveXAabb.m_min -= alVec4(0.f, sz, sz, 0.f);
+		m_HeadMoveXAabb.m_max += alVec4(0.f, sz, sz, 0.f);
 	}
 	{// Scale X
 		alMesh* mesh = alCreate<alMesh>();
@@ -405,27 +409,27 @@ AppGizmo::AppGizmo(Application* app)
 		auto vertex = (alVertexTriangle*)mesh->m_vertices;
 		vertex->Position.Set(0.f, m_gizmo_arrow_body_size, 0.f);
 		vertex->Color = m_color_y.GetV4f();
-		m_HeadYAabb.Add(vertex->Position);
+		m_HeadMoveYAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(-m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len, -m_gizmo_head_size);
 		vertex->Color = m_color_y.GetV4f();
-		m_HeadYAabb.Add(vertex->Position);
+		m_HeadMoveYAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(-m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size);
 		vertex->Color = m_color_y.GetV4f();
-		m_HeadYAabb.Add(vertex->Position);
+		m_HeadMoveYAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len, m_gizmo_head_size);
 		vertex->Color = m_color_y.GetV4f();
-		m_HeadYAabb.Add(vertex->Position);
+		m_HeadMoveYAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len, -m_gizmo_head_size);
 		vertex->Color = m_color_y.GetV4f();
-		m_HeadYAabb.Add(vertex->Position);
+		m_HeadMoveYAabb.Add(vertex->Position);
 		vertex++;
 
 		uint16_t* index = (uint16_t*)mesh->m_indices;
@@ -445,8 +449,8 @@ AppGizmo::AppGizmo(Application* app)
 		m_HeadMoveY = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
-		m_HeadYAabb.m_min -= alVec4(sz, 0.f, sz, 0.f);
-		m_HeadYAabb.m_max += alVec4(sz, 0.f, sz, 0.f);
+		m_HeadMoveYAabb.m_min -= alVec4(sz, 0.f, sz, 0.f);
+		m_HeadMoveYAabb.m_max += alVec4(sz, 0.f, sz, 0.f);
 	}
 	{// Head Move Z
 		alMesh* mesh = alCreate<alMesh>();
@@ -460,27 +464,27 @@ AppGizmo::AppGizmo(Application* app)
 		auto vertex = (alVertexTriangle*)mesh->m_vertices;
 		vertex->Position.Set(0.f, 0.f, m_gizmo_arrow_body_size);
 		vertex->Color = m_color_z.GetV4f();
-		m_HeadZAabb.Add(vertex->Position);
+		m_HeadMoveZAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(-m_gizmo_head_size, -m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
 		vertex->Color = m_color_z.GetV4f();
-		m_HeadZAabb.Add(vertex->Position);
+		m_HeadMoveZAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(-m_gizmo_head_size, m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
 		vertex->Color = m_color_z.GetV4f();
-		m_HeadZAabb.Add(vertex->Position);
+		m_HeadMoveZAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(m_gizmo_head_size, m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
 		vertex->Color = m_color_z.GetV4f();
-		m_HeadZAabb.Add(vertex->Position);
+		m_HeadMoveZAabb.Add(vertex->Position);
 		vertex++;
 
 		vertex->Position.Set(m_gizmo_head_size, -m_gizmo_head_size, m_gizmo_arrow_body_size - m_gizmo_head_len);
 		vertex->Color = m_color_z.GetV4f();
-		m_HeadZAabb.Add(vertex->Position);
+		m_HeadMoveZAabb.Add(vertex->Position);
 		vertex++;
 
 		uint16_t* index = (uint16_t*)mesh->m_indices;
@@ -500,8 +504,8 @@ AppGizmo::AppGizmo(Application* app)
 		m_HeadMoveZ = m_app->m_gs->CreateMesh(mesh);
 
 		float32_t sz = 0.0025f;
-		m_HeadZAabb.m_min -= alVec4(sz, sz, 0.f, 0.f);
-		m_HeadZAabb.m_max += alVec4(sz, sz, 0.f, 0.f);
+		m_HeadMoveZAabb.m_min -= alVec4(sz, sz, 0.f, 0.f);
+		m_HeadMoveZAabb.m_max += alVec4(sz, sz, 0.f, 0.f);
 	}
 	{// XZ
 		alMesh* mesh = alCreate<alMesh>();
@@ -638,96 +642,94 @@ AppGizmo::AppGizmo(Application* app)
 		m_ZYAabb.m_min -= alVec4(0.f, sz, sz, 0.f);
 		m_ZYAabb.m_max += alVec4(0.f, sz, sz, 0.f);
 	}
-	{ // rotate X
-		alMesh* mesh = alCreate<alMesh>();
-		mesh->m_stride = sizeof(alVertexAnimatedLine);
-		mesh->m_vertexType = alMeshVertexType::AnimatedLine;
-		mesh->m_vCount = 36;
-		mesh->m_vertices = (uint8_t*)alMemory::Malloc(mesh->m_vCount * mesh->m_stride);
-		mesh->m_iCount = 72;
-		mesh->m_indices = (uint8_t*)alMemory::Malloc(mesh->m_iCount * sizeof(uint16_t));
-
-		auto vertex = (alVertexAnimatedLine*)mesh->m_vertices;
-
-		for (int i = 0; i < 36; ++i)
-		{
-			vertex[i].Position.x = 0.f;
-			vertex[i].Position.y = std::cos(alMath::DegToRad((float32_t)i * 10.f)) * m_gizmo_rot_sz;
-			vertex[i].Position.z = std::sin(alMath::DegToRad((float32_t)i * 10.f)) * m_gizmo_rot_sz;
-			vertex[i].Color = ColorWhite.GetV4f();
-		}
-
-		uint16_t* index = (uint16_t*)mesh->m_indices;
-		for (int32_t i = 0, ind = 0; i < 72; i += 2)
-		{
-			index[i] = (uint16_t)ind++;
-			index[i + 1] = (uint16_t)ind;
-			if (i == 70)
-				index[i + 1] = 0;
-		}
-
-		m_rotateX = m_app->m_gs->CreateMesh(mesh);
-	}
-	{ // rotate Y
-		alMesh* mesh = alCreate<alMesh>();
-		mesh->m_stride = sizeof(alVertexAnimatedLine);
-		mesh->m_vertexType = alMeshVertexType::AnimatedLine;
-		mesh->m_vCount = 36;
-		mesh->m_vertices = (uint8_t*)alMemory::Malloc(mesh->m_vCount * mesh->m_stride);
-		mesh->m_iCount = 72;
-		mesh->m_indices = (uint8_t*)alMemory::Malloc(mesh->m_iCount * sizeof(uint16_t));
-
-		auto vertex = (alVertexAnimatedLine*)mesh->m_vertices;
-
-		for (int i = 0; i < 36; ++i)
-		{
-			vertex[i].Position.y = 0.f;
-			vertex[i].Position.x = std::cos(alMath::DegToRad((float32_t)i * 10.f)) * m_gizmo_rot_sz;
-			vertex[i].Position.z = std::sin(alMath::DegToRad((float32_t)i * 10.f)) * m_gizmo_rot_sz;
-			vertex[i].Color = ColorWhite.GetV4f();
-		}
-
-		uint16_t* index = (uint16_t*)mesh->m_indices;
-		for (int32_t i = 0, ind = 0; i < 72; i += 2)
-		{
-			index[i] = (uint16_t)ind++;
-			index[i + 1] = (uint16_t)ind;
-			if (i == 70)
-				index[i + 1] = 0;
-		}
-
+	{ // rotate head
+		float sz = 0.0125f;
+		alPolygonMesh pm;
+		alMat4 mat;
+		mat.SetTranslation(alVec4f(0.f, m_gizmo_arrow_body_size - (sz), 0.f, 0.f));
+		pm.AddSphere(9, sz, mat);
+		alMesh* mesh = pm.CreateMesh();
+		pm.Clear();
 		m_rotateY = m_app->m_gs->CreateMesh(mesh);
-	}
-	{ // rotate Z
-		alMesh* mesh = alCreate<alMesh>();
-		mesh->m_stride = sizeof(alVertexAnimatedLine);
-		mesh->m_vertexType = alMeshVertexType::AnimatedLine;
-		mesh->m_vCount = 36;
-		mesh->m_vertices = (uint8_t*)alMemory::Malloc(mesh->m_vCount * mesh->m_stride);
-		mesh->m_iCount = 72;
-		mesh->m_indices = (uint8_t*)alMemory::Malloc(mesh->m_iCount * sizeof(uint16_t));
+		m_HeadRotYAabb.Add(mesh->m_aabb);
+		AL_DESTROY(mesh);
 
-		auto vertex = (alVertexAnimatedLine*)mesh->m_vertices;
+		mat.SetTranslation(alVec4f(m_gizmo_arrow_body_size - (sz), 0.f, 0.f, 0.f));
+		pm.AddSphere(9, sz, mat);
+		mesh = pm.CreateMesh();
+		pm.Clear();
+		m_rotateX = m_app->m_gs->CreateMesh(mesh);
+		m_HeadRotXAabb.Add(mesh->m_aabb);
+		AL_DESTROY(mesh);
 
-		for (int i = 0; i < 36; ++i)
-		{
-			vertex[i].Position.z = 0.f;
-			vertex[i].Position.x = std::cos(alMath::DegToRad((float32_t)i * 10.f)) * m_gizmo_rot_sz;
-			vertex[i].Position.y = std::sin(alMath::DegToRad((float32_t)i * 10.f)) * m_gizmo_rot_sz;
-			vertex[i].Color = ColorWhite.GetV4f();
-		}
-
-		uint16_t* index = (uint16_t*)mesh->m_indices;
-		for (int32_t i = 0, ind = 0; i < 72; i += 2)
-		{
-			index[i] = (uint16_t)ind++;
-			index[i + 1] = (uint16_t)ind;
-			if (i == 70)
-				index[i + 1] = 0;
-		}
-
+		mat.SetTranslation(alVec4f(0.f, 0.f, m_gizmo_arrow_body_size - (sz), 0.f));
+		pm.AddSphere(9, sz, mat);
+		mesh = pm.CreateMesh();
+		pm.Clear();
 		m_rotateZ = m_app->m_gs->CreateMesh(mesh);
+		m_HeadRotZAabb.Add(mesh->m_aabb);
+		AL_DESTROY(mesh);
 	}
+	//{ // rotate Y
+	//	alMesh* mesh = alCreate<alMesh>();
+	//	mesh->m_stride = sizeof(alVertexAnimatedLine);
+	//	mesh->m_vertexType = alMeshVertexType::AnimatedLine;
+	//	mesh->m_vCount = 36;
+	//	mesh->m_vertices = (uint8_t*)alMemory::Malloc(mesh->m_vCount * mesh->m_stride);
+	//	mesh->m_iCount = 72;
+	//	mesh->m_indices = (uint8_t*)alMemory::Malloc(mesh->m_iCount * sizeof(uint16_t));
+
+	//	auto vertex = (alVertexAnimatedLine*)mesh->m_vertices;
+
+	//	for (int i = 0; i < 36; ++i)
+	//	{
+	//		vertex[i].Position.y = 0.f;
+	//		vertex[i].Position.x = std::cos(alMath::DegToRad((float32_t)i * 10.f)) * m_gizmo_rot_sz;
+	//		vertex[i].Position.z = std::sin(alMath::DegToRad((float32_t)i * 10.f)) * m_gizmo_rot_sz;
+	//		vertex[i].Color = ColorWhite.GetV4f();
+	//	}
+
+	//	uint16_t* index = (uint16_t*)mesh->m_indices;
+	//	for (int32_t i = 0, ind = 0; i < 72; i += 2)
+	//	{
+	//		index[i] = (uint16_t)ind++;
+	//		index[i + 1] = (uint16_t)ind;
+	//		if (i == 70)
+	//			index[i + 1] = 0;
+	//	}
+
+	//	m_rotateY = m_app->m_gs->CreateMesh(mesh);
+	//}
+	//{ // rotate Z
+	//	alMesh* mesh = alCreate<alMesh>();
+	//	mesh->m_stride = sizeof(alVertexAnimatedLine);
+	//	mesh->m_vertexType = alMeshVertexType::AnimatedLine;
+	//	mesh->m_vCount = 36;
+	//	mesh->m_vertices = (uint8_t*)alMemory::Malloc(mesh->m_vCount * mesh->m_stride);
+	//	mesh->m_iCount = 72;
+	//	mesh->m_indices = (uint8_t*)alMemory::Malloc(mesh->m_iCount * sizeof(uint16_t));
+
+	//	auto vertex = (alVertexAnimatedLine*)mesh->m_vertices;
+
+	//	for (int i = 0; i < 36; ++i)
+	//	{
+	//		vertex[i].Position.z = 0.f;
+	//		vertex[i].Position.x = std::cos(alMath::DegToRad((float32_t)i * 10.f)) * m_gizmo_rot_sz;
+	//		vertex[i].Position.y = std::sin(alMath::DegToRad((float32_t)i * 10.f)) * m_gizmo_rot_sz;
+	//		vertex[i].Color = ColorWhite.GetV4f();
+	//	}
+
+	//	uint16_t* index = (uint16_t*)mesh->m_indices;
+	//	for (int32_t i = 0, ind = 0; i < 72; i += 2)
+	//	{
+	//		index[i] = (uint16_t)ind++;
+	//		index[i + 1] = (uint16_t)ind;
+	//		if (i == 70)
+	//			index[i + 1] = 0;
+	//	}
+
+	//	m_rotateZ = m_app->m_gs->CreateMesh(mesh);
+	//}
 	{ // rotate screen
 		alMesh* mesh = alCreate<alMesh>();
 		mesh->m_stride = sizeof(alVertexAnimatedLine);
@@ -863,11 +865,11 @@ void AppGizmo::Draw(AppViewport* vp)
 		if (m_isDrawAabbZ)
 			m_app->DrawAabb(m_ZAabbMod, m_color_z, m_var_move);
 		if (m_isDrawAabbHeadX)
-			m_app->DrawAabb(m_HeadXAabbMod, m_color_x, m_var_move);
+			m_app->DrawAabb(m_HeadMoveXAabbMod, m_color_x, m_var_move);
 		if (m_isDrawAabbHeadY)
-			m_app->DrawAabb(m_HeadYAabbMod, m_color_y, m_var_move);
+			m_app->DrawAabb(m_HeadMoveYAabbMod, m_color_y, m_var_move);
 		if (m_isDrawAabbHeadZ)
-			m_app->DrawAabb(m_HeadZAabbMod, m_color_z, m_var_move);
+			m_app->DrawAabb(m_HeadMoveZAabbMod, m_color_z, m_var_move);
 		if (m_isDrawAabbXZ)
 			m_app->DrawAabb(m_XZAabbMod, m_color_y, m_var_move);
 		if (m_isDrawAabbXY)
@@ -877,7 +879,6 @@ void AppGizmo::Draw(AppViewport* vp)
 		{
 			float32_t _x = m_2d_point.x;
 			float32_t _y = m_2d_point.y ;
-			//auto p = alMath::C(alVec2f(_x, _y), vp->m_rect);
 			auto color2d = ColorWhite;
 			if (m_isIn2d)
 				color2d = ColorYellow;
@@ -950,11 +951,11 @@ void AppGizmo::Draw(AppViewport* vp)
 			m_app->DrawAabb(m_YAabbMod, m_color_y, m_var_move);
 		if (m_isDrawAabbZ)
 			m_app->DrawAabb(m_ZAabbMod, m_color_z, m_var_move);
-		if (m_isDrawAabbScaleHeadX)
+		if (m_isDrawAabbHeadX)
 			m_app->DrawAabb(m_HeadScaleXAabbMod, m_color_x, m_var_move);
-		if (m_isDrawAabbScaleHeadY)
+		if (m_isDrawAabbHeadY)
 			m_app->DrawAabb(m_HeadScaleYAabbMod, m_color_y, m_var_move);
-		if (m_isDrawAabbScaleHeadZ)
+		if (m_isDrawAabbHeadZ)
 			m_app->DrawAabb(m_HeadScaleZAabbMod, m_color_z, m_var_move);
 		if (m_isDrawAabbXZ)
 			m_app->DrawAabb(m_XZAabbMod, m_color_y, m_var_move);
@@ -969,11 +970,20 @@ void AppGizmo::Draw(AppViewport* vp)
 			if (m_isIn2d)
 				color2d = ColorYellow;
 			float32_t rsz = m_isIn2d ? m_size_2d + 2.f : m_size_2d;
+
+			m_app->m_gs->SetViewport(0, 0,
+				m_app->m_mainWindow->m_clientSize.x,
+				m_app->m_mainWindow->m_clientSize.y);
+
 			m_app->m_gs->BeginDrawLine2D();
 			m_app->m_gs->DrawLine2D(alVec2f(_x - rsz, _y - rsz), alVec2f(_x + rsz, _y - rsz), color2d);
 			m_app->m_gs->DrawLine2D(alVec2f(_x - rsz, _y + rsz), alVec2f(_x + rsz, _y + rsz), color2d);
 			m_app->m_gs->DrawLine2D(alVec2f(_x - rsz, _y - rsz), alVec2f(_x - rsz, _y + rsz), color2d);
 			m_app->m_gs->DrawLine2D(alVec2f(_x + rsz, _y - rsz), alVec2f(_x + rsz, _y + rsz), color2d);
+
+			m_app->m_gs->SetViewport(0, 0,
+				vp->m_rectSz.x,
+				vp->m_rectSz.y);
 		}
 		break;
 	case AppTransformMode::Rotate:
@@ -1005,18 +1015,48 @@ void AppGizmo::Draw(AppViewport* vp)
 		//m_isRotationHoverX ? m_commonMaterial.m_colorDiffuse = ColorYellow : m_commonMaterial.m_colorDiffuse = m_color_x;
 		m_isRotationHoverScreen ? m_app->m_shaderLineModel->m_cbPixelData.BaseColor = ColorYellow : m_app->m_shaderLineModel->m_cbPixelData.BaseColor = m_color_x;
 		m_app->m_shaderLineModel->m_cbVertexData.WVP = m_WVP;
-		m_app->m_gs->SetMesh(m_rotateX);
-		m_app->m_gs->Draw();
+		//m_app->m_gs->SetMesh(m_rotateX);
+		//m_app->m_gs->Draw();
 
 		//m_isRotationHoverY ? m_commonMaterial.m_colorDiffuse = ColorYellow : m_commonMaterial.m_colorDiffuse = m_color_y;
 		m_isRotationHoverScreen ? m_app->m_shaderLineModel->m_cbPixelData.BaseColor = ColorYellow : m_app->m_shaderLineModel->m_cbPixelData.BaseColor = m_color_y;
-		m_app->m_gs->SetMesh(m_rotateY);
-		m_app->m_gs->Draw();
+		//m_app->m_gs->SetMesh(m_rotateY);
+		//m_app->m_gs->Draw();
 
 		//m_isRotationHoverZ ? m_commonMaterial.m_colorDiffuse = ColorYellow : m_commonMaterial.m_colorDiffuse = m_color_z;
 		m_isRotationHoverScreen ? m_app->m_shaderLineModel->m_cbPixelData.BaseColor = ColorYellow : m_app->m_shaderLineModel->m_cbPixelData.BaseColor = m_color_z;
-		m_app->m_gs->SetMesh(m_rotateZ);
+		//m_app->m_gs->SetMesh(m_rotateZ);
+		//m_app->m_gs->Draw();
+
+		m_app->m_shaderGIZMOTriangle->m_cbVertexData.W = m_W;
+		m_app->m_shaderGIZMOTriangle->m_cbVertexData.WVP = m_WVP;
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_x;
+		m_app->m_gs->SetShader(m_app->m_shaderGIZMOTriangle->m_shader);
+		m_app->m_gs->SetPrimitiveType(alGSPrimitiveType::Triangle);
+		m_app->m_gs->SetRasterizationType(alGSRasterizationType::SolidNoCull);
+		m_app->m_gs->SetMesh(m_rotateX);
 		m_app->m_gs->Draw();
+		m_app->m_gs->SetMesh(m_rotateY);
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_y;
+		m_app->m_gs->Draw();
+		m_app->m_gs->SetMesh(m_rotateZ);
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_z;
+		m_app->m_gs->Draw();
+
+		m_app->m_gs->SetShader(m_app->m_shaderLineModel->m_shader);
+		m_app->m_gs->SetPrimitiveType(alGSPrimitiveType::Line);
+		if (m_isDrawAabbX)
+			m_app->DrawAabb(m_XAabbMod, m_color_x, m_var_move);
+		if (m_isDrawAabbY)
+			m_app->DrawAabb(m_YAabbMod, m_color_y, m_var_move);
+		if (m_isDrawAabbZ)
+			m_app->DrawAabb(m_ZAabbMod, m_color_z, m_var_move);
+		if (m_isDrawAabbHeadX)
+			m_app->DrawAabb(m_HeadRotXAabbMod, m_color_x, m_var_move);
+		if (m_isDrawAabbHeadY)
+			m_app->DrawAabb(m_HeadRotYAabbMod, m_color_y, m_var_move);
+		if (m_isDrawAabbHeadZ)
+			m_app->DrawAabb(m_HeadRotZAabbMod, m_color_z, m_var_move);
 	}
 
 	break;
@@ -1158,7 +1198,7 @@ void AppGizmo::Update(AppViewport* vp)
 		alVec2f cur = alVec2f(m_app->m_input->m_cursorCoordsForGUI.x - vp->m_rect.x,
 			m_app->m_input->m_cursorCoordsForGUI.y - vp->m_rect.y);
 		
-		printf("%f %f %f %f\n", _x, _y, cur.x, cur.y);
+		//printf("%f %f %f %f\n", _x, _y, cur.x, cur.y);
 
 		if (alMath::PointInRect(cur.x, cur.y,
 			alVec4f(
@@ -1249,7 +1289,7 @@ void AppGizmo::Update(AppViewport* vp)
 		if (m_HeadScaleXAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
 		{
 			m_app->m_isGizmoMouseHover = true;
-			m_isDrawAabbScaleHeadX = true;
+			m_isDrawAabbHeadX = true;
 		}
 
 		m_HeadScaleYAabbMod.m_min = alMath::Mul(m_HeadScaleYAabb.m_min, m_S);
@@ -1259,7 +1299,7 @@ void AppGizmo::Update(AppViewport* vp)
 		if (m_HeadScaleYAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
 		{
 			m_app->m_isGizmoMouseHover = true;
-			m_isDrawAabbScaleHeadY = true;
+			m_isDrawAabbHeadY = true;
 		}
 
 		m_HeadScaleZAabbMod.m_min = alMath::Mul(m_HeadScaleZAabb.m_min, m_S);
@@ -1269,35 +1309,35 @@ void AppGizmo::Update(AppViewport* vp)
 		if (m_HeadScaleZAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
 		{
 			m_app->m_isGizmoMouseHover = true;
-			m_isDrawAabbScaleHeadZ = true;
+			m_isDrawAabbHeadZ = true;
 		}
 		break;
 	case AppTransformMode::Move:
-		m_HeadXAabbMod.m_min = alMath::Mul(m_HeadXAabb.m_min, m_S);
-		m_HeadXAabbMod.m_max = alMath::Mul(m_HeadXAabb.m_max, m_S);
-		m_HeadXAabbMod.m_max += m_position;
-		m_HeadXAabbMod.m_min += m_position;
-		if (m_HeadXAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
+		m_HeadMoveXAabbMod.m_min = alMath::Mul(m_HeadMoveXAabb.m_min, m_S);
+		m_HeadMoveXAabbMod.m_max = alMath::Mul(m_HeadMoveXAabb.m_max, m_S);
+		m_HeadMoveXAabbMod.m_max += m_position;
+		m_HeadMoveXAabbMod.m_min += m_position;
+		if (m_HeadMoveXAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
 		{
 			m_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbHeadX = true;
 		}
 
-		m_HeadYAabbMod.m_min = alMath::Mul(m_HeadYAabb.m_min, m_S);
-		m_HeadYAabbMod.m_max = alMath::Mul(m_HeadYAabb.m_max, m_S);
-		m_HeadYAabbMod.m_max += m_position;
-		m_HeadYAabbMod.m_min += m_position;
-		if (m_HeadYAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
+		m_HeadMoveYAabbMod.m_min = alMath::Mul(m_HeadMoveYAabb.m_min, m_S);
+		m_HeadMoveYAabbMod.m_max = alMath::Mul(m_HeadMoveYAabb.m_max, m_S);
+		m_HeadMoveYAabbMod.m_max += m_position;
+		m_HeadMoveYAabbMod.m_min += m_position;
+		if (m_HeadMoveYAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
 		{
 			m_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbHeadY = true;
 		}
 
-		m_HeadZAabbMod.m_min = alMath::Mul(m_HeadZAabb.m_min, m_S);
-		m_HeadZAabbMod.m_max = alMath::Mul(m_HeadZAabb.m_max, m_S);
-		m_HeadZAabbMod.m_max += m_position;
-		m_HeadZAabbMod.m_min += m_position;
-		if (m_HeadZAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
+		m_HeadMoveZAabbMod.m_min = alMath::Mul(m_HeadMoveZAabb.m_min, m_S);
+		m_HeadMoveZAabbMod.m_max = alMath::Mul(m_HeadMoveZAabb.m_max, m_S);
+		m_HeadMoveZAabbMod.m_max += m_position;
+		m_HeadMoveZAabbMod.m_min += m_position;
+		if (m_HeadMoveZAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
 		{
 			m_app->m_isGizmoMouseHover = true;
 			m_isDrawAabbHeadZ = true;
@@ -1305,6 +1345,36 @@ void AppGizmo::Update(AppViewport* vp)
 
 		break;
 	case AppTransformMode::Rotate:
+		m_HeadRotXAabbMod.m_min = alMath::Mul(m_HeadRotXAabb.m_min, m_S);
+		m_HeadRotXAabbMod.m_max = alMath::Mul(m_HeadRotXAabb.m_max, m_S);
+		m_HeadRotXAabbMod.m_max += m_position;
+		m_HeadRotXAabbMod.m_min += m_position;
+		if (m_HeadRotXAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
+		{
+			m_app->m_isGizmoMouseHover = true;
+			m_isDrawAabbHeadX = true;
+		}
+
+		m_HeadRotYAabbMod.m_min = alMath::Mul(m_HeadRotYAabb.m_min, m_S);
+		m_HeadRotYAabbMod.m_max = alMath::Mul(m_HeadRotYAabb.m_max, m_S);
+		m_HeadRotYAabbMod.m_max += m_position;
+		m_HeadRotYAabbMod.m_min += m_position;
+		if (m_HeadRotYAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
+		{
+			m_app->m_isGizmoMouseHover = true;
+			m_isDrawAabbHeadY = true;
+		}
+
+		m_HeadRotZAabbMod.m_min = alMath::Mul(m_HeadRotZAabb.m_min, m_S);
+		m_HeadRotZAabbMod.m_max = alMath::Mul(m_HeadRotZAabb.m_max, m_S);
+		m_HeadRotZAabbMod.m_max += m_position;
+		m_HeadRotZAabbMod.m_min += m_position;
+		if (m_HeadRotZAabbMod.RayTest(m_app->m_rayCursor) && goodVP)
+		{
+			m_app->m_isGizmoMouseHover = true;
+			m_isDrawAabbHeadZ = true;
+		}
+
 		break;
 	}
 }
@@ -1399,9 +1469,6 @@ void AppGizmo::OnStartFrame()
 	m_isDrawAabbHeadZ = false;
 	m_isDrawAabbHeadY = false;
 	m_isDrawAabbHeadX = false;
-	m_isDrawAabbScaleHeadZ = false;
-	m_isDrawAabbScaleHeadY = false;
-	m_isDrawAabbScaleHeadX = false;
 	m_isDrawAabbZY = false;
 	m_isDrawAabbXY = false;
 	m_isDrawAabbXZ = false;
@@ -1421,9 +1488,6 @@ void AppGizmo::OnEndFrame()
 	if (m_isDrawAabbHeadZ) return;
 	if (m_isDrawAabbHeadY) return;
 	if (m_isDrawAabbHeadX) return;
-	if (m_isDrawAabbScaleHeadZ) return;
-	if (m_isDrawAabbScaleHeadY) return;
-	if (m_isDrawAabbScaleHeadX) return;
 	if (m_isDrawAabbZY) return;
 	if (m_isDrawAabbXY) return;
 	if (m_isDrawAabbXZ) return;
