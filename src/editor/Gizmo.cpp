@@ -906,11 +906,8 @@ void AppGizmo::Draw(AppViewport* vp)
 		m_app->m_gs->SetPrimitiveType(alGSPrimitiveType::Line);
 		m_app->m_gs->SetMesh(m_X);
 		m_app->m_gs->Draw();
-
-	//	miSetMaterial(&m_commonMaterial);
 		m_app->m_gs->SetMesh(m_Y);
 		m_app->m_gs->Draw();
-
 		m_app->m_gs->SetMesh(m_Z);
 		m_app->m_gs->Draw();
 
@@ -992,14 +989,23 @@ void AppGizmo::Draw(AppViewport* vp)
 		m_app->m_gs->EnableDepth();
 		//m_app->m_gs->UseBlend(true);
 
+		
+		m_app->m_shaderLineModel->m_cbVertexData.WVP = m_WVP;
+		m_app->m_gs->SetShader(m_app->m_shaderLineModel->m_shader);
+		m_app->m_gs->SetPrimitiveType(alGSPrimitiveType::Line);
+		m_app->m_gs->SetMesh(m_X);
+		m_app->m_gs->Draw();
+		m_app->m_gs->SetMesh(m_Y);
+		m_app->m_gs->Draw();
+		m_app->m_gs->SetMesh(m_Z);
+		m_app->m_gs->Draw();
+
 		alMat4 spriteMatrix;
 
 		m_app->m_shaderLineModel->m_cbVertexData.WVP =
 			vp->m_activeCamera->m_projectionMatrix *
 			vp->m_activeCamera->m_viewMatrix *
 			spriteMatrix;
-		m_app->m_gs->SetShader(m_app->m_shaderLineModel->m_shader);
-		m_app->m_gs->SetPrimitiveType(alGSPrimitiveType::Line);
 		/*
 		alMat4 WVP;
 		WVP = vp->m_activeCamera->m_projectionMatrix * vp->m_activeCamera->m_viewMatrix * m_rotateSprite->m_globalMatrix;
@@ -1043,6 +1049,18 @@ void AppGizmo::Draw(AppViewport* vp)
 		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_z;
 		m_app->m_gs->Draw();
 
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_y;
+		m_app->m_gs->SetMesh(m_XZ);
+		m_app->m_gs->Draw();
+
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_z;
+		m_app->m_gs->SetMesh(m_XY);
+		m_app->m_gs->Draw();
+
+		m_app->m_shaderGIZMOTriangle->m_cbPixelData.Color = m_color_x;
+		m_app->m_gs->SetMesh(m_ZY);
+		m_app->m_gs->Draw();
+
 		m_app->m_gs->SetShader(m_app->m_shaderLineModel->m_shader);
 		m_app->m_gs->SetPrimitiveType(alGSPrimitiveType::Line);
 		if (m_isDrawAabbX)
@@ -1057,6 +1075,12 @@ void AppGizmo::Draw(AppViewport* vp)
 			m_app->DrawAabb(m_HeadRotYAabbMod, m_color_y, m_var_move);
 		if (m_isDrawAabbHeadZ)
 			m_app->DrawAabb(m_HeadRotZAabbMod, m_color_z, m_var_move);
+		if (m_isDrawAabbXZ)
+			m_app->DrawAabb(m_XZAabbMod, m_color_y, m_var_move);
+		if (m_isDrawAabbXY)
+			m_app->DrawAabb(m_XYAabbMod, m_color_z, m_var_move);
+		if (m_isDrawAabbZY)
+			m_app->DrawAabb(m_ZYAabbMod, m_color_x, m_var_move);
 	}
 
 	break;
@@ -1131,66 +1155,67 @@ void AppGizmo::Update(AppViewport* vp)
 	default:
 	case AppTransformMode::NoTransform:
 		break;
-	case AppTransformMode::Rotate:
+	//case AppTransformMode::Rotate:
 
 
-		//	if (m_rotateSprite->RayTest(m_app->m_rayCursor, &spriteRayTestLen))
-		//	{
-		//		//printf("Len: %f\n", spriteRayTestLen);
-		//	}
+	//	//	if (m_rotateSprite->RayTest(m_app->m_rayCursor, &spriteRayTestLen))
+	//	//	{
+	//	//		//printf("Len: %f\n", spriteRayTestLen);
+	//	//	}
 
-		m_app->m_rayCursor.PlaneIntersection(m_W.m_data[3], alVec4f(1.f, 0.f, 0.f, 0.f), TX);
-		m_app->m_rayCursor.PlaneIntersection(m_W.m_data[3], alVec4f(0.f, 1.f, 0.f, 0.f), TY);
-		m_app->m_rayCursor.PlaneIntersection(m_W.m_data[3], alVec4f(0.f, 0.f, 1.f, 0.f), TZ);
+	//	m_app->m_rayCursor.PlaneIntersection(m_W.m_data[3], alVec4f(1.f, 0.f, 0.f, 0.f), TX);
+	//	m_app->m_rayCursor.PlaneIntersection(m_W.m_data[3], alVec4f(0.f, 1.f, 0.f, 0.f), TY);
+	//	m_app->m_rayCursor.PlaneIntersection(m_W.m_data[3], alVec4f(0.f, 0.f, 1.f, 0.f), TZ);
 
-		//	{
-		//		alVec4f ipX;
-		//		alVec4f ipY;
-		//		alVec4f ipZ;
-		//		alVec4f ipSprite;
-		//		m_app->m_rayCursor.getIntersectionPoint(TX, ipX);
-		//		m_app->m_rayCursor.getIntersectionPoint(TY, ipY);
-		//		m_app->m_rayCursor.getIntersectionPoint(TZ, ipZ);
-		//		m_app->m_rayCursor.getIntersectionPoint(spriteRayTestLen, ipSprite);
+	//	//	{
+	//	//		alVec4f ipX;
+	//	//		alVec4f ipY;
+	//	//		alVec4f ipZ;
+	//	//		alVec4f ipSprite;
+	//	//		m_app->m_rayCursor.getIntersectionPoint(TX, ipX);
+	//	//		m_app->m_rayCursor.getIntersectionPoint(TY, ipY);
+	//	//		m_app->m_rayCursor.getIntersectionPoint(TZ, ipZ);
+	//	//		m_app->m_rayCursor.getIntersectionPoint(spriteRayTestLen, ipSprite);
 
-		//		float32_t dX = ipX.distance(m_W.m_data[3]);
-		//		float32_t dY = ipY.distance(m_W.m_data[3]);
-		//		float32_t dZ = ipZ.distance(m_W.m_data[3]);
-		//		float32_t dSprite = ipSprite.distance(m_W.m_data[3]);
+	//	//		float32_t dX = ipX.distance(m_W.m_data[3]);
+	//	//		float32_t dY = ipY.distance(m_W.m_data[3]);
+	//	//		float32_t dZ = ipZ.distance(m_W.m_data[3]);
+	//	//		float32_t dSprite = ipSprite.distance(m_W.m_data[3]);
 
-		//		auto gizmo_rot_sz_scaled_min = (m_gizmo_rot_sz - m_gizmo_rot_sz_mn) * m_S.m_data[0].x;
-		//		auto gizmo_rot_sz_scaled_max = (m_gizmo_rot_sz + m_gizmo_rot_sz_mx) * m_S.m_data[0].x;
+	//	//		auto gizmo_rot_sz_scaled_min = (m_gizmo_rot_sz - m_gizmo_rot_sz_mn) * m_S.m_data[0].x;
+	//	//		auto gizmo_rot_sz_scaled_max = (m_gizmo_rot_sz + m_gizmo_rot_sz_mx) * m_S.m_data[0].x;
 
-		//		m_isRotationHoverX = dX >= gizmo_rot_sz_scaled_min && dX <= gizmo_rot_sz_scaled_max ? true : false;
-		//		m_isRotationHoverY = dY >= gizmo_rot_sz_scaled_min && dY <= gizmo_rot_sz_scaled_max ? true : false;
-		//		m_isRotationHoverZ = dZ >= gizmo_rot_sz_scaled_min && dZ <= gizmo_rot_sz_scaled_max ? true : false;
+	//	//		m_isRotationHoverX = dX >= gizmo_rot_sz_scaled_min && dX <= gizmo_rot_sz_scaled_max ? true : false;
+	//	//		m_isRotationHoverY = dY >= gizmo_rot_sz_scaled_min && dY <= gizmo_rot_sz_scaled_max ? true : false;
+	//	//		m_isRotationHoverZ = dZ >= gizmo_rot_sz_scaled_min && dZ <= gizmo_rot_sz_scaled_max ? true : false;
 
-		//		if (m_isRotationHoverX && TX > spriteRayTestLen) m_isRotationHoverX = false;
-		//		if (m_isRotationHoverY && TY > spriteRayTestLen) m_isRotationHoverY = false;
-		//		if (m_isRotationHoverZ && TZ > spriteRayTestLen) m_isRotationHoverZ = false;
+	//	//		if (m_isRotationHoverX && TX > spriteRayTestLen) m_isRotationHoverX = false;
+	//	//		if (m_isRotationHoverY && TY > spriteRayTestLen) m_isRotationHoverY = false;
+	//	//		if (m_isRotationHoverZ && TZ > spriteRayTestLen) m_isRotationHoverZ = false;
 
-		//		if (m_isRotationHoverX && m_isRotationHoverY) m_isRotationHoverY = false;
-		//		if (m_isRotationHoverX && m_isRotationHoverZ) m_isRotationHoverZ = false;
-		//		if (m_isRotationHoverY && m_isRotationHoverZ) m_isRotationHoverY = false;
+	//	//		if (m_isRotationHoverX && m_isRotationHoverY) m_isRotationHoverY = false;
+	//	//		if (m_isRotationHoverX && m_isRotationHoverZ) m_isRotationHoverZ = false;
+	//	//		if (m_isRotationHoverY && m_isRotationHoverZ) m_isRotationHoverY = false;
 
 
 
-		//		auto gizmo_rot_sz_scaled_min_screen = (m_gizmo_rot_sz_screen - m_gizmo_rot_sz_mn) * m_S.m_data[0].x;
-		//		auto gizmo_rot_sz_scaled_max_screen = (m_gizmo_rot_sz_screen + m_gizmo_rot_sz_mx) * m_S.m_data[0].x;
-		//		m_isRotationHoverScreen = dSprite >= gizmo_rot_sz_scaled_min_screen && dSprite <= gizmo_rot_sz_scaled_max_screen ? true : false;
+	//	//		auto gizmo_rot_sz_scaled_min_screen = (m_gizmo_rot_sz_screen - m_gizmo_rot_sz_mn) * m_S.m_data[0].x;
+	//	//		auto gizmo_rot_sz_scaled_max_screen = (m_gizmo_rot_sz_screen + m_gizmo_rot_sz_mx) * m_S.m_data[0].x;
+	//	//		m_isRotationHoverScreen = dSprite >= gizmo_rot_sz_scaled_min_screen && dSprite <= gizmo_rot_sz_scaled_max_screen ? true : false;
 
-		//		if (m_isRotationHoverX && goodVP) m_app->m_isGizmoMouseHover = true;
-		//		if (m_isRotationHoverY && goodVP) m_app->m_isGizmoMouseHover = true;
-		//		if (m_isRotationHoverZ && goodVP) m_app->m_isGizmoMouseHover = true;
-		//		if (m_isRotationHoverScreen && goodVP) m_app->m_isGizmoMouseHover = true;
-		//		//	printf("%f\n", dSprite);
-		//	}
+	//	//		if (m_isRotationHoverX && goodVP) m_app->m_isGizmoMouseHover = true;
+	//	//		if (m_isRotationHoverY && goodVP) m_app->m_isGizmoMouseHover = true;
+	//	//		if (m_isRotationHoverZ && goodVP) m_app->m_isGizmoMouseHover = true;
+	//	//		if (m_isRotationHoverScreen && goodVP) m_app->m_isGizmoMouseHover = true;
+	//	//		//	printf("%f\n", dSprite);
+	//	//	}
 
-		//	//printf("%f %f %f %f\n", spriteRayTestLen, TX, TY, TZ);
+	//	//	//printf("%f %f %f %f\n", spriteRayTestLen, TX, TY, TZ);
 
-		break;
+	//	break;
 	case AppTransformMode::Move:
 	case AppTransformMode::Scale:
+	case AppTransformMode::Rotate:
 	{
 		float32_t _x =  m_2d_point.x;
 		float32_t _y = m_2d_point.y;
